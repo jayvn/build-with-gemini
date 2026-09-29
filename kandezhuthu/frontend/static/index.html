@@ -2314,6 +2314,7 @@ function renderDeedAuditCard(container, data, fileName) {
           <span class="deed-doc-tag">${meta.document_number ? `Doc ${meta.document_number}` : fileName}</span>
           ${meta.year ? `<span style="font-size:0.8rem; color:#64748b;">(${meta.year})</span>` : ""}
           <span class="deed-type-badge">${meta.deed_type || "Kerala Title Deed"}</span>
+          <span class="deed-engine-badge">⚡ ${data.ocr_engine_used || meta.ocr_engine_used || 'Gemini 3.8 Flash Vision'}</span>
           ${meta.sro_name ? `<span style="font-size:0.75rem; color:#475569;">SRO ${meta.sro_name}</span>` : ""}
         </div>
         <div class="deed-score-badge ${scoreClass}">
@@ -2351,6 +2352,18 @@ function renderDeedAuditCard(container, data, fileName) {
         ${paddyHtml}
         ${waHtml}
 
+        <div class="deed-action-buttons">
+          <button class="deed-action-btn" onclick="locatePlotOnSatellite('${meta.village || ''}', '${meta.re_survey_no || meta.survey_no || ''}')" title="Locate this survey plot on the interactive satellite map">
+            <span>🛰️</span> Locate Plot on Map
+          </button>
+          <button class="deed-action-btn" onclick="openOwnershipTimeline('aluva_broken')" title="Trace 30-year chronological chain of prior deeds">
+            <span>📜</span> Audit Munnadharam Chain
+          </button>
+          <button class="deed-action-btn" onclick="askAboutDeed('${meta.document_number || ''}', '${meta.survey_no || ''}')" title="Ask follow-up questions to Kandezhuthu legal assistant">
+            <span>💬</span> Ask Legal Assistant
+          </button>
+        </div>
+
         <div class="dossier-export-banner" style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:0.6rem; flex-wrap:wrap;">
           <div style="font-size:0.78rem; color:#166534; line-height:1.35;">
             <strong>⚖️ Advocate Title Vetting Dossier:</strong><br/>
@@ -2371,6 +2384,28 @@ function renderDeedAuditCard(container, data, fileName) {
 
   container.innerHTML = cardHtml;
   log.scrollTop = log.scrollHeight;
+}
+
+function locatePlotOnSatellite(village, survey) {
+  setViewMode('split');
+  const v = (village || 'Aluva').toLowerCase();
+  if (v.includes('aluva')) {
+    applyLocationPreset('aluva');
+  } else if (v.includes('kakkanad')) {
+    applyLocationPreset('kakkanad');
+  } else {
+    const searchInput = document.getElementById('map-search');
+    if (searchInput) {
+      searchInput.value = `${village || 'Kerala'}, Kerala`;
+      searchLocation();
+    }
+  }
+}
+
+function askAboutDeed(docNo, surveyNo) {
+  const prompt = `Based on deed ${docNo ? 'Doc ' + docNo : ''} (Survey No ${surveyNo || '345/1'}), what are the critical legal risks, pathway easements, and physical checks needed before paying token advance?`;
+  input.value = prompt;
+  input.focus();
 }
 
 /* Open Interactive 30-Year Ownership Timeline */
@@ -3249,6 +3284,67 @@ function searchLocation() {
     });
 }
 
+let currentElevationData = null;
+
+async function fetchElevationAndFlood(lat, lng, localityName, centsVal) {
+  const elevValEl = document.getElementById("hud-elevation-text");
+  const badgeEl = document.getElementById("hud-flood-badge");
+  const basinEl = document.getElementById("hud-basin-text");
+
+  if (elevValEl) elevValEl.textContent = "Calculating...";
+  if (badgeEl) {
+    badgeEl.className = "badge-road warn";
+    badgeEl.textContent = "⏳ Assessing Flood...";
+  }
+
+  try {
+    const res = await fetch("/api/plot_elevation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lat: lat,
+        lng: lng,
+        locality: localityName || undefined,
+        cents: centsVal || undefined
+      })
+    });
+    if (!res.ok) throw new Error("Elevation request failed");
+    const data = await res.json();
+    currentElevationData = data;
+    window.currentElevationData = data;
+
+    if (elevValEl) {
+      elevValEl.textContent = `${data.elevation_meters}m MSL`;
+    }
+    if (basinEl) {
+      basinEl.textContent = `${data.river_basin || 'Local Watershed'} • Plinth: ≥${data.recommended_plinth_height_m}m`;
+    }
+    if (badgeEl) {
+      if (data.flood_risk_level === "LOW") {
+        badgeEl.className = "badge-road pass";
+        badgeEl.textContent = "🟢 Low Flood Risk";
+      } else if (data.flood_risk_level === "MODERATE") {
+        badgeEl.className = "badge-road warn";
+        badgeEl.textContent = "🟡 Moderate Flood Risk";
+      } else if (data.flood_risk_level === "HIGH") {
+        badgeEl.className = "badge-road fail";
+        badgeEl.textContent = "🔴 High Flood Risk";
+      } else {
+        badgeEl.className = "badge-road fail";
+        badgeEl.textContent = "🚨 Critical Sub-MSL Trap";
+      }
+      badgeEl.title = data.ksdma_hazard_advisory;
+    }
+  } catch (err) {
+    console.warn("Failed to fetch plot elevation:", err);
+    if (elevValEl) elevValEl.textContent = "Elevation N/A";
+    if (badgeEl) {
+      badgeEl.className = "badge-road warn";
+      badgeEl.textContent = "⚠️ Check On Ground";
+    }
+  }
+}
+
 function updateHUDLocation(lat, lng, localityName, centsVal, roadVal) {
   document.getElementById("hud-coords").textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   
@@ -3282,6 +3378,8 @@ function updateHUDLocation(lat, lng, localityName, centsVal, roadVal) {
 
   const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
   document.getElementById("btn-open-gmaps").setAttribute("href", gmapsLink);
+
+  fetchElevationAndFlood(lat, lng, localityName, centsVal);
 }
 
 function toggleHUD() {
@@ -3303,14 +3401,15 @@ function toggleChecklist(forceState) {
 
 function updateChecklistProgress() {
   const checks = [
-    document.getElementById("chk-kallu").checked,
-    document.getElementById("chk-road").checked,
-    document.getElementById("chk-wetland").checked,
-    document.getElementById("chk-ht").checked
+    document.getElementById("chk-kallu")?.checked,
+    document.getElementById("chk-road")?.checked,
+    document.getElementById("chk-wetland")?.checked,
+    document.getElementById("chk-ht")?.checked,
+    document.getElementById("chk-flood")?.checked
   ];
   const count = checks.filter(Boolean).length;
-  document.getElementById("chk-badge").textContent = `${count}/4`;
-  if (count === 4) {
+  document.getElementById("chk-badge").textContent = `${count}/5`;
+  if (count === 5) {
     document.getElementById("chk-badge").style.background = "#15803d";
   } else {
     document.getElementById("chk-badge").style.background = "#0f5132";
@@ -3351,11 +3450,24 @@ function sendPlotToAuditor() {
   const roadM = document.getElementById("hud-road-text").textContent;
   const roadBadge = document.getElementById("hud-road-badge").textContent;
 
+  let elevInfo = "";
+  if (window.currentElevationData) {
+    const elev = window.currentElevationData;
+    elevInfo = `Plot Elevation: ${elev.elevation_meters}m MSL (Flood Risk: ${elev.flood_risk_level}, Basin: ${elev.river_basin || 'Local Watershed'}, Recommended Plinth: ≥${elev.recommended_plinth_height_m}m). `;
+  } else {
+    const elevText = document.getElementById("hud-elevation-text")?.textContent;
+    const floodBadge = document.getElementById("hud-flood-badge")?.textContent;
+    if (elevText) {
+      elevInfo = `Plot Elevation: ${elevText} (${floodBadge}). `;
+    }
+  }
+
   const promptText = `I am inspecting a property plot in ${locality} (Coordinates: ${coords}). ` +
     `Estimated extent from satellite plot: ${cents}. ` +
     `Access road width measured: ${roadM} (${roadBadge}). ` +
+    elevInfo +
     `Please audit this against Kerala Panchayat Building Rules (KPBR 2019) road width requirements, setbacks, ` +
-    `and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
+    `flood vulnerability (KSDMA & 2018 flood zone), and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
 
   if (currentViewMode === "map") {
     setViewMode("split");

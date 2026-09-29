@@ -400,6 +400,20 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
             "risk_color": "danger",
             "chain_intact": False,
             "summary": "Critical Paddy Land / Wetland trap (Data Bank listed) and unauthorized sale of minor child's share without District Court sanction order.",
+            "financial_transparency": {
+                "is_public_record": True,
+                "legal_basis": "Registration Act, 1908 (Sections 51 & 57) - SRO Book 1 Public Record",
+                "kerala_stamp_act_rule": "Kerala Stamp Act, 1959 (Section 28A Fair Value & Section 45A Undervaluation Audit)",
+                "last_purchase_price": "₹36,00,000",
+                "last_purchase_year": 2015,
+                "last_buyer": "Unnikrishnan (Current Seller)",
+                "historical_rate_per_cent": "₹2,40,000 / Cent (2015)",
+                "current_govt_fair_value": "₹3,10,000 / Are (~₹1,25,450 / Cent)",
+                "active_bank_lien_inr": "Nil (No bank mortgage in EC)",
+                "statutory_fee_liability": "Pending Kerala Paddy Land Act Sec 27A conversion fee (~10% of Fair Value = ₹4,65,000)",
+                "market_price_context": "Seller acquired 15 Cents in 2015 for ₹36 Lakhs. However, ₹12 Lakhs was minor Kevin's share pocketed without court sanction. In addition, converting this wetland will cost ₹4.65+ Lakhs in govt revenue fees.",
+                "undervaluation_warning": "Minor's 1/3 share (₹12 Lakhs) was alienated without depositing in District Court minor fixed deposit account."
+            },
             "nodes": [
                 {
                     "year": 1991,
@@ -413,6 +427,12 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Valid Acquisition (Nilam)",
                     "badge_color": "success",
+                    "consideration_display": "₹1,20,000 (പ്രതിഫല തുക)",
+                    "price_per_cent": "₹8,000 / Cent",
+                    "financial_type": "Registered Sale Consideration",
+                    "govt_fair_value": "₹6,000 / Cent (Declared Base)",
+                    "stamp_duty_paid": "₹10,800 (Kerala Stamp Duty 9%)",
+                    "financial_note": "Acquisition of 15 Cents agricultural paddy land for public consideration of ₹1.20 Lakhs.",
                     "flags": [],
                     "notes": "Acquisition of 15 Cents classified in revenue records as Nilam (നിലം / Nanja)."
                 },
@@ -428,6 +448,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Partition with Minor Share",
                     "badge_color": "warning",
+                    "consideration_display": "₹4,50,000 (Family Partition Declared Value)",
+                    "financial_type": "Family Partition Share Valuation",
+                    "govt_fair_value": "₹30,000 / Cent",
+                    "stamp_duty_paid": "₹4,500 (Kerala Stamp Act Art 42)",
+                    "financial_note": "Internal family partition allotting 50% undivided co-ownership share (₹2.25 Lakhs value) to minor Kevin.",
                     "flags": [
                         {
                             "title": "Minor's Undivided Share Created",
@@ -449,6 +474,13 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "broken",
                     "status_label": "Voidable Minor Alienation",
                     "badge_color": "danger",
+                    "consideration_display": "₹36,00,000 (Registered Consideration)",
+                    "price_per_cent": "₹2,40,000 / Cent",
+                    "financial_type": "Registered Sale Consideration (Public SRO Book 1)",
+                    "govt_fair_value": "₹1,80,000 / Are (~₹72,840 / Cent)",
+                    "stamp_duty_paid": "₹2,88,000 (8% Stamp Duty)",
+                    "registration_fee_paid": "₹72,000 (2% Reg Fee)",
+                    "financial_note": "Father sold entire 15 Cents including minor Kevin's share (₹18.0 Lakhs consideration) without District Court sanction order.",
                     "flags": [
                         {
                             "title": "Minor Share Sold Without District Court Order",
@@ -470,6 +502,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "broken",
                     "status_label": "Wetland 2008 Fatal Trap",
                     "badge_color": "danger",
+                    "consideration_display": "₹4,65,000 (Govt Conversion Fee Liability)",
+                    "financial_type": "Statutory Revenue Liability (Sec 27A / Form 6)",
+                    "govt_fair_value": "₹3,10,000 / Are (~₹1,25,450 / Cent)",
+                    "stamp_duty_paid": "Pending Revenue Fee Payment",
+                    "financial_note": "Property is in Data Bank. Statutory penalty and conversion fee liability of ~₹4.65 Lakhs (10% of Fair Value under Section 27A) is unpaid.",
                     "flags": [
                         {
                             "title": "Property in Wetland Data Bank (No Building Permit)",
@@ -495,6 +532,19 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
             "risk_color": "clear",
             "chain_intact": True,
             "summary": "Flawless 39-year title continuity: 100% unbroken chain from 1985 Pattayam to current owner, consistent 10.0 Cents extent, all heirs represented, and clean EC.",
+            "financial_transparency": {
+                "is_public_record": True,
+                "legal_basis": "Registration Act, 1908 (Sections 51 & 57) - SRO Book 1 Public Record",
+                "kerala_stamp_act_rule": "Kerala Stamp Act, 1959 (Section 28A Fair Value & Section 45A Undervaluation Audit)",
+                "last_purchase_price": "₹38,00,000",
+                "last_purchase_year": 2018,
+                "last_buyer": "Rajesh Kumar (Current Seller)",
+                "historical_rate_per_cent": "₹3,80,000 / Cent (2018)",
+                "current_govt_fair_value": "₹3,20,000 / Are (~₹1,29,500 / Cent)",
+                "active_bank_lien_inr": "Nil (Zero Mortgage - 39-Year Nil EC)",
+                "market_price_context": "Rajesh Kumar acquired this property in 2018 for registered consideration of ₹38 Lakhs. Stamp Duty (₹3.04L) and Reg fee (₹76K) were fully paid at fair market value.",
+                "undervaluation_warning": "None. Declared consideration accurately exceeded notified Fair Value with zero tax irregularity."
+            },
             "nodes": [
                 {
                     "year": 1985,
@@ -508,6 +558,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Valid Govt Assignment",
                     "badge_color": "success",
+                    "consideration_display": "₹200 (Govt Revenue Fee)",
+                    "financial_type": "Official Govt Assignment Fee",
+                    "govt_fair_value": "N/A",
+                    "stamp_duty_paid": "Exempt Revenue Grant",
+                    "financial_note": "Original land grant under Kerala Land Assignment Rules for nominal fee of ₹200.",
                     "flags": [],
                     "notes": "Original Pattayam issued with registered survey bounds."
                 },
@@ -523,6 +578,12 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Clean Registered Sale",
                     "badge_color": "success",
+                    "consideration_display": "₹4,50,000 (Registered Consideration)",
+                    "price_per_cent": "₹45,000 / Cent",
+                    "financial_type": "Registered Sale Consideration",
+                    "govt_fair_value": "₹35,000 / Cent",
+                    "stamp_duty_paid": "₹45,000 (Kerala Stamp Act 10%)",
+                    "financial_note": "Absolute sale of 10 Cents for registered consideration of ₹4.50 Lakhs.",
                     "flags": [],
                     "notes": "Absolute transfer with original title delivered and prior tax receipts cleared."
                 },
@@ -538,6 +599,13 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Clean Registered Sale",
                     "badge_color": "success",
+                    "consideration_display": "₹38,00,000 (Registered Consideration)",
+                    "price_per_cent": "₹3,80,000 / Cent",
+                    "financial_type": "Registered Sale Consideration (Public SRO Book 1)",
+                    "govt_fair_value": "₹3,20,000 / Are (~₹1,29,500 / Cent)",
+                    "stamp_duty_paid": "₹3,04,000 (8% Stamp Duty)",
+                    "registration_fee_paid": "₹76,000 (2% Reg Fee)",
+                    "financial_note": "Seller Rajesh Kumar purchased this plot in 2018 for ₹38,00,000 (₹3.80 Lakhs/Cent), paying full statutory stamp duty and registration fees.",
                     "flags": [],
                     "notes": "Validly conveyed. Land tax paid up to current financial year under Thandaper No. 4120."
                 },
@@ -553,6 +621,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Nil Encumbrance Verified",
                     "badge_color": "success",
+                    "consideration_display": "₹0 Liability (Nil EC)",
+                    "financial_type": "Certified Zero Mortgage Liability",
+                    "govt_fair_value": "₹3,20,000 / Are",
+                    "stamp_duty_paid": "EC Search Fee ₹150",
+                    "financial_note": "Official SRO verification confirms zero mortgage, zero court attachment, and zero bank lien.",
                     "flags": [],
                     "notes": "Clean 39-year Encumbrance Certificate with zero attachments, mortgages, or lis pendens."
                 }

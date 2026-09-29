@@ -671,10 +671,21 @@
     padding: 1px 5px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
     white-space: nowrap !important;
-  }
   .fmb-segment-label:before { border-top-color: rgba(15, 23, 42, 0.85) !important; }
 
-  /* Floating HUD / Info Card over Map */
+  /* Draggable Survey Kallu (Corner Stone) Marker */
+  .custom-kallu-marker {
+    background: transparent;
+    border: none;
+  }
+  .custom-kallu-marker div {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .custom-kallu-marker div:hover {
+    transform: scale(1.35);
+    box-shadow: 0 0 8px #22c55e !important;
+  }
+
   .map-hud {
     position: absolute;
     bottom: 12px;
@@ -1500,10 +1511,13 @@
 
       <div class="hud-actions">
         <button class="hud-btn hud-btn-primary" onclick="sendPlotToAuditor()">
-          📋 Send Plot to Auditor AI
+          📋 Send to Auditor
+        </button>
+        <button class="hud-btn hud-btn-secondary" onclick="exportPlotDossier()" title="Export Advocate Legal Dossier PDF with satellite plot geometry and KPBR compliance">
+          📑 Export Dossier (PDF)
         </button>
         <a id="btn-open-gmaps" class="hud-btn hud-btn-secondary" target="_blank" href="https://www.google.com/maps/search/?api=1&query=10.1076,76.3516">
-          🌍 Open in Maps
+          🌍 Maps
         </a>
       </div>
     </div>
@@ -1512,7 +1526,7 @@
     <div class="checklist-panel" id="checklist-panel">
       <div class="checklist-header">
         <span>🚩 On-Site Field Check Essentials</span>
-        <button onclick="toggleChecklist(false)" style="border:none; background:transparent; font-size:0.9rem; cursor:pointer; color:#64748b;">✕</button>
+        <button class="checklist-close-btn" onclick="toggleChecklist(false)" style="border:none; background:transparent; font-size:0.9rem; cursor:pointer; color:#64748b;">✕</button>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-kallu" onchange="updateChecklistProgress()">
@@ -1756,6 +1770,7 @@ async function runSampleDeedOCR() {
 
 /* Render Extracted Deed Card */
 function renderDeedAuditCard(container, data, fileName) {
+  window._lastUploadedDeedData = data;
   const meta = data.metadata || {};
   const sanity = data.sanity_result || {};
   const score = sanity.sanity_score ?? 100;
@@ -1911,6 +1926,17 @@ function renderDeedAuditCard(container, data, fileName) {
         ${buildingHtml}
         ${paddyHtml}
         ${waHtml}
+
+        <div class="dossier-export-banner" style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:0.6rem; flex-wrap:wrap;">
+          <div style="font-size:0.78rem; color:#166534; line-height:1.35;">
+            <strong>⚖️ Advocate Title Vetting Dossier:</strong><br/>
+            Export publication-grade PDF brief with boundary schedule, 5-point SRO checklist, and statutory disclaimers.
+          </div>
+          <button class="dossier-download-btn" onclick="exportCurrentDeedDossier()" style="background:#0f5132; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 1px 3px rgba(0,0,0,0.12); white-space:nowrap;">
+            <span>📑</span>
+            <span>Export Advocate Dossier (PDF)</span>
+          </button>
+        </div>
 
         <div style="font-size:0.72rem; color:#64748b; margin-top:0.6rem; border-top:1px dashed #e2e8f0; padding-top:0.5rem;">
           🔍 <em>Ask follow-up questions about this property below (e.g. "Can I construct a house on this plot?", "Is the pathway legally binding on future buyers?").</em>
@@ -2153,6 +2179,92 @@ async function exportDossierPDF(preset = 'aluva_broken') {
     const a = document.createElement('a');
     a.href = url;
     a.download = `kandezhuthu_legal_audit_${preset}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Could not generate PDF dossier: " + err.message);
+  }
+}
+
+async function exportCurrentDeedDossier() {
+  if (!window._lastUploadedDeedData) {
+    alert("No uploaded deed data available. Please upload or scan a deed first.");
+    return;
+  }
+  try {
+    const pdfRes = await fetch('/api/export_dossier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(window._lastUploadedDeedData)
+    });
+    if (!pdfRes.ok) throw new Error("Failed to generate PDF dossier");
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const docNo = (window._lastUploadedDeedData.metadata?.document_number || "deed").replace(/[\/\s]/g, "_");
+    a.download = `kandezhuthu_deed_dossier_${docNo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Could not generate PDF dossier: " + err.message);
+  }
+}
+
+async function exportPlotDossier() {
+  const coords = document.getElementById("hud-coords").textContent;
+  const locality = document.getElementById("hud-locality-title").textContent.replace("📍 ", "");
+  const centsText = document.getElementById("hud-cents").textContent;
+  const centsVal = parseFloat(centsText) || 10.0;
+  const roadMText = document.getElementById("hud-road-text").textContent;
+  const roadMVal = parseFloat(roadMText) || 3.0;
+
+  const plotPayload = {
+    property_identifier: `${locality} (GPS: ${coords})`,
+    document_number: "Satellite Ground Inspection Plot",
+    sro: "Jurisdictional SRO",
+    extent_cents: centsVal,
+    classification: "Purayidam (Ground Check Required)",
+    sanity_score: roadMVal >= 3.0 ? 85 : 45,
+    risk_verdict: roadMVal >= 3.0 ? "PASS WITH CONDITIONS" : "DEFECTIVE ACCESS ROAD",
+    findings: [
+      {
+        title: roadMVal >= 3.0 ? "KPBR 2019 Access Road Pass" : "Defective Access Road (< 3m)",
+        severity: roadMVal >= 3.0 ? "LOW" : "CRITICAL",
+        kerala_statute: "Kerala Panchayat Building Rules, 2019 (Rule 26 / Table 5)",
+        explanation: `Satellite access road measured: ${roadMVal} meters. Under KPBR 2019, residential plots requiring building permits require minimum 3.0m motorable access.`
+      }
+    ],
+    boundaries: [
+      { direction: "Satellite Polygon", boundary_description: `${polygonPoints.length || 4} marked survey corner stones encompassing ${centsVal} Cents.` }
+    ],
+    building_rules: {
+      rule_citation: "KPBR 2019 Rule 26 (Table 5)",
+      min_road_width_m: 3.0,
+      front_setback_m: 3.0,
+      rear_setback_m: 1.5,
+      side_setback_1_m: 1.0,
+      side_setback_2_m: 1.2
+    },
+    whatsapp_inquiry: `നമസ്കാരം, ${locality}-ൽ ഞാൻ കണ്ട വസ്തുവിന്റെ സാറ്റലൈറ്റ് പരിശോധനയിൽ ഏകദേശം ${centsVal} സെന്റ് സ്ഥലവും ${roadMVal} മീറ്റർ വഴി വീതിയും കാണുന്നുണ്ട്. ഈ വസ്തുവിലേക്കുള്ള വഴി പഞ്ചായത്ത് വഴിയാണോ അതോ സ്വകാര്യ വഴിയവകാശമാണോ എന്ന് വ്യക്തമാക്കാമോ?`
+  };
+
+  try {
+    const pdfRes = await fetch('/api/export_dossier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(plotPayload)
+    });
+    if (!pdfRes.ok) throw new Error("Failed to generate PDF dossier");
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kandezhuthu_plot_dossier_${locality.replace(/[\/,\s]/g, "_")}.pdf`;
     document.body.appendChild(a);
     a.click();
     a.remove();

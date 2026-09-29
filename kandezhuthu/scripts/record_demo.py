@@ -112,20 +112,21 @@ def show_chapter_banner(page, title: str, subtitle: str, step: int | None = None
       }
       banner.style.cssText = `
         position: fixed;
-        bottom: 24px;
-        left: 50%;
-        transform: translateX(-50%);
+        top: 155px;
+        right: 24px;
+        left: auto;
+        transform: none;
         z-index: 999999;
         background: rgba(15, 23, 42, 0.92);
         color: #ffffff;
-        padding: 8px 20px;
-        border-radius: 24px;
+        padding: 8px 18px;
+        border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.15);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
         backdrop-filter: blur(10px);
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         pointer-events: none;
         transition: opacity 0.35s ease, transform 0.35s ease;

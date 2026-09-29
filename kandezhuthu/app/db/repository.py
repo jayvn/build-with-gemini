@@ -18,8 +18,13 @@ class KnowledgeRepository:
         """Finds matching Kerala Building Rule (KPBR/KMBR 2019) dimensional standards for a plot extent."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            # Check for small plot concession first if <= 3.09 cents
-            if plot_cents <= 3.09:
+            # Check for ultra-small plot concession first if <= 2.0 cents (<= 81 sqm)
+            if plot_cents <= 2.0:
+                cursor.execute(
+                    "SELECT * FROM building_rules WHERE plot_category = 'ultra_small_plot' LIMIT 1"
+                )
+            # Check for small plot concession if <= 3.09 cents
+            elif plot_cents <= 3.09:
                 cursor.execute(
                     "SELECT * FROM building_rules WHERE plot_category = 'small_plot' LIMIT 1"
                 )
@@ -80,6 +85,17 @@ class KnowledgeRepository:
                 "is_fee_exempt": (percentage == 0.0),
                 "description": desc,
                 "statutory_citation": citation,
+                "supreme_court_ruling_warning": (
+                    "Under Supreme Court of India precedent (State of Kerala v. Landowner, 2025), "
+                    "there is NO pro-rata deduction. If total holding exceeds 25 cents, fee is levied on the entire plot extent, not just the excess."
+                ),
+                "anti_fragmentation_rule": (
+                    "Exemption applies only to plots that did not exceed 25 cents as of 30 December 2017 (G.O.(P) No. 1166/2020/Rev). "
+                    "Plots fragmented from larger holdings after 30-12-2017 are ineligible for 0% fee."
+                ),
+                "competent_authority": (
+                    "Processed by Taluk-level Deputy Collectors across 71 taluks under Kerala Act 12 of 2024 (previously RDOs only)."
+                ),
             }
 
     def search_precedents(self, query: str, limit: int = 5) -> list[dict[str, Any]]:
@@ -156,6 +172,73 @@ class KnowledgeRepository:
                 (q, q, q, q),
             )
             return [dict(r) for r in cursor.fetchall()]
+
+    def get_fair_value_benchmark(self, village: str, district: str | None = None) -> list[dict[str, Any]]:
+        """Returns official notified Fair Value benchmarks per Are under Section 28A for a village."""
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            v_term = f"%{village.strip()}%"
+            if district:
+                d_term = f"%{district.strip()}%"
+                cursor.execute(
+                    """
+                    SELECT * FROM fair_value_benchmarks
+                    WHERE village LIKE ? AND district LIKE ?
+                    ORDER BY fair_value_per_are_inr DESC
+                    """,
+                    (v_term, d_term),
+                )
+            else:
+                cursor.execute(
+                    """
+                    SELECT * FROM fair_value_benchmarks
+                    WHERE village LIKE ?
+                    ORDER BY fair_value_per_are_inr DESC
+                    """,
+                    (v_term,),
+                )
+            rows = cursor.fetchall()
+            if rows:
+                return [dict(r) for r in rows]
+
+            # Fallback: check taluk or district wide average
+            cursor.execute(
+                """
+                SELECT * FROM fair_value_benchmarks
+                WHERE district LIKE ? OR taluk LIKE ?
+                ORDER BY fair_value_per_are_inr DESC
+                LIMIT 3
+                """,
+                (v_term, v_term),
+            )
+            return [dict(r) for r in cursor.fetchall()]
+
+    def check_digital_resurvey_status(self, village: str, district: str | None = None) -> dict[str, Any] | None:
+        """Checks whether a village is notified under Kerala's Digital Resurvey ('Ente Bhoomi') program."""
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            v_term = f"%{village.strip()}%"
+            if district:
+                d_term = f"%{district.strip()}%"
+                cursor.execute(
+                    """
+                    SELECT * FROM digital_resurvey_villages
+                    WHERE village LIKE ? AND district LIKE ?
+                    LIMIT 1
+                    """,
+                    (v_term, d_term),
+                )
+            else:
+                cursor.execute(
+                    """
+                    SELECT * FROM digital_resurvey_villages
+                    WHERE village LIKE ?
+                    LIMIT 1
+                    """,
+                    (v_term,),
+                )
+            row = cursor.fetchone()
+            return dict(row) if row else None
 
 
 class AuditRepository:

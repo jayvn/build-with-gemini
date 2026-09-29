@@ -58,6 +58,22 @@ def seed_building_rules(conn):
             "Plots <= 3.09 cents (125 sq m). Concession pathway down to 1.2m allowed. Dead wall with 0 setback allowed with neighbor NOC.",
         ),
         (
+            "Group A1: Ultra-Small Plot Concession",
+            "ultra_small_plot",
+            0.0,
+            2.0,
+            100.0,
+            1.2,
+            1.0,
+            1.0,
+            0.9,
+            0.6,
+            7.5,
+            1,
+            "KPBR/KMBR Amendments (2023-2025)",
+            "Plots <= 81 sq m (approx 2 cents) with built-up area <= 100 sq m abutting road <= 3m: front setback relaxed down to 1.0m.",
+        ),
+        (
             "Group A1: Multiple Family / Apartments",
             "commercial_residential",
             10.0,
@@ -182,10 +198,21 @@ def seed_legal_precedents(conn):
             "Supreme Court of India",
             1986,
             "christian_succession",
-            "Declared Travancore/Cochin Christian Succession Acts void retrospective to 1951. Christian daughters have equal intestate succession rights as sons under the Indian Succession Act, 1925.",
+            "Declared Travancore/Cochin Christian Succession Acts void retrospective to 1951. Christian daughters have equal intestate succession rights as sons under the Indian Succession Act, 1925. Note: Partition challenges are strictly subject to 12-year limitation under Article 65 of Limitation Act from date of open ouster.",
             "Deeds post-1951 where property of an intestate Christian father was partitioned or sold without female siblings joining as executing parties.",
-            "Obtain registered Ozhivumuri (Release Deed) or Supplementary Partition Deed with female heirs as co-executants before token advance.",
-            "Indian Succession Act, 1925, Section 37; Article 14 Constitution of India",
+            "Obtain registered Ozhivumuri (Release Deed) or Supplementary Partition Deed with female heirs as co-executants before token advance, unless clearly barred by long-standing ouster exceeding 12 years.",
+            "Indian Succession Act, 1925, Section 37; Limitation Act 1963, Article 65; Article 14 Constitution of India",
+        ),
+        (
+            "Sudesh Chhikara v. Ramti Devi",
+            "2022 SCC OnLine SC 1684",
+            "Supreme Court of India",
+            2022,
+            "senior_citizen_maintenance",
+            "Under Section 23(1) of the Senior Citizens Act 2007, a transfer can be declared void ONLY IF the deed contains an EXPLICIT condition that the transferee shall provide basic amenities and physical needs. Merely reciting 'love and affection' is a motive, not a condition. Without an express condition, Maintenance Tribunal has no jurisdiction to revoke the deed.",
+            "Threat of cancellation under Section 23 by elderly parents where gift/settlement deed lacks an explicit maintenance condition.",
+            "Inspect registered deed text: if no explicit clause mandating physical maintenance exists, subsequent purchaser is legally protected against Section 23 cancellation under Sudesh Chhikara.",
+            "Maintenance and Welfare of Parents and Senior Citizens Act, 2007, Section 23(1)",
         ),
         (
             "Subhashini v. District Collector, Kozhikode",
@@ -193,10 +220,21 @@ def seed_legal_precedents(conn):
             "Kerala High Court Full Bench",
             2020,
             "senior_citizen_maintenance",
-            "Section 23 of Senior Citizens Act 2007 requires an explicit or clearly implied condition that the transferee shall maintain the senior citizen. If breach occurs, RDO Tribunal can declare the transfer void.",
+            "Section 23 of Senior Citizens Act 2007 requires an explicit or clearly ascertainable condition that the transferee shall maintain the senior citizen. If breach occurs and condition exists, RDO Tribunal can declare the transfer void.",
             "Title deeds where property was acquired via Gift Deed (Dhanam) or Settlement from elderly parents.",
             "Inspect parent gift deed for maintenance recitals. Require senior citizen parent to be a concurring witness or sign an affidavit of satisfaction.",
             "Maintenance and Welfare of Parents and Senior Citizens Act, 2007, Section 23",
+        ),
+        (
+            "State of Kerala v. Landowner (Paddy Fee Exemption)",
+            "2025 Supreme Court",
+            "Supreme Court of India",
+            2025,
+            "paddy_land_conversion",
+            "The 25-cent fee exemption under Section 27A applies strictly only if the total landholding is 25 cents or less. There is NO pro-rata deduction: if a parcel exceeds 25 cents, conversion fee must be paid on the ENTIRE extent. Anti-fragmentation rule: parcels fragmented from larger units after 30 Dec 2017 are ineligible for 0% fee.",
+            "Plots claiming 25-cent free exemption where total holding exceeds 25 cents, or land was subdivided after 30 Dec 2017.",
+            "Calculate statutory conversion fee across entire plot extent if > 25 cents. Verify parent title for holding size as of 30 Dec 2017.",
+            "Kerala Conservation of Paddy Land and Wetland Act, 2008, Section 27A; G.O.(P) No. 1166/2020/Rev",
         ),
         (
             "Sree Swayamprakash Ashramam v. G. Anandavally Amma",
@@ -482,6 +520,75 @@ def seed_demo_audit(conn):
     )
 
 
+def seed_fair_value_benchmarks(conn):
+    """Seeds Kerala notified benchmark Fair Values per Are under Section 28A."""
+    try:
+        from scrapers.scrape_fair_value import KeralaFairValueScraper
+    except ImportError:
+        return
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM fair_value_benchmarks")
+    if cursor.fetchone()[0] > 0:
+        return
+
+    benchmarks = KeralaFairValueScraper.get_benchmarks()
+    rows = [
+        (
+            b["district"],
+            b["taluk"],
+            b["village"],
+            b["local_body_type"],
+            b["land_type"],
+            b["fair_value_per_are_inr"],
+            b["effective_year"],
+            b["gazette_notification"],
+        )
+        for b in benchmarks
+    ]
+    cursor.executemany(
+        """
+        INSERT INTO fair_value_benchmarks (
+            district, taluk, village, local_body_type, land_type,
+            fair_value_per_are_inr, effective_year, gazette_notification
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        rows,
+    )
+
+
+def seed_digital_resurvey_villages(conn):
+    """Seeds Kerala Digital Resurvey (Ente Bhoomi) village rollout statuses."""
+    from scrapers.scrape_digital_resurvey import DigitalResurveyTracker
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM digital_resurvey_villages")
+    if cursor.fetchone()[0] > 0:
+        return
+
+    records = DigitalResurveyTracker.get_resurvey_data()
+    rows = [
+        (
+            r["district"],
+            r["taluk"],
+            r["village"],
+            r["phase"],
+            r["status"],
+            r["portal_url"],
+            r["advisory"],
+        )
+        for r in records
+    ]
+    cursor.executemany(
+        """
+        INSERT INTO digital_resurvey_villages (
+            district, taluk, village, phase, status, portal_url, advisory
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        rows,
+    )
+
+
 def seed_all():
     """Initializes schema and seeds all master and knowledge data."""
     init_db()
@@ -491,9 +598,12 @@ def seed_all():
         seed_legal_precedents(conn)
         seed_knowledge_corpus_fts(conn)
         seed_administrative_divisions(conn)
+        seed_fair_value_benchmarks(conn)
+        seed_digital_resurvey_villages(conn)
         seed_demo_audit(conn)
     print("✅ Successfully seeded all Kandezhuthu database tables!")
 
 
 if __name__ == "__main__":
     seed_all()
+

@@ -5,7 +5,10 @@ Supports both:
 2. Cloud Deployed Mode: When AGENT_ENGINE_RESOURCE_NAME is set, proxies to Agent Engine via A2A protocol.
 """
 
+import copy
+import json
 import os
+import re
 import sys
 import time
 import uuid
@@ -27,6 +30,7 @@ from app.domain.deed_ocr import DeedOCREngine  # noqa: E402
 from app.domain.elevation_flood import ElevationFloodCalculator  # noqa: E402
 from app.domain.ec_parser import EncumbranceCertificateAuditor  # noqa: E402
 from app.domain.cadastral_databank import BhuNakshaCadastralService, KeralaDataBankService  # noqa: E402
+from app.domain.data_api import DataAPI  # noqa: E402
 
 seed_all()
 
@@ -118,11 +122,21 @@ async def _json_errors(request: Request, exc: Exception):
     )
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "app": "kandezhuthu", "mode": "local" if LOCAL_MODE else "cloud"}
+
+
 @app.get("/api/config")
 async def get_config():
     return {
         "google_maps_api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "") or os.environ.get("VITE_GOOGLE_MAPS_API_KEY", "")
     }
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
 
 
 @app.get("/api/plot_elevation")
@@ -133,6 +147,7 @@ async def get_plot_elevation(req: Request):
     lng = None
     locality = None
     cents = None
+    lang = req.query_params.get("lang") or "en"
 
     if req.method == "POST":
         try:
@@ -144,6 +159,8 @@ async def get_plot_elevation(req: Request):
                 lng = float(lng_val)
             locality = body.get("locality") or body.get("place_name")
             cents = float(body.get("cents")) if body.get("cents") else None
+            if "lang" in body:
+                lang = body["lang"]
         except Exception:
             pass
 
@@ -163,7 +180,10 @@ async def get_plot_elevation(req: Request):
 
     calculator = ElevationFloodCalculator()
     res = calculator.calculate(latitude=lat, longitude=lng, locality_hint=locality, plot_extent_cents=cents)
-    return JSONResponse(res.model_dump())
+    out_dict = res.model_dump()
+    if lang == "en" and out_dict.get("whatsapp_inquiry_for_seller_en"):
+        out_dict["whatsapp_inquiry_for_seller"] = out_dict["whatsapp_inquiry_for_seller_en"]
+    return JSONResponse(out_dict)
 
 
 @app.get("/api/ocr_capabilities")
@@ -194,7 +214,11 @@ async def get_ocr_capabilities():
 
 
 @app.post("/api/upload_deed")
-async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-user"):  # noqa: B008
+async def upload_deed(
+    file: UploadFile = File(...),
+    user_id: str = "kandezhuthu-user",
+    lang: str = "en",
+):  # noqa: B008
     """Accepts scanned deed (PDF/PNG/JPEG/WEBP), runs Cloud Document AI / Gemini Multimodal OCR, and returns structured audit."""
     content = await file.read()
     mime_type = file.content_type or "application/pdf"
@@ -228,11 +252,17 @@ async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-
     out_data = result.model_dump()
     out_data["file_name"] = file_name
     out_data["file_size_bytes"] = len(content)
+    if lang == "en" and out_data.get("whatsapp_draft_en"):
+        out_data["whatsapp_draft"] = out_data["whatsapp_draft_en"]
     return JSONResponse(out_data)
 
 
 @app.post("/api/upload_ec")
-async def upload_ec(file: UploadFile = File(...), user_id: str = "kandezhuthu-user"):  # noqa: B008
+async def upload_ec(
+    file: UploadFile = File(...),
+    user_id: str = "kandezhuthu-user",
+    lang: str = "en",
+):  # noqa: B008
     """Accepts SRO Encumbrance Certificate (EC / കുടിക്കടം), extracts tabular entries, and cross-references against title deeds."""
     content = await file.read()
     file_name = file.filename or "uploaded_ec.pdf"
@@ -250,6 +280,8 @@ async def upload_ec(file: UploadFile = File(...), user_id: str = "kandezhuthu-us
     out_dict = result.model_dump()
     out_dict["file_name"] = file_name
     out_dict["file_size_bytes"] = len(content)
+    if lang == "en" and out_dict.get("whatsapp_inquiry_en"):
+        out_dict["whatsapp_inquiry"] = out_dict["whatsapp_inquiry_en"]
     return JSONResponse(out_dict)
 
 
@@ -411,6 +443,7 @@ async def check_databank_status(
     village: str = "Aluva West",
     cents: float = 10.0,
     fair_value: float = 240000.0,
+    lang: str = "en",
 ):
     """Verifies statutory Agricultural Data Bank listing and calculates Section 27A conversion fee."""
     result = KeralaDataBankService.check_databank(
@@ -419,7 +452,10 @@ async def check_databank_status(
         extent_cents=cents,
         fair_value_per_are=fair_value,
     )
-    return JSONResponse(result.model_dump())
+    out_data = result.model_dump()
+    if lang == "en" and out_data.get("whatsapp_inquiry_en"):
+        out_data["whatsapp_inquiry"] = out_data["whatsapp_inquiry_en"]
+    return JSONResponse(out_data)
 
 
 @app.post("/api/whatsapp_webhook")
@@ -493,11 +529,123 @@ async def pwa_manifest():
     return Response(status_code=404)
 
 
+@app.get("/api/fair-value")
+async def get_fair_value_rates(village: str, district: str = None):
+    """Returns notified Fair Value benchmarks per Are under Section 28A of Kerala Stamp Act."""
+    from app.db.repository import KnowledgeRepository
+    repo = KnowledgeRepository()
+    rates = repo.get_fair_value_benchmark(village=village, district=district)
+    return JSONResponse({
+        "village": village,
+        "district": district,
+        "results": rates,
+        "revision": "S.R.O. No. 420/2023 (20% revised)"
+    })
+
+
+@app.get("/api/digital-survey")
+async def get_digital_survey_status(village: str, district: str = None):
+    """Returns Digital Resurvey (Ente Bhoomi) status, d-BTR rollout, and advisory for a village."""
+    from app.db.repository import KnowledgeRepository
+    repo = KnowledgeRepository()
+    status = repo.check_digital_resurvey_status(village=village, district=district)
+    return JSONResponse(status or {
+        "village": village,
+        "status": "Pre-Digital Survey (Standard FMB/BTR)",
+        "advisory": "Standard manual records active. Verify FMB and Village BTR.",
+        "portal_url": "https://entebhoomi.kerala.gov.in"
+    })
+
+
+@app.get("/api/data/status")
+async def get_data_status():
+    """Returns status of local organized data copy and Google Cloud Storage / Firestore sync."""
+    data_api = DataAPI()
+    return JSONResponse(data_api.get_status())
+
+
+@app.post("/api/data/organize")
+async def organize_data_local():
+    """Extracts and organizes all SQLite, knowledge, and sample deed assets into local structured copies."""
+    data_api = DataAPI()
+    result = data_api.organize_local()
+    return JSONResponse(result)
+
+
+@app.post("/api/data/sync")
+async def sync_data_cloud(target: str = "all"):
+    """Synchronizes organized data to Google Cloud tools ('gcs', 'firestore', or 'all')."""
+    data_api = DataAPI()
+    if target == "gcs":
+        result = data_api.sync_to_gcs()
+    elif target == "firestore":
+        result = data_api.sync_to_firestore()
+    else:
+        result = data_api.organize_and_sync_all()
+    return JSONResponse(result)
+
+
+@app.get("/api/data/collections")
+async def list_data_collections():
+    """Lists all organized collections with metadata and record counts."""
+    data_api = DataAPI()
+    status = data_api.get_status()
+    if not status.get("organized"):
+        data_api.organize_local()
+        status = data_api.get_status()
+    return JSONResponse(
+        {
+            "total_collections": status.get("total_collections", 0),
+            "total_records": status.get("total_records", 0),
+            "collections": status.get("collections", {}),
+        }
+    )
+
+
+@app.get("/api/data/collection/{name}")
+async def get_collection_data(name: str, limit: int = 50):
+    """Retrieves items from an organized collection."""
+    data_api = DataAPI()
+    try:
+        items = data_api.query_collection(name, limit=limit)
+        return JSONResponse({"collection": name, "count": len(items), "items": items})
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=404)
+
+
+@app.get("/api/data/scalable_formats")
+async def get_scalable_formats():
+    """Returns storage benchmarks, format suitability matrix, and active scalable datasets."""
+    benchmark_file = Path(__file__).resolve().parent.parent / "data" / "organized" / "scalable" / "format_benchmark.json"
+    if not benchmark_file.exists():
+        data_api = DataAPI()
+        data_api.export_scalable_formats()
+
+    if benchmark_file.exists():
+        return JSONResponse(json.loads(benchmark_file.read_text(encoding="utf-8")))
+    return JSONResponse({"error": "Scalable format benchmark not found."}, status_code=404)
+
+
+@app.post("/api/data/export_scalable")
+async def export_scalable_data(sync_cloud: bool = True):
+    """Generates Parquet, JSONL, GeoJSON, and RAG chunked datasets, optionally syncing to GCS."""
+    data_api = DataAPI()
+    export_result = data_api.export_scalable_formats()
+    cloud_result = None
+    if sync_cloud:
+        cloud_result = data_api.sync_to_gcs()
+    return JSONResponse({
+        "export": export_result,
+        "cloud_sync": cloud_result,
+    })
+
+
 @app.get("/api/sample_deed")
 async def get_sample_deed(
     doc_type: str = "deed",
     process: bool = False,
     user_id: str = "kandezhuthu-user",
+    lang: str = "en",
 ):
     """Returns realistic Kerala deed or EC sample PDF or executes instant multimodal demonstration OCR."""
     base_dir = Path(__file__).resolve().parent.parent / "data" / "sample_deeds"
@@ -516,10 +664,44 @@ async def get_sample_deed(
         return JSONResponse({"error": "Sample PDF file not found."}, status_code=404)
 
     if process:
+        if doc_type == "ec":
+            auditor = EncumbranceCertificateAuditor(property_identifier=target_filename)
+            raw_text = (
+                "SRO Encumbrance Certificate - Aluva 30 Year Search\n"
+                "Re-Sy 345/1 Block 12 Aluva West Village\n"
+                "Entry 1: Doc 3012/2022 - Gehan / Equitable Mortgage with Federal Bank Aluva Branch - Suresh Nair - Rs 45,00,000 - Undischarged Liability"
+            )
+            result = auditor.audit_ec(raw_ec_text=raw_text)
+            out_dict = result.model_dump()
+            out_dict["file_name"] = target_filename
+            if lang == "en" and out_dict.get("whatsapp_inquiry_en"):
+                out_dict["whatsapp_inquiry"] = out_dict["whatsapp_inquiry_en"]
+            return JSONResponse(out_dict)
+
         engine = DeedOCREngine()
         session_id = _user_sessions.get(user_id) if LOCAL_MODE else _contexts.get(user_id)
         result = engine.process_file_bytes(target_path.read_bytes(), "application/pdf", session_id=session_id)
-        return JSONResponse(result.model_dump())
+        out_data = result.model_dump()
+        out_data["file_name"] = target_filename
+        if lang == "en":
+            if out_data.get("whatsapp_draft_en"):
+                out_data["whatsapp_draft"] = out_data["whatsapp_draft_en"]
+            elif out_data.get("whatsapp_inquiry_en"):
+                out_data["whatsapp_draft"] = out_data["whatsapp_inquiry_en"]
+            if out_data.get("whatsapp_inquiry_en"):
+                out_data["whatsapp_inquiry"] = out_data["whatsapp_inquiry_en"]
+
+            def _clean_en_ml(val):
+                if isinstance(val, str):
+                    return re.sub(r"\s*\([^)]*[\u0D00-\u0D7F][^)]*\)", "", val)
+                elif isinstance(val, list):
+                    return [_clean_en_ml(x) for x in val]
+                elif isinstance(val, dict):
+                    return {k: _clean_en_ml(v) for k, v in val.items()}
+                return val
+
+            out_data = _clean_en_ml(out_data)
+        return JSONResponse(out_data)
 
     return FileResponse(
         path=str(target_path),
@@ -529,7 +711,7 @@ async def get_sample_deed(
 
 
 @app.get("/api/timeline_demo")
-async def get_timeline_demo(preset: str = "aluva_broken"):
+async def get_timeline_demo(preset: str = "aluva_broken", lang: str = "en"):
     """Returns structured 30-year chronological ownership lineage chain for interactive timeline rendering."""
     presets = {
         "aluva_broken": {
@@ -665,6 +847,7 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                 }
             ],
             "whatsapp_inquiry": "നമസ്കാരം, ആലുവ വെസ്റ്റ് വില്ലേജിലെ Re-Sy 345/1 പ്രോപ്പർട്ടിയുടെ മുന്നാധാരങ്ങൾ പരിശോധിച്ചപ്പോൾ താഴെ പറയുന്ന പ്രധാന കാര്യങ്ങളിൽ വ്യക്തത ആവശ്യമുണ്ട്:\n1. 2022-ൽ ഫെഡറൽ ബാങ്കിൽ രജിസ്റ്റർ ചെയ്ത ബാധ്യത (Doc #3012/2022) തീർത്ത ബാങ്ക് NOC-യും ഒറിജിനൽ ആധാരവും ലഭ്യമാണോ?\n2. 1996-ലെ ഭാഗപത്രത്തിൽ ഒഴിവാക്കപ്പെട്ട സഹോദരി മേരി ചാക്കോയുടെയോ അവകാശികളുടെയോ രജിസ്റ്റർ ചെയ്ത ഒഴിവുമുറി (Release Deed) ലഭ്യമാണോ?\n3. 10 സെന്റ് ഉണ്ടായിരുന്ന ഭൂമി 2014-ൽ 11 സെന്റായി മാറിയത് എങ്ങനെയാണ്? ഫീൽഡ് മെഷർമെന്റ് ബുക്ക് (FMB) സ്കെച്ച് ഉണ്ടോ?\n4. തെക്കേ അതിരിലൂടെയുള്ള 3 മീറ്റർ വഴി അവകാശം നിലവിലുണ്ടോ?",
+            "whatsapp_inquiry_en": "Hello, upon reviewing the prior title documents for the property in Re-Sy 345/1, Aluva West Village, we require clarification on the following key points before proceeding with any advance:\n1. Is a bank NOC and original title deed available clearing the mortgage registered with Federal Bank in 2022 (Doc #3012/2022)?\n2. Is a registered Release Deed available from sister Mary Chacko or her legal heirs who were excluded from the 1996 partition deed?\n3. How did the property extent increase from 10 Cents to 11 Cents in 2014? Is an official FMB (Field Measurement Book) sketch available?\n4. Is the 3-meter pathway easement along the southern boundary still active and reserved for neighbors?",
             "checklist": [
                 {"item": "Locate 3-meter Southern Pathway on site", "done": False},
                 {"item": "Verify 4 Survey Stones (സർവേ കല്ലുകൾ) with FMB Sketch", "done": False},
@@ -797,6 +980,7 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                 }
             ],
             "whatsapp_inquiry": "നമസ്കാരം, കാക്കനാട് വില്ലേജിലെ 15 സെന്റ് സ്ഥലത്തിന്റെ പ്രമാണങ്ങൾ പരിശോധിച്ചപ്പോൾ പ്രധാനപ്പെട്ട രണ്ട് കാര്യങ്ങളിൽ വ്യക്തത ആവശ്യമുണ്ട്:\n1. 2015-ൽ മൈനറായിരുന്ന കെവിന്റെ അവകാശം വിൽക്കുവാൻ ജില്ലാ കോടതിയുടെ മുൻകൂർ അനുമതി ഉത്തരവ് (District Court Sanction Order) ഉണ്ടോ?\n2. ഈ സ്ഥലം 2008-ലെ നെൽവയൽ-തണ്ണീർത്തട ഡാറ്റാ ബാങ്കിൽ ഉൾപ്പെട്ടിട്ടുണ്ടോ? ഫോം 5 ഉത്തരവും സെക്ഷൻ 27A (ഫോം 6) പ്രകാരമുള്ള പുരയിടമാക്കൽ ഉത്തരവും ഉണ്ടോ?",
+            "whatsapp_inquiry_en": "Hello, upon reviewing the title documents for the 15-cent plot in Kakkanad Village, we require clarification on two critical points before advancing funds:\n1. Is there a prior District Court Sanction Order for the 2015 sale of Kevin's minor share (HMGA Section 8)?\n2. Is this land listed as Nilam in the 2008 Paddy Land Data Bank? Are Form 5 exclusion and Section 27A (Form 6) revenue conversion orders obtained?",
             "checklist": [
                 {"item": "Check Krishi Bhavan Data Bank register for Sy 182/4", "done": False},
                 {"item": "Verify Kevin's age and ratification release deed", "done": False},
@@ -910,6 +1094,7 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                 }
             ],
             "whatsapp_inquiry": "നമസ്കാരം രാജേഷ് സാർ,\n\nആലുവ റീ-സർവേ 412/3-ൽ ഉൾപ്പെട്ട 10 സെന്റ് സ്ഥലത്തിന്റെ പ്രമാണങ്ങൾ വളരെ കൃത്യവും സംതൃപ്തികരവുമാണ്. രജിസ്ട്രേഷന് മുൻപായി ഒറിജിനൽ പട്ടയവും, ഏറ്റവും പുതിയ വില്ലേജ് കരമടച്ച രസീതും (Land Tax Receipt), സബ് രജിസ്ട്രാർ ഓഫീസിലെ ഒറിജിനൽ ബാധ്യതാ സർട്ടിഫിക്കറ്റും (EC 1985-2024) നേരിട്ട് പരിശോധിക്കാൻ ലഭ്യമാക്കുമല്ലോ. നന്ദി.",
+            "whatsapp_inquiry_en": "Hello Mr. Rajesh,\n\nThe title documents for the 10-cent plot in Aluva Re-Survey 412/3 appear continuous and well-documented. Prior to registration and token advance, kindly make available the original 1985 Pattayam, the latest Village Land Tax Receipt, and the original Encumbrance Certificate (EC 1985-2024) for direct advocate verification. Thank you.",
             "checklist": [
                 {"item": "Cross-verify original Pattayam (1985) parchment", "done": False},
                 {"item": "Check all 4 boundary stones with Village Resurvey Sketch", "done": False},
@@ -919,7 +1104,37 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
         }
     }
 
-    preset_data = presets.get(preset) or presets["aluva_broken"]
+    preset_data = copy.deepcopy(presets.get(preset) or presets["aluva_broken"])
+    if lang == "en":
+        if "whatsapp_inquiry_en" in preset_data:
+            preset_data["whatsapp_inquiry"] = preset_data["whatsapp_inquiry_en"]
+
+        deed_map = {
+            "പട്ടയം": "Land Assignment",
+            "ഭാഗപത്രം": "Partition Deed",
+            "തീറാധാരം": "Sale Deed",
+            "ബാങ്ക് ബാധ്യത (EC)": "Bank Mortgage (EC)",
+            "ഡാറ്റാ ബാങ്ക് എൻട്രി": "Agricultural Data Bank Entry",
+            "ബാധ്യതാ സർട്ടിഫിക്കറ്റ് (EC)": "Encumbrance Certificate",
+        }
+
+        for node in preset_data.get("nodes", []):
+            if "deed_malayalam" in node:
+                node["deed_malayalam"] = deed_map.get(node["deed_malayalam"], node["deed_malayalam"])
+                if re.search(r"[\u0d00-\u0d7f]", str(node["deed_malayalam"])):
+                    node["deed_malayalam"] = node.get("deed_type", "Deed")
+            for flag in node.get("flags", []):
+                if "desc" in flag and isinstance(flag["desc"], str):
+                    flag["desc"] = flag["desc"].replace("(ഒഴിവുമുറി)", "registered release deed")
+            if "consideration_display" in node and isinstance(node["consideration_display"], str):
+                node["consideration_display"] = node["consideration_display"].replace("(പ്രതിഫല തുക)", "(Consideration Amount)")
+            if "notes" in node and isinstance(node["notes"], str):
+                node["notes"] = node["notes"].replace("(നിലം / Nanja)", "(Wetland / Agricultural Paddy Land)")
+
+        for item in preset_data.get("checklist", []):
+            if "item" in item and isinstance(item["item"], str):
+                item["item"] = item["item"].replace("Survey Stones (സർവേ കല്ലുകൾ)", "Survey Stones").replace("(സർവേ കല്ലുകൾ)", "Survey Stones")
+
     return JSONResponse(preset_data)
 
 
@@ -963,7 +1178,13 @@ async def chat(req: Request):
             + message
         )
     else:
-        prompt_message = message
+        prompt_message = (
+            "[User Interface Preference: English. "
+            "Please deliver your entire response in clear, polite English, including all explanations, statutory warnings, "
+            "checklists, and the '📱 WhatsApp Message for Seller / Broker' section (draft it completely in clear English). "
+            "Do not output Malayalam text or Malayalam WhatsApp inquiry text when English is selected.]\n\n"
+            + message
+        )
 
     if LOCAL_MODE:
         session_id = _user_sessions.get(user_id)
@@ -1032,13 +1253,33 @@ async def chat(req: Request):
     return JSONResponse({"parts": parts})
 
 
+SERVER_START_TIME = time.time()
+
+
+@app.get("/api/dev/version")
+async def get_dev_version():
+    """Live reload version tracker for localhost dev."""
+    static_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "index.html")
+    static_mtime = 0
+    try:
+        static_mtime = os.path.getmtime(static_file)
+    except Exception:
+        pass
+    return JSONResponse({
+        "server_start": SERVER_START_TIME,
+        "static_mtime": static_mtime,
+        "status": "ok",
+    })
+
+
 # Mount static assets
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static_dir")
 app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
 
 
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8080))
-    print(f"Server starting on http://localhost:{port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f"Server starting on http://localhost:{port} with auto-reload")
+    uvicorn.run("frontend.main:app", host="0.0.0.0", port=port, reload=True)

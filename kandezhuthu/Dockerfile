@@ -22,12 +22,16 @@ COPY ./pyproject.toml ./README.md ./uv.lock* ./
 
 COPY ./app ./app
 COPY ./data ./data
+COPY ./frontend ./frontend
+COPY ./scrapers ./scrapers
 
 RUN uv sync --frozen
 
 ARG AGENT_VERSION=0.0.0
 ENV AGENT_VERSION=${AGENT_VERSION}
 
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8080
 EXPOSE 8080
 
-CMD ["uv", "run", "uvicorn", "app.fast_api_app:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uv", "run", "--no-sync", "uvicorn", "frontend.main:app", "--host", "0.0.0.0", "--port", "8080"]

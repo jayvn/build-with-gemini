@@ -47,14 +47,14 @@ def run_ocr_document_pipeline_test():
         # STEP 1: Page Load & Dropzone Verification
         # -------------------------------------------------------------
         print("[Step 1] Loading Split View & Deed Dropzone...")
-        page.goto(BASE_URL, wait_until="networkidle")
-        page.wait_for_timeout(1000)
+        page.goto(BASE_URL, wait_until="domcontentloaded")
+        page.wait_for_timeout(1200)
 
         expect(page.locator(".brand-title")).to_contain_text("Kandezhuthu AI")
 
-        # Verify dropzone buttons
-        deed_sample_btn = page.locator("button:has-text('Kerala Sale Deed')").first
-        ec_sample_btn = page.locator("button:has-text('Encumbrance Certificate')").first
+        # Verify dropzone cards/buttons
+        deed_sample_btn = page.locator(".layman-card.card-deed, button:has-text('Sale Deed')").first
+        ec_sample_btn = page.locator(".layman-card.card-ec, button:has-text('Encumbrance')").first
 
         expect(deed_sample_btn).to_be_visible()
         expect(ec_sample_btn).to_be_visible()
@@ -146,16 +146,17 @@ def run_ocr_document_pipeline_test():
         # STEP 6: Kerala SRO Encumbrance Certificate (EC Form 15) OCR
         # -------------------------------------------------------------
         print("\n[Step 6] Testing Kerala SRO Encumbrance Certificate OCR...")
+        if page.locator("#wf-step-1").is_visible():
+            page.locator("#wf-step-1").click()
+            page.wait_for_timeout(400)
         ec_sample_btn.click()
 
         # Wait for EC progress and rendered card
         page.wait_for_selector(".ocr-progress-card", timeout=10000)
         print("  Waiting for SRO EC Audit Card rendering...")
-        page.wait_for_timeout(3000)
+        expect(page.locator(".deed-audit-card")).to_have_count(2, timeout=30000)
 
-        # Verify another deed/EC card was appended to the conversation
         deed_cards = page.locator(".deed-audit-card")
-        assert deed_cards.count() >= 2, "Expected at least 2 audit cards in chat stream!"
 
         latest_card_text = deed_cards.last.text_content()
         print(f"  → SRO EC Audit Card rendered: {latest_card_text[:120]}...")

@@ -121,6 +121,64 @@ def get_demo_kerala_title_audit() -> str:
     return scorecard.model_dump_json(indent=2)
 
 
+def query_kerala_land_rules(topic: str) -> str:
+    """Queries the curated Kerala land regulations and judicial precedents knowledge base.
+
+    Topics covered:
+    1. Building permit road width requirements, setbacks, and small plot concessions (KPBR / KMBR 2019)
+    2. Kerala Conservation of Paddy Land & Wetland Act 2008, Form 5, Form 6, Section 27A fee slabs, Nilam conversion
+    3. Landmark Kerala court precedents on female Christian succession (Mary Roy), Hindu coparcenary,
+       pathway easements (Sree Swayamprakash Ashramam), minor's share sales, and Senior Citizens Act maintenance.
+
+    Args:
+        topic: Keyword or query describing the legal or regulatory rule (e.g., 'road width', 'paddy land', 'form 6 fee', 'mary roy', 'easement').
+
+    Returns:
+        Structured statutory rules, section citations, fee schedules, and pre-purchase due diligence advice.
+    """
+    from pathlib import Path
+    knowledge_dir = Path(__file__).resolve().parent.parent / "data" / "knowledge"
+
+    t = topic.lower()
+    results = []
+
+    # Stream A: Building Rules (KPBR / KMBR)
+    if any(k in t for k in ["road", "width", "kmbr", "kpbr", "setback", "small plot", "permit", "septic", "well", "clearance", "building"]):
+        doc_path = knowledge_dir / "building_rules_kmbr_kpbr.md"
+        if doc_path.exists():
+            results.append(doc_path.read_text(encoding="utf-8"))
+
+    # Stream B: Paddy Land & Wetland (Nilam / 2008 Act / Form 5 / Form 6)
+    if any(k in t for k in ["paddy", "nilam", "wetland", "form 5", "form 6", "form 7", "27a", "fee", "conversion", "btr", "data bank", "ksrec", "llmc", "unnotified"]):
+        doc_path = knowledge_dir / "paddy_land_wetland_guide.md"
+        if doc_path.exists():
+            results.append(doc_path.read_text(encoding="utf-8"))
+
+    # Stream C: Court Precedents & Legal Principles
+    if any(k in t for k in ["precedent", "court", "judgment", "mary roy", "christian", "succession", "heir", "daughter", "coparcenary", "minor", "guardian", "senior citizen", "maintenance", "easement", "vazhi", "pathway"]):
+        doc_path = knowledge_dir / "kerala_court_precedents.md"
+        if doc_path.exists():
+            results.append(doc_path.read_text(encoding="utf-8"))
+
+    # If no specific keyword matched, search across all available knowledge documents for snippets
+    if not results and knowledge_dir.exists():
+        for file in sorted(knowledge_dir.glob("*.md")):
+            content = file.read_text(encoding="utf-8")
+            if any(term in content.lower() for term in t.split()):
+                results.append(content)
+
+    if results:
+        return "\n\n---\n\n".join(results)
+    
+    # Fallback default summary if no files match
+    return (
+        "Kerala Land Knowledge Base covers:\n"
+        "1. KPBR/KMBR 2019: Mandatory 3m access road for standard residential plots, 1.2-1.5m for small plots (<=3 cents).\n"
+        "2. Paddy Land Act 2008 & Sec 27A: Free Form 6 conversion up to 25 cents, 10% fee for 25-50 cents, Form 5 for Data Bank removal.\n"
+        "3. Landmark Precedents: Mary Roy (equal Christian female succession from 1951), Sec 23 Senior Citizens Act (voiding conditional gifts), Sec 8 HMGA (District Court sanction for minors)."
+    )
+
+
 root_agent = Agent(
     name="kandezhuthu_agent",
     model=Gemini(
@@ -133,7 +191,8 @@ root_agent = Agent(
         "CORE STRENGTHS & TOOL USAGE:\n"
         "1. Single-Deed / Schedule Scan: Use `scan_single_deed` whenever the user pastes deed clauses, property schedules, or contract snippets in English or Malayalam.\n"
         "2. 30-Year Prior Title Lineage Audit: When users describe a chain of prior deeds (Munnadharam) or ownership history in natural language, automatically parse their narrative into DeedNode JSON records and invoke `audit_prior_deeds_title`.\n"
-        "3. Demo Audit: Use `get_demo_kerala_title_audit` if the user wants to see how a realistic 30-year Kerala title audit works.\n\n"
+        "3. Demo Audit: Use `get_demo_kerala_title_audit` if the user wants to see how a realistic 30-year Kerala title audit works.\n"
+        "4. Kerala Land Rules & Precedents Retrieval: Use `query_kerala_land_rules` to consult official Kerala building rules (KPBR/KMBR road widths/setbacks), 2008 Paddy Land Act (Form 5, Form 6, fee slabs), and High Court / Supreme Court precedents.\n\n"
         "PRESENTATION GUIDELINES FOR NON-TECHNICAL USERS:\n"
         "- Never dump raw JSON to the user. Always interpret tool outputs into clean, elegant Markdown.\n"
         "- Prominently feature the Title Sanity Score (e.g., '🛡️ Title Sanity Score: 85/100') and the verdict badge:\n"
@@ -146,7 +205,7 @@ root_agent = Agent(
         "MANDATORY LEGAL GUARDRAIL:\n"
         "Remind the user that AI is an initial triage and red-flag scanner, NOT a guarantee of title or a substitute for a licensed Kerala High Court / District Court advocate's formal title report."
     ),
-    tools=[scan_single_deed, audit_prior_deeds_title, get_demo_kerala_title_audit],
+    tools=[scan_single_deed, audit_prior_deeds_title, get_demo_kerala_title_audit, query_kerala_land_rules],
 )
 
 app = App(

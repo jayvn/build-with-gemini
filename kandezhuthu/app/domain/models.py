@@ -98,3 +98,28 @@ class PaddyLandFeeCalculation(BaseModel):
     description: str
     statutory_citation: str
 
+
+class FloodRiskLevel(str, Enum):
+    LOW = "LOW"
+    MODERATE = "MODERATE"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
+class ElevationFloodResult(BaseModel):
+    latitude: float
+    longitude: float
+    elevation_meters: float
+    resolution_meters: float | None = None
+    locality_name: str
+    district: str
+    taluk_or_village: str | None = None
+    flood_risk_level: FloodRiskLevel
+    flood_risk_score: int = Field(description="Safety score 0-100 (100 = safe from flood, 0 = severe flood risk)")
+    river_basin: str | None = None
+    inundation_2018_zone: bool = False
+    ksdma_hazard_advisory: str
+    wetland_topography_risk: str
+    recommended_plinth_height_m: float
+    physical_inspection_checklist: list[str]
+    whatsapp_inquiry_for_seller: str

@@ -1229,6 +1229,267 @@ function sendPrompt(text) {
   form.dispatchEvent(new Event("submit"));
 }
 
+/* Drag and Drop Handlers */
+function handleDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const overlay = document.getElementById("drop-overlay");
+  if (overlay) overlay.classList.add("active");
+}
+
+function handleDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const rect = document.getElementById("chat-pane").getBoundingClientRect();
+  if (e.clientX <= rect.left || e.clientX >= rect.right || e.clientY <= rect.top || e.clientY >= rect.bottom) {
+    const overlay = document.getElementById("drop-overlay");
+    if (overlay) overlay.classList.remove("active");
+  }
+}
+
+function handleFileDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const overlay = document.getElementById("drop-overlay");
+  if (overlay) overlay.classList.remove("active");
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+    handleDeedUpload(e.dataTransfer.files[0]);
+  }
+}
+
+/* Multimodal Deed OCR Upload Handler */
+async function handleDeedUpload(file) {
+  if (!file) return;
+  const fileName = file.name;
+  appendMsg("user", `📎 <strong>Uploaded Deed Document:</strong> ${fileName} (${(file.size / 1024).toFixed(1)} KB)`);
+
+  const loadingBubble = appendMsg("agent", `
+    <div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <span style="font-size:0.85rem; color:#0f5132; margin-left:6px; font-weight:600;">
+        Performing Multimodal Vision OCR on Malayalam/English deed text with Gemini 3.8 Flash...
+      </span>
+    </div>
+  `);
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("user_id", "web-user");
+
+    const res = await fetch("/api/upload_deed", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error(`OCR processing failed with status ${res.status}`);
+    }
+
+    const result = await res.json();
+    renderDeedAuditCard(loadingBubble, result, fileName);
+  } catch (err) {
+    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error analyzing deed document: ${err.message}</span>`;
+  }
+}
+
+/* Sample Deed OCR Runner */
+async function runSampleDeedOCR() {
+  appendMsg("user", `📄 <strong>Demonstration Request:</strong> Scan Sample Kerala Title Deed (Aluva SRO Doc 1420/2014, Re-Sy 345/1)`);
+
+  const loadingBubble = appendMsg("agent", `
+    <div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <span style="font-size:0.85rem; color:#0f5132; margin-left:6px; font-weight:600;">
+        Scanning sample title deed with Gemini 3.8 Flash Vision OCR...
+      </span>
+    </div>
+  `);
+
+  try {
+    const res = await fetch("/api/sample_deed?process=true&user_id=web-user");
+    if (!res.ok) throw new Error("Could not process sample deed");
+    const result = await res.json();
+    renderDeedAuditCard(loadingBubble, result, "sample_aluva_deed.pdf");
+  } catch (err) {
+    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error scanning sample deed: ${err.message}</span>`;
+  }
+}
+
+/* Render Extracted Deed Card */
+function renderDeedAuditCard(container, data, fileName) {
+  const meta = data.metadata || {};
+  const sanity = data.sanity_result || {};
+  const score = sanity.sanity_score ?? 100;
+
+  let scoreClass = "clear";
+  let scoreIcon = "🟢";
+  if (score < 50) {
+    scoreClass = "danger";
+    scoreIcon = "🔴";
+  } else if (score < 85) {
+    scoreClass = "caution";
+    scoreIcon = "🟡";
+  }
+
+  // Boundaries list
+  let boundariesHtml = "";
+  if (meta.boundaries && meta.boundaries.length) {
+    boundariesHtml = `
+      <div class="boundary-box">
+        <div class="boundary-title">🧭 Four Boundaries (ചതുരതിരുകൾ):</div>
+        ${meta.boundaries.map(b => `
+          <div class="boundary-row">
+            <span class="boundary-dir">${b.direction}:</span>
+            <span>${b.boundary_description}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // Prior Deeds list
+  let priorHtml = "";
+  if (meta.prior_deeds && meta.prior_deeds.length) {
+    priorHtml = `
+      <div class="prior-deeds-box">
+        <div class="prior-title">🔗 Prior Title Lineage (മുന്നാധാരം):</div>
+        ${meta.prior_deeds.map(p => `
+          <div class="prior-item">
+            <strong>${p.doc_number || "Doc"}</strong> ${p.year ? `(${p.year})` : ""} - ${p.deed_type || "Prior Deed"}
+            ${p.sro_name ? `· SRO ${p.sro_name}` : ""}
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // Findings list
+  let findingsHtml = "";
+  if (sanity.findings && sanity.findings.length) {
+    findingsHtml = `
+      <div class="findings-box">
+        <div style="font-weight:700; color:#b91c1c; font-size:0.82rem; margin-bottom:0.35rem;">⚠️ Statutory Red Flags Detected:</div>
+        ${sanity.findings.map(f => `
+          <div class="finding-alert ${f.severity === 'CRITICAL' ? 'critical' : ''}">
+            <div class="finding-alert-header">
+              <span>${f.title} (${f.title_malayalam || ''})</span>
+              <span style="font-size:0.7rem; text-transform:uppercase;">${f.severity}</span>
+            </div>
+            <div>${f.explanation}</div>
+            <div style="font-size:0.72rem; color:#6b7280; margin-top:3px;"><strong>Statute:</strong> ${f.kerala_statute}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // Building rules pill
+  let buildingHtml = "";
+  if (data.building_rules) {
+    const br = data.building_rules;
+    buildingHtml = `
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:0.55rem 0.75rem; margin-bottom:0.85rem; font-size:0.8rem; color:#166534;">
+        <strong>📐 Building Rules Match (${br.rule_citation || 'KPBR 2019'}):</strong><br>
+        • Min Access Road Width: <strong>${br.min_road_width_m} meters</strong><br>
+        • Setbacks: Front ${br.front_setback_m}m | Rear ${br.rear_setback_m}m | Sides ${br.side_setback_1_m}m & ${br.side_setback_2_m}m
+      </div>
+    `;
+  }
+
+  // Paddy conversion fee pill
+  let paddyHtml = "";
+  if (data.paddy_conversion && data.paddy_conversion.statutory_conversion_fee_inr > 0) {
+    const pc = data.paddy_conversion;
+    paddyHtml = `
+      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:0.55rem 0.75rem; margin-bottom:0.85rem; font-size:0.8rem; color:#92400e;">
+        <strong>🌾 Form 6 Section 27A Conversion Fee:</strong><br>
+        • Estimated Govt Fee: <strong>₹${pc.statutory_conversion_fee_inr.toLocaleString('en-IN')}</strong> (${pc.applicable_slab_percentage}% slab)<br>
+        • Free Exemption Applied: ${pc.free_exemption_cents} Cents (Govt exemption for residential plots up to 25 cents).
+      </div>
+    `;
+  }
+
+  // WhatsApp draft card
+  let waHtml = "";
+  if (data.whatsapp_draft) {
+    const safeWa = data.whatsapp_draft.replace(/"/g, '&quot;');
+    const waEncoded = encodeURIComponent(data.whatsapp_draft);
+    waHtml = `
+      <div class="whatsapp-card">
+        <div class="whatsapp-header">
+          <div class="whatsapp-title">📱 Malayalam WhatsApp Question for Seller:</div>
+          <div class="whatsapp-actions">
+            <button class="copy-btn" onclick="copyWhatsApp(this, '${safeWa}')">📋 Copy</button>
+            <a class="wa-direct-btn" href="https://api.whatsapp.com/send?text=${waEncoded}" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+          </div>
+        </div>
+        <div class="whatsapp-text">${data.whatsapp_draft}</div>
+      </div>
+    `;
+  }
+
+  const cardHtml = `
+    <div class="deed-audit-card">
+      <div class="deed-card-header">
+        <div class="deed-title-group">
+          <span>📄</span>
+          <span class="deed-doc-tag">${meta.document_number ? `Doc ${meta.document_number}` : fileName}</span>
+          ${meta.year ? `<span style="font-size:0.8rem; color:#64748b;">(${meta.year})</span>` : ""}
+          <span class="deed-type-badge">${meta.deed_type || "Kerala Title Deed"}</span>
+          ${meta.sro_name ? `<span style="font-size:0.75rem; color:#475569;">SRO ${meta.sro_name}</span>` : ""}
+        </div>
+        <div class="deed-score-badge ${scoreClass}">
+          <span>${scoreIcon}</span>
+          <span>Score: ${score}/100</span>
+        </div>
+      </div>
+
+      <div class="deed-card-body">
+        <div class="deed-grid">
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Survey / Re-Sy No</div>
+            <div class="deed-grid-val">${meta.re_survey_no || meta.survey_no || "Unknown"}</div>
+          </div>
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Village & Taluk</div>
+            <div class="deed-grid-val">${meta.village || "Unknown"}${meta.taluk ? `, ${meta.taluk}` : ""}</div>
+          </div>
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Extent (Area)</div>
+            <div class="deed-grid-val" style="color:#0f5132;">${meta.extent_cents} Cents ${meta.extent_ares ? `(${meta.extent_ares} Ares)` : ""}</div>
+          </div>
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Land Classification</div>
+            <div class="deed-grid-val" style="${meta.is_paddy_wetland_risk ? 'color:#b91c1c;' : 'color:#15803d;'}">
+              ${meta.revenue_classification} ${meta.is_paddy_wetland_risk ? '⚠️' : '✓'}
+            </div>
+          </div>
+        </div>
+
+        ${boundariesHtml}
+        ${priorHtml}
+        ${findingsHtml}
+        ${buildingHtml}
+        ${paddyHtml}
+        ${waHtml}
+
+        <div style="font-size:0.72rem; color:#64748b; margin-top:0.6rem; border-top:1px dashed #e2e8f0; padding-top:0.5rem;">
+          🔍 <em>Ask follow-up questions about this property below (e.g. "Can I construct a house on this plot?", "Is the pathway legally binding on future buyers?").</em>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = cardHtml;
+  log.scrollTop = log.scrollHeight;
+}
+
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = input.value.trim();

@@ -107,6 +107,13 @@ async def _json_errors(request: Request, exc: Exception):
     )
 
 
+@app.get("/api/config")
+async def get_config():
+    return {
+        "google_maps_api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "") or os.environ.get("VITE_GOOGLE_MAPS_API_KEY", "")
+    }
+
+
 @app.post("/chat")
 async def chat(req: Request):
     body = await req.json()

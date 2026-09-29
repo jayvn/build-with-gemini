@@ -2477,6 +2477,24 @@ function renderOwnershipTimeline(container, data, currentPreset = 'aluva_broken'
       `;
     }
 
+    let financialHtml = "";
+    if (node.consideration_display) {
+      financialHtml = `
+        <div style="margin-top:0.45rem; padding:0.45rem 0.65rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:0.75rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px;">
+            <span style="font-weight:700; color:#0f5132; display:flex; align-items:center; gap:4px;">
+              <span>💰</span>
+              <span>${node.consideration_display}</span>
+            </span>
+            ${node.price_per_cent ? `<span style="background:#e0f2fe; color:#0369a1; padding:1px 6px; border-radius:4px; font-weight:700; font-size:0.72rem;">📈 ${node.price_per_cent}</span>` : ''}
+            ${node.stamp_duty_paid ? `<span style="background:#f1f5f9; color:#475569; padding:1px 6px; border-radius:4px; font-size:0.7rem;">📜 Stamp Duty: ${node.stamp_duty_paid}</span>` : ''}
+          </div>
+          ${node.financial_note ? `<div style="color:#334155; margin-top:3px; font-size:0.73rem;">ℹ️ ${node.financial_note}</div>` : ''}
+          ${node.govt_fair_value && node.govt_fair_value !== 'N/A' ? `<div style="color:#64748b; font-size:0.7rem; margin-top:2px;">🏛️ <strong>Kerala Govt Fair Value (ന്യായവില Sec 28A):</strong> ${node.govt_fair_value}</div>` : ''}
+        </div>
+      `;
+    }
+
     return `
       <div class="timeline-item ${statusClass}">
         <div class="timeline-marker">${markerIcon}</div>
@@ -2501,6 +2519,7 @@ function renderOwnershipTimeline(container, data, currentPreset = 'aluva_broken'
           </div>
 
           ${node.notes ? `<div style="font-size:0.77rem; color:#475569; margin-top:2px;">ℹ️ <em>${node.notes}</em></div>` : ''}
+          ${financialHtml}
           ${flagsHtml}
         </div>
       </div>
@@ -2521,6 +2540,48 @@ function renderOwnershipTimeline(container, data, currentPreset = 'aluva_broken'
           </div>
         </div>
         <div class="whatsapp-text">${data.whatsapp_inquiry}</div>
+      </div>
+    `;
+  }
+
+  let finTransHtml = "";
+  if (data.financial_transparency) {
+    const ft = data.financial_transparency;
+    finTransHtml = `
+      <div class="financial-transparency-card" style="margin-bottom:0.85rem; padding:0.75rem 0.9rem; background:linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border:1px solid #86efac; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:6px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:1.05rem;">💰</span>
+            <span style="font-weight:700; color:#14532d; font-size:0.84rem;">Public Purchase Price & Valuation Intelligence</span>
+            <span style="background:#bbf7d0; color:#166534; font-size:0.68rem; font-weight:700; padding:1px 7px; border-radius:10px;">🏛️ SRO PUBLIC RECORD</span>
+          </div>
+          <span style="font-size:0.7rem; color:#166534; font-weight:600;">Registration Act 1908 (Sec 51) · Book 1</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:6px; margin-top:6px; font-size:0.76rem;">
+          <div style="background:white; padding:6px 9px; border-radius:6px; border:1px solid #dcfce7;">
+            <div style="color:#64748b; font-size:0.68rem; font-weight:600;">LAST REGISTERED PURCHASE PRICE</div>
+            <div style="font-weight:800; color:#0f5132; font-size:0.95rem; margin-top:1px;">${ft.last_purchase_price}</div>
+            <div style="color:#475569; font-size:0.7rem;">by ${ft.last_buyer} (${ft.last_purchase_year})</div>
+          </div>
+          <div style="background:white; padding:6px 9px; border-radius:6px; border:1px solid #dcfce7;">
+            <div style="color:#64748b; font-size:0.68rem; font-weight:600;">HISTORICAL RATE & FAIR VALUE</div>
+            <div style="font-weight:800; color:#0369a1; font-size:0.92rem; margin-top:1px;">${ft.historical_rate_per_cent}</div>
+            <div style="color:#475569; font-size:0.68rem;">Govt Fair Value: ${ft.current_govt_fair_value}</div>
+          </div>
+          <div style="background:white; padding:6px 9px; border-radius:6px; border:1px solid #dcfce7;">
+            <div style="color:#64748b; font-size:0.68rem; font-weight:600;">ACTIVE BANK LIEN (SRO EC)</div>
+            <div style="font-weight:800; color:${ft.active_bank_lien_inr.includes('Nil') ? '#166534' : '#b91c1c'}; font-size:0.92rem; margin-top:1px;">${ft.active_bank_lien_inr}</div>
+            <div style="color:#475569; font-size:0.7rem;">${ft.active_bank_lien_inr.includes('Nil') ? '✓ Clean 30-Yr Search' : '🚨 Undischarged Gehan Mortgage'}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:7px; font-size:0.75rem; color:#15803d; line-height:1.4;">
+          💡 <strong>Pricing Intelligence:</strong> ${ft.market_price_context}
+        </div>
+        <div style="margin-top:4px; font-size:0.71rem; color:#b45309; line-height:1.35;">
+          ⚠️ <strong>Kerala Stamp Act Sec 45A:</strong> ${ft.undervaluation_warning}
+        </div>
       </div>
     `;
   }
@@ -2556,6 +2617,8 @@ function renderOwnershipTimeline(container, data, currentPreset = 'aluva_broken'
       <div style="background:${data.chain_intact ? '#f0fdf4' : '#fff5f5'}; border:1px solid ${data.chain_intact ? '#bbf7d0' : '#fecaca'}; border-radius:8px; padding:0.6rem 0.8rem; font-size:0.8rem; color:${data.chain_intact ? '#166534' : '#991b1b'}; margin-bottom:0.75rem;">
         <strong>Audit Summary:</strong> ${data.summary}
       </div>
+
+      ${finTransHtml}
 
       <div class="timeline-track">
         ${nodesHtml}
@@ -2818,11 +2881,13 @@ let dimensionLabels = [];
 let googleHybridLayer, googleSatelliteLayer, googleRoadsLayer, googleTerrainLayer, osmLayer;
 
 const KERALA_PRESETS = {
-  aluva: { name: "Aluva (Demo Property - Re-Sy 345/1)", lat: 10.1076, lng: 76.3516, zoom: 17, cents: 10.0, roadWidth: 3.2 },
-  kakkanad: { name: "Kakkanad / Infopark (IT & Wetland Zone)", lat: 10.0159, lng: 76.3419, zoom: 17, cents: 12.5, roadWidth: 4.0 },
+  aluva: { name: "Aluva (Periyar River Basin - 2018 Flood Zone)", lat: 10.1076, lng: 76.3516, zoom: 17, cents: 10.0, roadWidth: 3.2 },
+  kakkanad: { name: "Kakkanad / Infopark (Elevated Midlands)", lat: 10.0159, lng: 76.3419, zoom: 17, cents: 12.5, roadWidth: 4.0 },
+  kuttanad: { name: "Kuttanad (Sub-Sea-Level Wetland Polders)", lat: 9.4981, lng: 76.4312, zoom: 17, cents: 10.0, roadWidth: 2.0 },
+  chengannur: { name: "Chengannur (Pamba River Flood Corridor)", lat: 9.3175, lng: 76.6173, zoom: 17, cents: 8.5, roadWidth: 3.0 },
   angamaly: { name: "Angamaly (Paddy & Agricultural Zone)", lat: 10.1960, lng: 76.3860, zoom: 17, cents: 15.0, roadWidth: 2.5 },
-  kaloor: { name: "Kaloor / Kochi (High Density Urban)", lat: 9.9937, lng: 76.2922, zoom: 18, cents: 6.0, roadWidth: 5.5 },
-  thrissur: { name: "Thrissur (Swaraj Round & Central)", lat: 10.5276, lng: 76.2144, zoom: 17, cents: 8.0, roadWidth: 3.5 },
+  kaloor: { name: "Kaloor / Kochi (High Density Coastal)", lat: 9.9937, lng: 76.2922, zoom: 18, cents: 6.0, roadWidth: 5.5 },
+  thrissur: { name: "Thrissur (Swaraj Round & Kole Wetlands)", lat: 10.5276, lng: 76.2144, zoom: 17, cents: 8.0, roadWidth: 3.5 },
   kottayam: { name: "Kottayam (Meenachil Wetland Valley)", lat: 9.5916, lng: 76.5222, zoom: 17, cents: 14.0, roadWidth: 2.8 },
   kozhikode: { name: "Kozhikode (Coastal City)", lat: 11.2588, lng: 75.7804, zoom: 17, cents: 9.5, roadWidth: 3.0 },
   trivandrum: { name: "Thiruvananthapuram (Kazhakkoottam)", lat: 8.5686, lng: 76.8731, zoom: 17, cents: 11.0, roadWidth: 4.2 }

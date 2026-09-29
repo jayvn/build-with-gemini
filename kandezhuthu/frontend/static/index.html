@@ -2391,6 +2391,7 @@ function renderDeedAuditCard(container, data, fileName) {
   `;
 
   container.innerHTML = cardHtml;
+  container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   log.scrollTop = log.scrollHeight;
 }
 

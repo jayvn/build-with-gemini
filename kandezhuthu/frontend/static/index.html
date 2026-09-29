@@ -3066,6 +3066,13 @@ function finishPlot() {
   const areaSqM = calculatePolygonArea(polygonPoints);
   const cents = (areaSqM / 40.4686).toFixed(2);
   document.getElementById("guidance-text").textContent = `✅ Plot sealed! Extent: ${cents} Cents. Review stats in HUD below or click 'Send Plot to Auditor AI'.`;
+  
+  let sumLat = 0, sumLng = 0;
+  for (const pt of polygonPoints) { sumLat += pt.lat; sumLng += pt.lng; }
+  const cLat = sumLat / polygonPoints.length;
+  const cLng = sumLng / polygonPoints.length;
+  updateHUDLocation(cLat, cLng, undefined, parseFloat(cents));
+
   setMapTool("pin");
 }
 

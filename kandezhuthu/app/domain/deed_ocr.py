@@ -402,6 +402,8 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
             paddy_conversion=paddy_calc,
             whatsapp_draft=whatsapp_draft,
             field_verification_checklist=sanity_result.what_ai_cannot_verify,
+            ocr_engine_used=extracted_metadata.ocr_engine_used,
+            document_type_detected=extracted_metadata.deed_type or "Title Deed (ആധാരം)",
         )
 
     def process_file_path(self, file_path: str, session_id: str | None = None) -> DeedOCRResult:

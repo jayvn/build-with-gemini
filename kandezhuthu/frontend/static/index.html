@@ -1703,6 +1703,128 @@
     .timeline-card, .deed-audit-card { border: 1px solid #000 !important; page-break-inside: avoid; }
     .whatsapp-actions, .timeline-preset-bar { display: none !important; }
   }
+
+  /* Auto-Demarcate & Boundary Discovery Modal */
+  .custom-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeInModal 0.2s ease-out;
+  }
+  @keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .custom-modal-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+    border: 1px solid #cbd5e1;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.25rem 1.4rem;
+    animation: scaleInModal 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes scaleInModal {
+    from { transform: scale(0.94); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: #64748b;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close-btn:hover { background: #f1f5f9; color: #1e293b; }
+  .modal-tabs {
+    display: flex;
+    gap: 0.35rem;
+    margin: 0.85rem 0 1rem 0;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  .modal-tab-btn {
+    flex: 1;
+    padding: 0.4rem 0.5rem;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .modal-tab-btn.active {
+    background: #ffffff;
+    color: #0f5132;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .modal-tab-pane {
+    animation: fadeInPane 0.2s ease-out;
+  }
+  @keyframes fadeInPane {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .primary-action-btn {
+    background: #0f5132;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .primary-action-btn:hover { background: #146c43; }
+  .chip-sm {
+    padding: 0.25rem 0.6rem;
+    border-radius: 14px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    font-size: 0.73rem;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .chip-sm:hover { background: #f8fafc; border-color: #94a3b8; }
+  .chip-sm.active {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+  }
 </style>
 </head>
 <body class="view-split">
@@ -4334,12 +4456,22 @@ function sendPlotToAuditor() {
     }
   }
 
-  const promptText = `I am inspecting a property plot in ${locality} (Coordinates: ${coords}). ` +
-    `Estimated extent from satellite plot: ${cents}. ` +
-    `Access road width measured: ${roadM} (${roadBadge}). ` +
-    elevInfo +
-    `Please audit this against Kerala Panchayat Building Rules (KPBR 2019) road width requirements, setbacks, ` +
-    `flood vulnerability (KSDMA & 2018 flood zone), and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
+  let promptText = "";
+  if (currentLanguage === "ml") {
+    promptText = `${locality} പ്രദേശത്തുള്ള വസ്തു പരിശോധിക്കുകയാണ് (ജിപിഎസ് അക്ഷാംശ രേഖാംശങ്ങൾ: ${coords}). ` +
+      `ഉപഗ്രഹ മാപ്പിൽ നിന്ന് ലഭിച്ച ഏകദേശ വിസ്തീർണ്ണം: ${cents}. ` +
+      `വഴിയുടെ വീതി: ${roadM} (${roadBadge}). ` +
+      elevInfo +
+      `ഇതിനെ കേരള പഞ്ചായത്ത് കെട്ടിട നിർമ്മാണ ചട്ടങ്ങൾ (KPBR 2019) പ്രകാരമുള്ള വഴി വീതി, സെറ്റ്ബാക്ക്, ` +
+      `പ്രളയസാധ്യത (KSDMA & 2018 വെള്ളപ്പൊക്ക മേഖല) എന്നിവയുമായി ഒത്തുനോക്കി അഡ്വാൻസ് തുക നൽകുന്നതിന് മുൻപായി സർവേ കല്ല്, നിലം തരംമാറ്റൽ എന്നിവയിൽ എന്തൊക്കെ ശ്രദ്ധിക്കണമെന്ന് വിശദീകരിക്കുക.`;
+  } else {
+    promptText = `I am inspecting a property plot in ${locality} (Coordinates: ${coords}). ` +
+      `Estimated extent from satellite plot: ${cents}. ` +
+      `Access road width measured: ${roadM} (${roadBadge}). ` +
+      elevInfo +
+      `Please audit this against Kerala Panchayat Building Rules (KPBR 2019) road width requirements, setbacks, ` +
+      `flood vulnerability (KSDMA & 2018 flood zone), and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
+  }
 
   if (currentViewMode === "map") {
     setViewMode("split");

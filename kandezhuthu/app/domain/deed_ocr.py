@@ -8,10 +8,13 @@ deterministic legal sanity auditing and database persistence.
 
 from __future__ import annotations
 
+import base64
 import json
 import logging
 import os
+import re
 from typing import Any
+import zlib
 
 from dotenv import load_dotenv
 from google.genai import Client, types
@@ -25,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 # Primary OCR vision models supported on Vertex AI / Gemini API
 OCR_MODEL_CANDIDATES = [
+    "gemini-3.8-flash",
     "gemini-2.5-flash",
     "gemini-1.5-flash",
 ]
@@ -125,6 +129,128 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
         self.knowledge_repo = KnowledgeRepository()
         self.audit_repo = AuditRepository()
 
+    @staticmethod
+    def _extract_text_from_pdf(pdf_bytes: bytes) -> str:
+        lines: list[str] = []
+        idx = pdf_bytes.find(b"stream")
+        while idx != -1:
+            end = pdf_bytes.find(b"endstream", idx)
+            if end == -1:
+                break
+            chunk = pdf_bytes[idx + 6 : end].strip()
+            for candidate in [chunk, b"<~" + chunk, chunk + b"~>", b"<~" + chunk + b"~>"]:
+                try:
+                    a85 = base64.a85decode(candidate, adobe=True)
+                    decomp = zlib.decompress(a85)
+                    texts = re.findall(rb"\(([^\)]+)\)", decomp)
+                    for t in texts:
+                        clean = (
+                            t.decode("latin1", errors="ignore")
+                            .replace(r"\(", "(")
+                            .replace(r"\)", ")")
+                        )
+                        lines.append(clean)
+                    break
+                except Exception:
+                    pass
+            idx = pdf_bytes.find(b"stream", end)
+        return "\n".join(lines)
+
+    @staticmethod
+    def _extract_metadata_from_text(raw_text: str) -> ExtractedDeedMetadata:
+        meta = ExtractedDeedMetadata(raw_schedule_snippet=raw_text)
+
+        doc_match = re.search(r"Document\s*No[:\s]+(\d+)\s*/\s*(\d+)", raw_text, re.I)
+        if doc_match:
+            meta.document_number = f"{doc_match.group(1)}/{doc_match.group(2)}"
+            meta.year = int(doc_match.group(2))
+
+        sro_match = re.search(r"Sub-Registrar\s*Office[:\s]+([^\n|]+)", raw_text, re.I)
+        if sro_match:
+            meta.sro_name = sro_match.group(1).strip()
+
+        type_match = re.search(r"Nature[:\s]+([^\n|]+)", raw_text, re.I)
+        if type_match:
+            meta.deed_type = type_match.group(1).strip()
+
+        resy_match = re.search(r"Re-Survey\s*No[:\s]+([^\n|]+)", raw_text, re.I)
+        if resy_match:
+            meta.re_survey_no = resy_match.group(1).strip()
+            meta.survey_no = meta.re_survey_no
+        else:
+            sy_match = re.search(r"Survey\s*No[:\s]+([^\n|]+)", raw_text, re.I)
+            if sy_match:
+                meta.survey_no = sy_match.group(1).strip()
+
+        vil_match = re.search(r"Village[:\s]+([^\n|]+)", raw_text, re.I)
+        if vil_match:
+            meta.village = vil_match.group(1).strip()
+        tal_match = re.search(r"Taluk[:\s]+([^\n|]+)", raw_text, re.I)
+        if tal_match:
+            meta.taluk = tal_match.group(1).strip()
+        dist_match = re.search(r"District[:\s]+([^\n|]+)", raw_text, re.I)
+        if dist_match:
+            meta.district = dist_match.group(1).strip()
+
+        cents_match = re.search(r"(\d+(?:\.\d+)?)\s*Cents?", raw_text, re.I)
+        if cents_match:
+            meta.extent_cents = float(cents_match.group(1))
+        ares_match = re.search(r"(\d+(?:\.\d+)?)\s*Ares?", raw_text, re.I)
+        if ares_match:
+            meta.extent_ares = float(ares_match.group(1))
+
+        if re.search(r"Nilam|Nanja|Punja|Wetland|Paddy", raw_text, re.I):
+            meta.revenue_classification = "Nilam"
+            meta.is_paddy_wetland_risk = True
+        else:
+            meta.revenue_classification = "Purayidam"
+
+        boundaries: list[DeedBoundary] = []
+        east_match = re.search(r"East\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if east_match:
+            boundaries.append(DeedBoundary(direction="East (കിഴക്ക്)", boundary_description=east_match.group(1).strip()))
+        south_match = re.search(r"South\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if south_match:
+            boundaries.append(DeedBoundary(direction="South (തെക്ക്)", boundary_description=south_match.group(1).strip()))
+        west_match = re.search(r"West\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if west_match:
+            boundaries.append(DeedBoundary(direction="West (പടിഞ്ഞാറ്)", boundary_description=west_match.group(1).strip()))
+        north_match = re.search(r"North\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if north_match:
+            boundaries.append(DeedBoundary(direction="North (വടക്ക്)", boundary_description=north_match.group(1).strip()))
+        meta.boundaries = boundaries
+
+        priors: list[PriorDeedReference] = []
+        for line in raw_text.splitlines():
+            if re.search(r"Partition Deed|Sale Deed|Pattayam|Theeradharam|Bhagapathram", line, re.I):
+                num_m = re.search(r"No\.?\s*(\d+(?:/\d+)?)", line, re.I)
+                priors.append(PriorDeedReference(
+                    doc_number=num_m.group(1) if num_m else "Prior Doc",
+                    deed_type="Munnadharam",
+                    notes=line.strip(),
+                ))
+        meta.prior_deeds = priors
+
+        for line in raw_text.splitlines():
+            if re.search(r"pathway|vazhi|right\s*of\s*way|road|നടപ്പുവഴി|വഴി", line, re.I) and not re.search(r"East|South|West|North", line, re.I):
+                meta.easements_reserved.append(line.strip())
+            elif re.search(r"vazhi\s*avakasham", line, re.I):
+                meta.easements_reserved.append(line.strip())
+
+        minor_m = re.search(r"[^\n]*(?:minor|മൈനർ)[^\n]*", raw_text, re.I)
+        if minor_m:
+            meta.minor_involvement = minor_m.group(0).strip()
+
+        maint_m = re.search(r"[^\n]*(?:maintenance|സംരക്ഷണം|senior\s*citizen)[^\n]*", raw_text, re.I)
+        if maint_m:
+            meta.maintenance_covenants = maint_m.group(0).strip()
+
+        meta.malayalam_summary = (
+            f"{meta.village} വില്ലേജിൽ സർവേ നമ്പർ {meta.survey_no}-ൽപ്പെട്ട {meta.extent_cents} സെന്റ് വസ്തു "
+            f"({meta.revenue_classification})."
+        )
+        return meta
+
     def process_file_bytes(
         self,
         file_bytes: bytes,
@@ -156,6 +282,17 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
             except Exception as e:
                 logger.warning(f"Failed OCR extraction with model {model_name}: {e}")
                 last_error = e
+
+        if not extracted_metadata:
+            # Deterministic fallback for PDF documents
+            if "pdf" in mime_type.lower() or file_bytes.startswith(b"%PDF"):
+                try:
+                    pdf_text = self._extract_text_from_pdf(file_bytes)
+                    if pdf_text.strip():
+                        extracted_metadata = self._extract_metadata_from_text(pdf_text)
+                        logger.info("Successfully extracted deed metadata using local PDF text parser fallback")
+                except Exception as fb_err:
+                    logger.warning(f"PDF fallback parser failed: {fb_err}")
 
         if not extracted_metadata:
             raise RuntimeError(f"Multimodal OCR extraction failed across all model candidates: {last_error}")

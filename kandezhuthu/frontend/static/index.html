@@ -103,6 +103,7 @@
 
   /* Chat Pane */
   #chat-pane {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -761,6 +762,9 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 0.45rem 0.65rem;
+  }
+  .hud-stat-box.full-width {
+    grid-column: span 2;
   }
   .hud-stat-label {
     font-size: 0.67rem;
@@ -1507,6 +1511,17 @@
             <span class="badge-road pass" id="hud-road-badge">✅ KPBR Pass (≥3m)</span>
           </div>
         </div>
+        <div class="hud-stat-box full-width" id="hud-elevation-box">
+          <div class="hud-stat-label">
+            <span>Elevation & Flood Exposure</span>
+            <span style="font-size:0.65rem; color:#0f5132;" title="Above Mean Sea Level (MSL) & KSDMA flood hazard rating">⛰️ MSL</span>
+          </div>
+          <div class="hud-stat-val" id="hud-elevation" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+            <span id="hud-elevation-text" style="font-size: 0.85rem; font-weight: 700;">6.5m MSL</span>
+            <span class="badge-road warn" id="hud-flood-badge">🟡 Moderate Flood Risk</span>
+          </div>
+          <div id="hud-basin-text" style="font-size: 0.7rem; color: #475569; margin-top: 3px;">Periyar River Basin • Plinth: ≥0.75m</div>
+        </div>
       </div>
 
       <div class="hud-actions">
@@ -1543,6 +1558,10 @@
       <div class="checklist-row">
         <input type="checkbox" id="chk-ht" onchange="updateChecklistProgress()">
         <label for="chk-ht"><strong>Overhead Lines:</strong> Verify no HT electricity lines cross over the plot.</label>
+      </div>
+      <div class="checklist-row">
+        <input type="checkbox" id="chk-flood" onchange="updateChecklistProgress()">
+        <label for="chk-flood"><strong>Flood Watermarks:</strong> Check compound walls & poles for 2018 monsoon waterlines.</label>
       </div>
       <div style="font-size:0.7rem; color:#64748b; margin-top:0.3rem; border-top:1px dashed #e2e8f0; padding-top:0.3rem;">
         Tick items as you verify them on-site with your surveyor.
@@ -1634,6 +1653,7 @@ function formatMarkdown(text) {
     } else {
       rawQuote = rawQuote.replace(/^[>\s*]+/gm, '').replace(/<[^>]+>/g, '').trim();
     }
+    rawQuote = rawQuote.replace(/^```[a-z]*\s*/i, '').replace(/\s*```$/g, '').trim();
 
     if (rawQuote.length > 10) {
       const encodedWaText = encodeURIComponent(rawQuote);
@@ -1660,8 +1680,20 @@ function formatMarkdown(text) {
   return '<p>' + html + '</p>';
 }
 
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
 function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
+  const doFeedback = () => {
     const originalText = btn.innerHTML;
     btn.innerHTML = "✅ Copied!";
     btn.classList.add("copied");
@@ -1669,7 +1701,17 @@ function copyText(btn, text) {
       btn.innerHTML = originalText;
       btn.classList.remove("copied");
     }, 2000);
-  });
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(doFeedback).catch(() => {
+      fallbackCopy(text);
+      doFeedback();
+    });
+  } else {
+    fallbackCopy(text);
+    doFeedback();
+  }
 }
 
 function sendPrompt(text) {
@@ -2491,15 +2533,39 @@ function addPlotVertex(lat, lng) {
   polygonPoints.push(L.latLng(lat, lng));
 
   const vertexIndex = polygonPoints.length;
-  const vertexMarker = L.circleMarker([lat, lng], {
-    radius: 6,
-    color: "#0f5132",
-    fillColor: "#22c55e",
-    fillOpacity: 1,
-    weight: 2
+  const kalluIcon = L.divIcon({
+    className: 'custom-kallu-marker',
+    html: `<div style="width:14px; height:14px; background:#22c55e; border:2.5px solid #0f5132; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.45); cursor:grab;" title="Corner Stone #${vertexIndex} (Survey Kallu) - Drag to adjust"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+
+  const vertexMarker = L.marker([lat, lng], {
+    icon: kalluIcon,
+    draggable: true,
+    riseOnHover: true
   }).addTo(map);
   
-  vertexMarker.bindTooltip(`Kallu #${vertexIndex}`, { permanent: false, direction: 'top' });
+  vertexMarker.bindTooltip(`Kallu #${vertexIndex} (Drag to move)`, { permanent: false, direction: 'top' });
+
+  // Real-time FMB edge dimensions and area recalculation on drag
+  vertexMarker.on('drag', function(e) {
+    const idx = vertexMarkers.indexOf(vertexMarker);
+    if (idx !== -1) {
+      polygonPoints[idx] = e.target.getLatLng();
+      updatePlotDisplay();
+    }
+  });
+
+  vertexMarker.on('dragend', function() {
+    const idx = vertexMarkers.indexOf(vertexMarker);
+    if (polygonPoints.length >= 3) {
+      const areaSqM = calculatePolygonArea(polygonPoints);
+      const cents = (areaSqM / 40.4686).toFixed(2);
+      document.getElementById("guidance-text").textContent = `Corner Stone #${idx + 1} adjusted. Updated extent: ${cents} Cents.`;
+    }
+  });
+
   vertexMarkers.push(vertexMarker);
 
   // If clicking near the first point when >=3 points, seal plot
@@ -2706,6 +2772,31 @@ function createSamplePlot(lat, lng) {
     L.latLng(lat + dLat/2, lng + dLng/2),
     L.latLng(lat - dLat/2, lng + dLng/2)
   ];
+
+  polygonPoints.forEach((pt, idx) => {
+    const kalluIcon = L.divIcon({
+      className: 'custom-kallu-marker',
+      html: `<div style="width:14px; height:14px; background:#22c55e; border:2.5px solid #0f5132; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.45); cursor:grab;" title="Corner Stone #${idx + 1} - Drag to adjust"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    const vm = L.marker(pt, { icon: kalluIcon, draggable: true, riseOnHover: true }).addTo(map);
+    vm.bindTooltip(`Kallu #${idx + 1} (Drag to move)`, { permanent: false, direction: 'top' });
+    vm.on('drag', function(e) {
+      const mIdx = vertexMarkers.indexOf(vm);
+      if (mIdx !== -1) {
+        polygonPoints[mIdx] = e.target.getLatLng();
+        updatePlotDisplay();
+      }
+    });
+    vm.on('dragend', function() {
+      const areaSqM = calculatePolygonArea(polygonPoints);
+      const cents = (areaSqM / 40.4686).toFixed(2);
+      document.getElementById("hud-cents").textContent = `${cents} Cents`;
+      document.getElementById("guidance-text").textContent = `Corner Stone #${idx + 1} adjusted. Updated extent: ${cents} Cents.`;
+    });
+    vertexMarkers.push(vm);
+  });
 
   updatePlotDisplay();
 

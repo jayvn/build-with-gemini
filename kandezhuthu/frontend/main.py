@@ -278,10 +278,10 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
             ],
             "whatsapp_inquiry": "നമസ്കാരം, ആലുവ വെസ്റ്റ് വില്ലേജിലെ Re-Sy 345/1 പ്രോപ്പർട്ടിയുടെ മുന്നാധാരങ്ങൾ പരിശോധിച്ചപ്പോൾ താഴെ പറയുന്ന പ്രധാന കാര്യങ്ങളിൽ വ്യക്തത ആവശ്യമുണ്ട്:\n1. 2022-ൽ ഫെഡറൽ ബാങ്കിൽ രജിസ്റ്റർ ചെയ്ത ബാധ്യത (Doc #3012/2022) തീർത്ത ബാങ്ക് NOC-യും ഒറിജിനൽ ആധാരവും ലഭ്യമാണോ?\n2. 1996-ലെ ഭാഗപത്രത്തിൽ ഒഴിവാക്കപ്പെട്ട സഹോദരി മേരി ചാക്കോയുടെയോ അവകാശികളുടെയോ രജിസ്റ്റർ ചെയ്ത ഒഴിവുമുറി (Release Deed) ലഭ്യമാണോ?\n3. 10 സെന്റ് ഉണ്ടായിരുന്ന ഭൂമി 2014-ൽ 11 സെന്റായി മാറിയത് എങ്ങനെയാണ്? ഫീൽഡ് മെഷർമെന്റ് ബുക്ക് (FMB) സ്കെച്ച് ഉണ്ടോ?\n4. തെക്കേ അതിരിലൂടെയുള്ള 3 മീറ്റർ വഴി അവകാശം നിലവിലുണ്ടോ?",
             "checklist": [
-                {"item": "Locate 3-meter Southern Pathway on site", "done": false},
-                {"item": "Verify 4 Survey Stones (സർവേ കല്ലുകൾ) with FMB Sketch", "done": false},
-                {"item": "Inspect Bank SARFAESI Attachment Notices on gates/walls", "done": false},
-                {"item": "Check Village Office Resurvey records for 1-Cent excess", "done": false}
+                {"item": "Locate 3-meter Southern Pathway on site", "done": False},
+                {"item": "Verify 4 Survey Stones (സർവേ കല്ലുകൾ) with FMB Sketch", "done": False},
+                {"item": "Inspect Bank SARFAESI Attachment Notices on gates/walls", "done": False},
+                {"item": "Check Village Office Resurvey records for 1-Cent excess", "done": False}
             ]
         },
         "kakkanad_wetland": {
@@ -373,10 +373,10 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
             ],
             "whatsapp_inquiry": "നമസ്കാരം, കാക്കനാട് വില്ലേജിലെ 15 സെന്റ് സ്ഥലത്തിന്റെ പ്രമാണങ്ങൾ പരിശോധിച്ചപ്പോൾ പ്രധാനപ്പെട്ട രണ്ട് കാര്യങ്ങളിൽ വ്യക്തത ആവശ്യമുണ്ട്:\n1. 2015-ൽ മൈനറായിരുന്ന കെവിന്റെ അവകാശം വിൽക്കുവാൻ ജില്ലാ കോടതിയുടെ മുൻകൂർ അനുമതി ഉത്തരവ് (District Court Sanction Order) ഉണ്ടോ?\n2. ഈ സ്ഥലം 2008-ലെ നെൽവയൽ-തണ്ണീർത്തട ഡാറ്റാ ബാങ്കിൽ ഉൾപ്പെട്ടിട്ടുണ്ടോ? ഫോം 5 ഉത്തരവും സെക്ഷൻ 27A (ഫോം 6) പ്രകാരമുള്ള പുരയിടമാക്കൽ ഉത്തരവും ഉണ്ടോ?",
             "checklist": [
-                {"item": "Check Krishi Bhavan Data Bank register for Sy 182/4", "done": false},
-                {"item": "Verify Kevin's age and ratification release deed", "done": false},
-                {"item": "Inspect waterlogging and adjacent paddy fields during monsoon", "done": false},
-                {"item": "Check Municipality road widening proposal", "done": false}
+                {"item": "Check Krishi Bhavan Data Bank register for Sy 182/4", "done": False},
+                {"item": "Verify Kevin's age and ratification release deed", "done": False},
+                {"item": "Inspect waterlogging and adjacent paddy fields during monsoon", "done": False},
+                {"item": "Check Municipality road widening proposal", "done": False}
             ]
         },
         "clean_title": {
@@ -450,10 +450,10 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
             ],
             "whatsapp_inquiry": "നമസ്കാരം രാജേഷ് സാർ,\n\nആലുവ റീ-സർവേ 412/3-ൽ ഉൾപ്പെട്ട 10 സെന്റ് സ്ഥലത്തിന്റെ പ്രമാണങ്ങൾ വളരെ കൃത്യവും സംതൃപ്തികരവുമാണ്. രജിസ്ട്രേഷന് മുൻപായി ഒറിജിനൽ പട്ടയവും, ഏറ്റവും പുതിയ വില്ലേജ് കരമടച്ച രസീതും (Land Tax Receipt), സബ് രജിസ്ട്രാർ ഓഫീസിലെ ഒറിജിനൽ ബാധ്യതാ സർട്ടിഫിക്കറ്റും (EC 1985-2024) നേരിട്ട് പരിശോധിക്കാൻ ലഭ്യമാക്കുമല്ലോ. നന്ദി.",
             "checklist": [
-                {"item": "Cross-verify original Pattayam (1985) parchment", "done": false},
-                {"item": "Check all 4 boundary stones with Village Resurvey Sketch", "done": false},
-                {"item": "Obtain current Thandaper extract from Village Office", "done": false},
-                {"item": "Confirm 3-meter road access width for KPBR building permit", "done": false}
+                {"item": "Cross-verify original Pattayam (1985) parchment", "done": False},
+                {"item": "Check all 4 boundary stones with Village Resurvey Sketch", "done": False},
+                {"item": "Obtain current Thandaper extract from Village Office", "done": False},
+                {"item": "Confirm 3-meter road access width for KPBR building permit", "done": False}
             ]
         }
     }

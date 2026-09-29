@@ -127,11 +127,12 @@ def query_kerala_land_rules(topic: str) -> str:
     Topics covered:
     1. Building permit road width requirements, setbacks, and small plot concessions (KPBR / KMBR 2019)
     2. Kerala Conservation of Paddy Land & Wetland Act 2008, Form 5, Form 6, Section 27A fee slabs, Nilam conversion
-    3. Landmark Kerala court precedents on female Christian succession (Mary Roy), Hindu coparcenary,
-       pathway easements (Sree Swayamprakash Ashramam), minor's share sales, and Senior Citizens Act maintenance.
+    3. Landmark Kerala court precedents: Christian female succession (Mary Roy), Hindu coparcenary (Vineeta Sharma),
+       easements (Sree Swayamprakash Ashramam), minor share alienation (Saroj & Imambandi), Senior Citizens Act (Sec 23),
+       Power of Attorney fraud (Suraj Lamp), Kudikidappu tenancy (KLR Act), and Lis Pendens (Sec 52 TPA).
 
     Args:
-        topic: Keyword or query describing the legal or regulatory rule (e.g., 'road width', 'paddy land', 'form 6 fee', 'mary roy', 'easement').
+        topic: Keyword or query describing the legal or regulatory rule (e.g., 'road width', 'paddy land', 'form 6 fee', 'mary roy', 'easement', 'power of attorney', 'kudikidappu').
 
     Returns:
         Structured statutory rules, section citations, fee schedules, and pre-purchase due diligence advice.
@@ -155,7 +156,12 @@ def query_kerala_land_rules(topic: str) -> str:
             results.append(doc_path.read_text(encoding="utf-8"))
 
     # Stream C: Court Precedents & Legal Principles
-    if any(k in t for k in ["precedent", "court", "judgment", "mary roy", "christian", "succession", "heir", "daughter", "coparcenary", "minor", "guardian", "senior citizen", "maintenance", "easement", "vazhi", "pathway"]):
+    if any(k in t for k in [
+        "precedent", "court", "judgment", "mary roy", "christian", "succession", "heir", "daughter",
+        "coparcenary", "minor", "guardian", "senior citizen", "maintenance", "easement", "vazhi", "pathway",
+        "power of attorney", "poa", "gpa", "mukthiyar", "suraj lamp", "kudikidappu", "pattayam", "tenancy",
+        "lis pendens", "adverse possession", "puramboke", "imambandi", "muslim minor", "jalaja dileep"
+    ]):
         doc_path = knowledge_dir / "kerala_court_precedents.md"
         if doc_path.exists():
             results.append(doc_path.read_text(encoding="utf-8"))
@@ -175,7 +181,7 @@ def query_kerala_land_rules(topic: str) -> str:
         "Kerala Land Knowledge Base covers:\n"
         "1. KPBR/KMBR 2019: Mandatory 3m access road for standard residential plots, 1.2-1.5m for small plots (<=3 cents).\n"
         "2. Paddy Land Act 2008 & Sec 27A: Free Form 6 conversion up to 25 cents, 10% fee for 25-50 cents, Form 5 for Data Bank removal.\n"
-        "3. Landmark Precedents: Mary Roy (equal Christian female succession from 1951), Sec 23 Senior Citizens Act (voiding conditional gifts), Sec 8 HMGA (District Court sanction for minors)."
+        "3. Landmark Precedents: Mary Roy (Christian succession), Sec 23 Senior Citizens Act, HMGA Sec 8 & Imambandi (minor sales), Suraj Lamp (PoA sales), Kudikidappu tenancy, and Lis Pendens (Sec 52 TPA)."
     )
 
 

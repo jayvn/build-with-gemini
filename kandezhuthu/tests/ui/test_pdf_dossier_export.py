@@ -9,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_pdf_dossier_export_test():
     """
     Automated Playwright UI Test for Advocate Legal Dossier PDF Export Engine
-    
+
     Verifies:
     1. Browser download interception across distinct UI trigger surfaces
     2. HUD Surface: exportPlotDossier() -> kandezhuthu_plot_dossier_*.pdf

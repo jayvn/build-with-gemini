@@ -154,7 +154,7 @@ This gives the agent instant, verified factual grounding without making expensiv
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | **Core Reasoning Engine** | Single-deed scanner, 30-year Munnadharam auditor, Pydantic models, GEMINI.md guide | ✅ Completed |
 | **Phase 2** | **Non-Technical Web UI** | `frontend/main.py`, `frontend/static/index.html`, quick chips, WhatsApp copier | ✅ Completed |
-| **Phase 3** | **Knowledge Scrapers & Curation** | `scrapers/`, `data/knowledge/` (KPBR rules, Paddy Land guide, Court precedents) | 🔄 Ready to Run |
+| **Phase 3** | **Knowledge Scrapers & Curation** | `scrapers/`, `data/knowledge/` (Stream A KPBR rules completed; Stream B & C ready) | 🔄 In Progress (Stream A ✅) |
 | **Phase 4** | **Knowledge Tool Integration** | `query_kerala_land_rules` tool in `app/agent.py` | ⏳ Next |
 | **Phase 5** | **Multimodal Ingestion** | Support for dragging & dropping scanned deed PDFs and images | ⏳ Next |
 | **Phase 6** | **Cloud Deployment** | Deploy backend to Agent Platform & frontend to Cloud Run | ⏳ Future |

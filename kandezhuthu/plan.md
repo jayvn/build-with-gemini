@@ -134,8 +134,8 @@ def query_kerala_land_rules(topic: str) -> str:
 
 ```mermaid
 flowchart LR
-    M1["Milestone 1 (In Progress)<br/>🗺️ Google Maps Satellite<br/>Access Road Verification"]
-    M2["Milestone 2 (Queued)<br/>📄 Multimodal Deed OCR<br/>Scanned PDF / Image Ingestion"]
+    M1["Milestone 1 (Done)<br/>🗺️ Google Maps Satellite<br/>Access Road Verification"]
+    M2["Milestone 2 (Active Next)<br/>📄 Multimodal Deed OCR<br/>Scanned PDF / Image Ingestion"]
     M3["Milestone 3 (Queued)<br/>🧠 Long-Term Memory<br/>Vertex AI Memory Bank"]
     M4["Milestone 4 (Queued)<br/>🚀 Cloud Production Deploy<br/>Cloud Run + Agent Engine"]
 
@@ -144,8 +144,8 @@ flowchart LR
 
 | Milestone | Feature / Capability | Detailed Tasks & Deliverables | Status |
 | :--- | :--- | :--- | :--- |
-| **Milestone 1** | **🗺️ Interactive Google Maps & Satellite Ground Verification** | • Embed Google Maps JS API in `frontend/static/index.html`<br/>• Satellite & terrain layer toggle with pin-drop for Kerala villages/taluks<br/>• Road width visual estimation tool to gut-check KPBR 3-meter compliance on-ground<br/>• Visual paddy field / waterlogging overlay for village survey locations | 🔄 **In Progress** (`feature/google-maps-ui`) |
-| **Milestone 2** | **📄 Multimodal Deed OCR & Document Ingestion** | • Drag-and-drop PDF/image uploader in Web UI for scanned Malayalam deeds (*ആധാരം*) & ECs (*കുടിക്കടം*)<br/>• `gemini-3.8-flash` native vision OCR to parse schedules, 4 boundaries (*ചതുരതിരുകൾ*), prior deed history (*മുന്നാധാരം*), and survey numbers<br/>• Direct piping from OCR extraction to `scan_single_deed` and `audit_prior_deeds_title` | ⏳ **Queued (Next)** |
+| **Milestone 1** | **🗺️ Interactive Google Maps & Satellite Ground Verification** | • Embed Google Maps JS API in `frontend/static/index.html`<br/>• Satellite & terrain layer toggle with pin-drop for Kerala villages/taluks<br/>• Road width visual estimation tool to gut-check KPBR 3-meter compliance on-ground<br/>• Visual paddy field / waterlogging overlay for village survey locations | ✅ **Completed** |
+| **Milestone 2** | **📄 Multimodal Deed OCR & Document Ingestion** | • Drag-and-drop PDF/image uploader in Web UI for scanned Malayalam deeds (*ആധാരം*) & ECs (*കുടിക്കടം*)<br/>• `gemini-3.8-flash` native vision OCR to parse schedules, 4 boundaries (*ചതുരതിരുകൾ*), prior deed history (*മുന്നാധാരം*), and survey numbers<br/>• Direct piping from OCR extraction to `scan_single_deed` and `audit_prior_deeds_title` | 🔄 **Active (Current Focus)** |
 | **Milestone 3** | **🧠 Cross-Session Long-Term Memory (Memory Bank)** | • Wire Vertex AI Memory Bank (`memory-bank-setup` skill) into `app/agent.py`<br/>• Remember user's examined properties, surveyed taluks, seller inquiries, and budget across chat sessions | ⏳ **Queued** |
 | **Milestone 4** | **🚀 Production Cloud Deployment** | • Deploy backend to Agent Platform / Engine via `agents-cli deploy`<br/>• Deploy web frontend container to Cloud Run with A2A IAM token exchange proxy | ⏳ **Queued** |
 

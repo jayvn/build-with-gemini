@@ -9,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_ocr_document_pipeline_test():
     """
     Automated Playwright UI Test for Multimodal OCR Document Pipeline
-    
+
     Verifies:
     1. Sample Title Deed OCR Trigger & Animated Progress Steps
     2. Deed Sanity Scorecard Rendering (Doc No, Extent, SRO, Boundaries, Prior Deeds)

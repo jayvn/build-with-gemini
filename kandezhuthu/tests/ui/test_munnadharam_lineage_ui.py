@@ -9,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_munnadharam_lineage_test():
     """
     Automated Playwright UI Test for 30-Year Prior Title Lineage (Munnadharam) Visualizer
-    
+
     Verifies:
     1. Opening Timeline Card from Header Actions & Quick Action Bar
     2. Preset 1: Aluva Broken Chain (Score: 0/100, Mary Roy succession defect, Federal Bank mortgage, Extent inflation)

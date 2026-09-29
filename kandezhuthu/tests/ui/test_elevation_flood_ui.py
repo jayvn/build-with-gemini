@@ -9,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_elevation_flood_ui_test():
     """
     Automated Playwright UI Test for Plot Elevation & Flood Exposure Engine
-    
+
     Verifies:
     1. Default HUD displays Mean Sea Level (MSL) elevation and flood exposure badge
     2. Dynamic hydrology updates across distinct Kerala topographical regions (Aluva, Kuttanad, Kakkanad)

@@ -20,7 +20,7 @@ from google.adk.apps import App
 from google.adk.models import Gemini
 from google.genai import types
 
-from app.domain.models import DeedNode, DeedType, ECRecord
+from app.domain.models import DeedNode, DeedType, ECRecord, ElevationFloodResult
 from app.domain.auditor import MunnadharamAuditor
 from app.domain.single_deed_scanner import SingleDeedScanner
 from app.db.repository import KnowledgeRepository, AuditRepository
@@ -74,6 +74,44 @@ def scan_deed_document_file(file_path: str) -> str:
 
     engine = DeedOCREngine()
     result = engine.process_file_path(file_path)
+    return result.model_dump_json(indent=2)
+
+
+def calculate_plot_elevation_and_flood_exposure(
+    latitude: float,
+    longitude: float,
+    place_name: Optional[str] = None,
+    plot_extent_cents: Optional[float] = None,
+) -> str:
+    """Calculates plot elevation above Mean Sea Level (MSL) and evaluates flood exposure risk.
+
+    Uses Google Elevation API & Geocoding API (with Kerala hydrological basin & SRTM models) to assess:
+    1. Plot elevation above Mean Sea Level (MSL) in meters.
+    2. Proximity to major Kerala river flood basins (Periyar, Pamba, Chalakudy, Vembanad, Kole wetlands, etc.).
+    3. Inundation vulnerability during the 2018/2019 Great Kerala Floods.
+    4. Statutory KSDMA hazard advisories and wetland topography classification (Nilam vs Purayidam risk).
+    5. Recommended minimum building plinth height above road level.
+    6. Culturally polite native Malayalam WhatsApp inquiry to ask seller about monsoon flooding history.
+
+    Args:
+        latitude: Latitude of the marked plot (e.g. 10.1076).
+        longitude: Longitude of the marked plot (e.g. 76.3516).
+        place_name: Optional village/town name (e.g. "Aluva", "Kakkanad", "Kuttanad").
+        plot_extent_cents: Optional land extent in Kerala Cents (e.g. 10.0).
+
+    Returns:
+        JSON string containing ElevationFloodResult with elevation, flood risk level, safety score, river basin,
+        KSDMA advisory, recommended plinth height, physical inspection checklist, and Malayalam WhatsApp inquiry.
+    """
+    from app.domain.elevation_flood import ElevationFloodCalculator
+
+    calculator = ElevationFloodCalculator()
+    result = calculator.calculate(
+        latitude=latitude,
+        longitude=longitude,
+        locality_hint=place_name,
+        plot_extent_cents=plot_extent_cents,
+    )
     return result.model_dump_json(indent=2)
 
 
@@ -306,7 +344,8 @@ root_agent = Agent(
         "4. Exact Building Rules (KPBR/KMBR 2019): Use `lookup_building_road_and_setbacks` when users ask about road width or setback requirements for their specific plot extent.\n"
         "5. Paddy Land Conversion Calculator: Use `calculate_paddy_conversion_cost` when users ask about government fee for converting Nilam / paddy land to Purayidam.\n"
         "6. Historical Property Audit Search: Use `get_historical_audits_for_property` when checking a specific survey number for previous red flags or duplicate sales.\n"
-        "7. Kerala Land Rules & Precedents Retrieval: Use `query_kerala_land_rules` to consult official Kerala building rules, 2008 Paddy Land Act, and High Court / Supreme Court precedents.\n\n"
+        "7. Kerala Land Rules & Precedents Retrieval: Use `query_kerala_land_rules` to consult official Kerala building rules, 2008 Paddy Land Act, and High Court / Supreme Court precedents.\n"
+        "8. Plot Elevation & Flood Exposure Calculator: Use `calculate_plot_elevation_and_flood_exposure` when users ask about flood risk, plot elevation, Mean Sea Level (MSL), monsoonal inundation, 2018 flood zones, or mark/specify plot coordinates.\n\n"
         "PRESENTATION GUIDELINES FOR NON-TECHNICAL USERS:\n"
         "- Never dump raw JSON to the user. Always interpret tool outputs into clean, elegant Markdown.\n"
         "- Prominently feature the Title Sanity Score (e.g., '🛡️ Title Sanity Score: 85/100') and the verdict badge:\n"
@@ -328,6 +367,7 @@ root_agent = Agent(
         calculate_paddy_conversion_cost,
         get_historical_audits_for_property,
         query_kerala_land_rules,
+        calculate_plot_elevation_and_flood_exposure,
     ],
 )
 

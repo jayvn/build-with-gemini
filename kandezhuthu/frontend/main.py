@@ -230,22 +230,37 @@ async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-
 
 
 @app.get("/api/sample_deed")
-async def get_sample_deed(process: bool = False, user_id: str = "kandezhuthu-user"):
-    """Returns sample deed PDF or executes instant demonstration OCR on the sample."""
-    sample_path = Path(__file__).resolve().parent.parent / "data" / "sample_deeds" / "sample_aluva_deed.pdf"
-    if not sample_path.exists():
-        return JSONResponse({"error": "Sample deed file not found."}, status_code=404)
+async def get_sample_deed(
+    doc_type: str = "deed",
+    process: bool = False,
+    user_id: str = "kandezhuthu-user",
+):
+    """Returns realistic Kerala deed or EC sample PDF or executes instant multimodal demonstration OCR."""
+    base_dir = Path(__file__).resolve().parent.parent / "data" / "sample_deeds"
+    if doc_type == "ec":
+        target_path = base_dir / "kerala_sro_ec_aluva_30_year_search.pdf"
+        target_filename = "kerala_sro_ec_aluva_30_year_search.pdf"
+    else:
+        target_path = base_dir / "kerala_sale_deed_aluva_re_sy_345_1.pdf"
+        target_filename = "kerala_sale_deed_aluva_re_sy_345_1.pdf"
+
+    if not target_path.exists():
+        target_path = base_dir / "sample_aluva_deed.pdf"
+        target_filename = "sample_aluva_deed.pdf"
+
+    if not target_path.exists():
+        return JSONResponse({"error": "Sample PDF file not found."}, status_code=404)
 
     if process:
         engine = DeedOCREngine()
         session_id = _user_sessions.get(user_id) if LOCAL_MODE else _contexts.get(user_id)
-        result = engine.process_file_bytes(sample_path.read_bytes(), "application/pdf", session_id=session_id)
+        result = engine.process_file_bytes(target_path.read_bytes(), "application/pdf", session_id=session_id)
         return JSONResponse(result.model_dump())
 
     return FileResponse(
-        path=str(sample_path),
+        path=str(target_path),
         media_type="application/pdf",
-        filename="sample_aluva_deed.pdf",
+        filename=target_filename,
     )
 
 

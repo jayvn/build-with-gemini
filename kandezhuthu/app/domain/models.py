@@ -123,3 +123,68 @@ class ElevationFloodResult(BaseModel):
     recommended_plinth_height_m: float
     physical_inspection_checklist: list[str]
     whatsapp_inquiry_for_seller: str
+
+
+class ECEntry(BaseModel):
+    """Represents a detailed entry in the SRO Encumbrance Certificate (EC / കുടിക്കടം)."""
+    doc_number: str
+    year: int
+    sro_name: str
+    volume: str | None = None
+    page: str | None = None
+    nature_of_act: str = Field(description="Nature of instrument (e.g. Theeradharam/Sale, Gehan/Mortgage, Court Attachment, Release)")
+    executants: list[str] = Field(default_factory=list, description="Parties creating encumbrance / transferring")
+    claimants: list[str] = Field(default_factory=list, description="Parties in whose favor encumbrance is created (e.g. Federal Bank, Court, Buyer)")
+    consideration_inr: float = 0.0
+    liability_amount_inr: float | None = None
+    is_undischarged_liability: bool = False
+    is_court_attachment: bool = False
+    notes: str | None = None
+
+
+class ECAuditResult(BaseModel):
+    """Results of cross-validating SRO Encumbrance Certificate against title deeds."""
+    property_identifier: str
+    ec_period: str
+    total_entries_count: int
+    is_nil_encumbrance: bool
+    entries: list[ECEntry] = Field(default_factory=list)
+    undisclosed_mortgages: list[str] = Field(default_factory=list)
+    court_attachments: list[str] = Field(default_factory=list)
+    conflicting_alienations: list[str] = Field(default_factory=list)
+    risk_flags: list[RiskFlag] = Field(default_factory=list)
+    safety_score: int = Field(description="EC Safety Score 0-100 (100 = 100% clean nil EC, 0 = severe undischarged charges)")
+    summary: str
+    whatsapp_inquiry: str
+    checklist: list[str] = Field(default_factory=list)
+
+
+class CadastralParcel(BaseModel):
+    """Digital cadastral parcel geometry (BhuNaksha / ILIMS style FMB polygon)."""
+    district: str
+    taluk: str
+    village: str
+    block_no: str | None = None
+    survey_no: str
+    resurvey_no: str | None = None
+    extent_cents: float
+    polygon_coordinates: list[list[float]] = Field(description="List of [lat, lng] vertices")
+    fmb_dimensions_m: list[dict[str, str | float]] = Field(default_factory=list, description="Edge segments with length in meters")
+    adjacent_survey_numbers: list[str] = Field(default_factory=list)
+    access_road_identified: bool = False
+    subdivision_sketch_available: bool = True
+
+
+class DataBankCheckResult(BaseModel):
+    """Statutory check under Kerala Conservation of Paddy Land & Wetland Act, 2008."""
+    survey_no: str
+    village: str
+    is_listed_in_databank: bool
+    entry_status: str
+    krishi_bhavan_name: str
+    recommended_statutory_form: str
+    fee_calculation: PaddyLandFeeCalculation | None = None
+    building_permit_eligibility: str
+    risk_advisory: str
+    whatsapp_inquiry: str
+

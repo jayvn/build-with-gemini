@@ -57,6 +57,37 @@
   
   .header-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
 
+  /* Language switch buttons */
+  .lang-switch {
+    display: inline-flex;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .lang-btn {
+    border: none;
+    background: transparent;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .lang-btn:hover {
+    color: var(--text);
+  }
+  .lang-btn.active {
+    background: #0f5132;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+
   /* View switch buttons */
   .view-switch {
     display: inline-flex;
@@ -1689,9 +1720,15 @@
             <button type="button" class="dropzone-btn primary" onclick="document.getElementById('deed-file-input').click()">
               <span>📁 Browse Files</span>
             </button>
-            <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR()" title="Run instant demonstration OCR on sample Aluva deed">
-              <span>✨ Try Demo Deed</span>
+            <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR('deed')" title="Run instant Gemini 3.8 Flash Vision OCR on authentic Kerala Sale Deed PDF">
+              <span>✨ Ingest Sale Deed (PDF)</span>
             </button>
+            <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR('ec')" title="Run instant Gemini 3.8 Flash Vision OCR on official Kerala SRO Encumbrance Certificate PDF">
+              <span>📜 Ingest SRO EC (PDF)</span>
+            </button>
+            <a href="/api/sample_deed?doc_type=deed" download="kerala_sale_deed_aluva_re_sy_345_1.pdf" class="dropzone-btn secondary" style="text-decoration:none;" title="Download real test Kerala deed PDF to your machine to test drag-and-drop">
+              <span>⬇️ Download Test Deed</span>
+            </a>
           </div>
         </div>
       </div>
@@ -2165,38 +2202,44 @@ async function handleDeedUpload(file) {
 }
 
 /* Sample Deed OCR Runner */
-async function runSampleDeedOCR() {
-  appendMsg("user", `📄 <strong>Demonstration Request:</strong> Scan Sample Kerala Title Deed (Aluva SRO Doc 1420/2014, Re-Sy 345/1)`);
+async function runSampleDeedOCR(docType = "deed") {
+  const isEc = docType === "ec";
+  const docTitle = isEc ? "Official Kerala SRO Encumbrance Certificate (EC Form 15, 30-Year Search)" : "Sample Kerala Title Deed (Aluva SRO Doc 1420/2014, Re-Sy 345/1)";
+  const fileName = isEc ? "kerala_sro_ec_aluva_30_year_search.pdf" : "kerala_sale_deed_aluva_re_sy_345_1.pdf";
+  const step1Desc = isEc ? "Official SRO Form 15 EC (1994-2024 Search Period)" : "Sample PDF loaded (11 Cents, Aluva West Village)";
+  const step3Desc = isEc ? "Auditing registered mortgages, liens & SARFAESI charges..." : "Evaluating pathway easement, minor shares & wetland status...";
+
+  appendMsg("user", `📄 <strong>Demonstration Request:</strong> Scan ${docTitle}`);
 
   const loadingBubble = appendMsg("agent", `
     <div class="ocr-progress-card">
       <div class="ocr-progress-header">
         <span class="ocr-spinner"></span>
-        <span>Scanning Sample Deed: <strong>sample_aluva_deed.pdf</strong> (Gemini 3.8 Flash Vision)</span>
+        <span>Scanning Document: <strong>${fileName}</strong> (Gemini 3.8 Flash Vision)</span>
       </div>
       <div class="ocr-steps">
         <div class="ocr-step done">
-          <span>✓</span> <span>Step 1: Sample PDF loaded (10 Cents, Aluva Village)</span>
+          <span>✓</span> <span>Step 1: ${step1Desc}</span>
         </div>
         <div class="ocr-step active">
-          <span>●</span> <span>Step 2: Paleographic OCR & recital extraction...</span>
+          <span>●</span> <span>Step 2: Cloud Document AI & Multimodal Vision OCR extraction...</span>
         </div>
         <div class="ocr-step">
-          <span>○</span> <span>Step 3: Evaluating pathway easement & wetland status...</span>
+          <span>○</span> <span>Step 3: ${step3Desc}</span>
         </div>
       </div>
     </div>
   `);
 
   try {
-    const res = await fetch("/api/sample_deed?process=true&user_id=web-user");
-    if (!res.ok) throw new Error("Could not process sample deed");
+    const res = await fetch(`/api/sample_deed?doc_type=${docType}&process=true&user_id=web-user`);
+    if (!res.ok) throw new Error("Could not process sample document");
     const result = await res.json();
     setTimeout(() => {
-      renderDeedAuditCard(loadingBubble, result, "sample_aluva_deed.pdf");
+      renderDeedAuditCard(loadingBubble, result, fileName);
     }, 400);
   } catch (err) {
-    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error scanning sample deed: ${err.message}</span>`;
+    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error scanning document: ${err.message}</span>`;
   }
 }
 

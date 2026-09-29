@@ -329,6 +329,154 @@
   button#send-btn:hover { background: #146c43; }
   button#send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
 
+  /* Upload button */
+  .upload-trigger-btn {
+    width: 48px;
+    height: 48px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #0f5132;
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .upload-trigger-btn:hover {
+    background: #ecfdf5;
+    border-color: #0f5132;
+    transform: translateY(-1px);
+  }
+
+  /* Drag and drop overlay */
+  .drop-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(240, 253, 244, 0.94);
+    border: 3px dashed #22c55e;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .drop-overlay.active { display: flex; }
+  .drop-card {
+    text-align: center;
+    background: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(15, 81, 50, 0.15);
+  }
+  .drop-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .drop-title { font-size: 1.1rem; font-weight: 700; color: #0f5132; }
+  .drop-subtitle { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
+
+  /* Deed Audit Card */
+  .deed-audit-card {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0.75rem 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .deed-card-header {
+    background: #f8fafc;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .deed-title-group { display: flex; align-items: center; gap: 0.5rem; }
+  .deed-doc-tag { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+  .deed-type-badge {
+    background: #e2e8f0;
+    color: #334155;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .deed-score-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .deed-score-badge.clear { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+  .deed-score-badge.caution { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .deed-score-badge.danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+  .deed-card-body { padding: 0.85rem 1rem; }
+  .deed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 0.85rem;
+  }
+  .deed-grid-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.45rem 0.65rem;
+  }
+  .deed-grid-label { font-size: 0.67rem; text-transform: uppercase; color: #64748b; font-weight: 600; }
+  .deed-grid-val { font-size: 0.92rem; font-weight: 700; color: #0f172a; margin-top: 2px; }
+
+  /* Boundaries list */
+  .boundary-box {
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.85rem;
+  }
+  .boundary-title { font-size: 0.78rem; font-weight: 700; color: #6b21a8; margin-bottom: 0.35rem; }
+  .boundary-row { font-size: 0.82rem; color: #374151; margin-bottom: 0.25rem; display: flex; gap: 0.4rem; }
+  .boundary-dir { font-weight: 700; min-width: 65px; color: #7e22ce; }
+
+  /* Prior deeds pills */
+  .prior-deeds-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.85rem;
+  }
+  .prior-title { font-size: 0.78rem; font-weight: 700; color: #1e40af; margin-bottom: 0.35rem; }
+  .prior-item { font-size: 0.82rem; color: #1e3a8a; margin-bottom: 0.2rem; }
+
+  /* Findings / Warnings */
+  .findings-box {
+    margin-bottom: 0.85rem;
+  }
+  .finding-alert {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.82rem;
+  }
+  .finding-alert.critical {
+    background: #fef2f2;
+    border-color: #fecaca;
+    border-left-color: #ef4444;
+  }
+  .finding-alert-header { font-weight: 700; color: #92400e; display: flex; justify-content: space-between; margin-bottom: 0.2rem; }
+  .finding-alert.critical .finding-alert-header { color: #991b1b; }
+
   /* Map Pane */
   #map-pane {
     flex: 1;
@@ -761,11 +909,24 @@
 </header>
 
 <div id="main-container">
-  <!-- Left / Chat Pane -->
-  <div id="chat-pane">
+  <div id="chat-pane" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleFileDrop(event)">
+    <div id="drop-overlay" class="drop-overlay">
+      <div class="drop-card">
+        <div class="drop-icon">📄</div>
+        <div class="drop-title">Drop Scanned Kerala Deed Here</div>
+        <div class="drop-subtitle">PDF, PNG, JPG, or WEBP (Gemini 3.8 Flash Vision OCR)</div>
+      </div>
+    </div>
+
     <div class="chips-container">
       <div class="chips-bar">
-        <div class="chip featured" onclick="sendPrompt('Run a demonstration 30-year title audit for a realistic Kerala property and explain the risks in detail.')">
+        <div class="chip featured" onclick="runSampleDeedOCR()" title="Run instant Gemini Vision OCR on realistic Aluva Title Deed">
+          📄 Scan Sample Deed (Aluva 1420/2014)
+        </div>
+        <div class="chip" onclick="document.getElementById('deed-file-input').click()" title="Upload scanned Kerala deed PDF or image">
+          📎 Upload Scanned Deed
+        </div>
+        <div class="chip" onclick="sendPrompt('Run a demonstration 30-year title audit for a realistic Kerala property and explain the risks in detail.')">
           📜 Try 30-Year Demo Audit
         </div>
         <div class="chip" onclick="sendPrompt('Scan this deed clause for traps: Schedule: 10 cents in Re-Sy 345/1. 2-meter pathway along southern boundary reserved for party of 2nd part.')">
@@ -792,6 +953,7 @@
         <div class="bubble">
           <strong>നമസ്കാരം! Welcome to Kandezhuthu AI (കണ്ടെഴുത്ത് - ആധാരംനോക്കി).</strong>
           <p>I am your specialized assistant for evaluating Kerala land deeds (*Aadharam*), prior lineage (*Munnadharam*), and property regulatory risks before you advance token money to a seller or broker.</p>
+          <p style="margin-top: 0.5rem;"><strong>📄 Scanned Malayalam Deed OCR:</strong> Click <strong>📎 Upload Scanned Deed</strong> or drag & drop any PDF/image of a Kerala deed to automatically extract survey numbers, boundaries, prior deeds, and evaluate title traps!</p>
           <p style="margin-top: 0.5rem;"><strong>🗺️ Interactive Google Maps & Satellite Inspector:</strong></p>
           <p>Inspect any plot in Kerala using the interactive Satellite Map on the right. Search for your village or outline boundaries to calculate land extent in <strong>Kerala Cents</strong>, measure access road width against KPBR building rules, and check field verification essentials!</p>
         </div>
@@ -799,7 +961,11 @@
     </div>
 
     <form id="form">
-      <textarea id="input" placeholder="Paste deed excerpt, ask about Kerala land rules, or describe ownership history..." rows="1" autofocus></textarea>
+      <input type="file" id="deed-file-input" accept=".pdf,image/png,image/jpeg,image/webp" style="display:none;" onchange="if(this.files[0]) handleDeedUpload(this.files[0])">
+      <button type="button" class="upload-trigger-btn" onclick="document.getElementById('deed-file-input').click()" title="Upload Scanned Deed or EC (PDF/Image)">
+        <span>📎</span>
+      </button>
+      <textarea id="input" placeholder="Paste deed excerpt, ask questions, or click 📎 to upload a scanned deed..." rows="1" autofocus></textarea>
       <button type="submit" id="send-btn">
         <span>Send</span>
         <span>➤</span>

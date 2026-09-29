@@ -8,19 +8,21 @@ Supports both:
 import os
 import sys
 import uuid
-from typing import Optional
 
 # Ensure parent directory is in pythonpath
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from pathlib import Path
+
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, File, Request, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
-from app.db.seed_data import seed_all
+from app.db.seed_data import seed_all  # noqa: E402
+from app.domain.deed_ocr import DeedOCREngine  # noqa: E402
 
 seed_all()
 
@@ -34,6 +36,7 @@ if LOCAL_MODE:
     from google.adk.runners import Runner
     from google.adk.sessions import InMemorySessionService
     from google.genai import types
+
     from app.agent import root_agent
 
     _session_service = InMemorySessionService()
@@ -66,7 +69,7 @@ else:
     _A2UI_MIME = "application/json+a2ui"
     _creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
     _contexts: dict[str, str] = {}
-    _card: Optional[AgentCard] = None
+    _card: AgentCard | None = None
 
     def _auth_headers() -> dict[str, str]:
         _creds.refresh(google.auth.transport.requests.Request())
@@ -116,6 +119,60 @@ async def get_config():
     return {
         "google_maps_api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "") or os.environ.get("VITE_GOOGLE_MAPS_API_KEY", "")
     }
+
+
+@app.post("/api/upload_deed")
+async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-user"):  # noqa: B008
+    """Accepts scanned deed (PDF/PNG/JPEG/WEBP), runs Gemini OCR, and returns structured audit."""
+    content = await file.read()
+    mime_type = file.content_type or "application/pdf"
+
+    engine = DeedOCREngine()
+    session_id = _user_sessions.get(user_id) if LOCAL_MODE else _contexts.get(user_id)
+    result = engine.process_file_bytes(content, mime_type, session_id=session_id)
+
+    # Inject context into session for subsequent chat
+    deed_context = (
+        f"[SYSTEM CONTEXT: The user uploaded a title deed document with Doc No: {result.metadata.document_number or 'Unknown'}, "
+        f"Survey No: {result.metadata.survey_no}, Village: {result.metadata.village}, Extent: {result.metadata.extent_cents} Cents, "
+        f"Classification: {result.metadata.revenue_classification}, Sanity Score: {result.sanity_result.sanity_score}/100]. "
+        f"Use this property context to answer any follow-up questions from the buyer."
+    )
+    if LOCAL_MODE:
+        if not session_id:
+            session = _session_service.create_session_sync(user_id=user_id, app_name="kandezhuthu")
+            session_id = session.id
+            _user_sessions[user_id] = session_id
+        try:
+            _runner.run(
+                new_message=types.Content(role="user", parts=[types.Part.from_text(text=deed_context)]),
+                user_id=user_id,
+                session_id=session_id,
+            )
+        except Exception:
+            pass
+
+    return JSONResponse(result.model_dump())
+
+
+@app.get("/api/sample_deed")
+async def get_sample_deed(process: bool = False, user_id: str = "kandezhuthu-user"):
+    """Returns sample deed PDF or executes instant demonstration OCR on the sample."""
+    sample_path = Path(__file__).resolve().parent.parent / "data" / "sample_deeds" / "sample_aluva_deed.pdf"
+    if not sample_path.exists():
+        return JSONResponse({"error": "Sample deed file not found."}, status_code=404)
+
+    if process:
+        engine = DeedOCREngine()
+        session_id = _user_sessions.get(user_id) if LOCAL_MODE else _contexts.get(user_id)
+        result = engine.process_file_bytes(sample_path.read_bytes(), "application/pdf", session_id=session_id)
+        return JSONResponse(result.model_dump())
+
+    return FileResponse(
+        path=str(sample_path),
+        media_type="application/pdf",
+        filename="sample_aluva_deed.pdf",
+    )
 
 
 @app.post("/chat")

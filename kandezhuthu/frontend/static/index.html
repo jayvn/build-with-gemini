@@ -1615,8 +1615,8 @@
     <div id="drop-overlay" class="drop-overlay">
       <div class="drop-card">
         <div class="drop-icon-animated">📄</div>
-        <div class="drop-title">Drop Scanned Kerala Deed or EC Here</div>
-        <div class="drop-subtitle">Directly ingests Malayalam/English deed text using Google Cloud Document AI & Gemini 3.8 Flash Multimodal Vision</div>
+        <div class="drop-title" id="drop-overlay-title">Drop Scanned Kerala Deed or EC Here</div>
+        <div class="drop-subtitle" id="drop-overlay-subtitle">Directly ingests Malayalam/English deed text using Google Cloud Document AI & Gemini 3.8 Flash Multimodal Vision</div>
         <div class="drop-badges">
           <span>PDF Documents</span>
           <span>PNG Scans</span>
@@ -1629,65 +1629,65 @@
 
     <!-- Categorized Action Tabs -->
     <div class="category-tabs">
-      <div class="category-tab active" data-cat="lineage" onclick="switchActionCategory('lineage')">📜 Ownership & Lineage</div>
-      <div class="category-tab" data-cat="statutory" onclick="switchActionCategory('statutory')">⚖️ Statutory Traps</div>
-      <div class="category-tab" data-cat="kpbr" onclick="switchActionCategory('kpbr')">📐 KPBR Building Rules</div>
-      <div class="category-tab" data-cat="field" onclick="switchActionCategory('field')">🚶 Field Inspection</div>
-      <div class="category-tab" data-cat="all" onclick="switchActionCategory('all')">✨ Show All</div>
+      <div class="category-tab active" data-cat="lineage" id="cat-tab-lineage" onclick="switchActionCategory('lineage')">📜 Ownership & Lineage</div>
+      <div class="category-tab" data-cat="statutory" id="cat-tab-statutory" onclick="switchActionCategory('statutory')">⚖️ Statutory Traps</div>
+      <div class="category-tab" data-cat="kpbr" id="cat-tab-kpbr" onclick="switchActionCategory('kpbr')">📐 KPBR Building Rules</div>
+      <div class="category-tab" data-cat="field" id="cat-tab-field" onclick="switchActionCategory('field')">🚶 Field Inspection</div>
+      <div class="category-tab" data-cat="all" id="cat-tab-all" onclick="switchActionCategory('all')">✨ Show All</div>
     </div>
 
     <div class="chips-container">
       <div class="chips-bar">
         <!-- Lineage & Timelines -->
-        <div class="chip featured" data-cat="lineage" onclick="openOwnershipTimeline('aluva_broken')" title="Open Interactive 30-Year Ownership Timeline with 3 Critical Defects">
+        <div class="chip featured" data-cat="lineage" id="chip-timeline-aluva" onclick="openOwnershipTimeline('aluva_broken')" title="Open Interactive 30-Year Ownership Timeline with 3 Critical Defects">
           📜 Timeline: Aluva 30-Yr (3 Traps)
         </div>
-        <div class="chip" data-cat="lineage" onclick="openOwnershipTimeline('kakkanad_wetland')" title="Open Kakkanad Wetland & Minor Share Timeline">
+        <div class="chip" data-cat="lineage" id="chip-timeline-kakkanad" onclick="openOwnershipTimeline('kakkanad_wetland')" title="Open Kakkanad Wetland & Minor Share Timeline">
           🌾 Timeline: Kakkanad Wetland & Minor
         </div>
-        <div class="chip" data-cat="lineage" onclick="openOwnershipTimeline('clean_title')" title="Open 100% Clean 39-Year Prior Deeds Timeline">
+        <div class="chip" data-cat="lineage" id="chip-timeline-clean" onclick="openOwnershipTimeline('clean_title')" title="Open 100% Clean 39-Year Prior Deeds Timeline">
           🟢 Timeline: Clean Title (39 Yrs)
         </div>
-        <div class="chip" data-cat="lineage" onclick="sendPrompt('Is historical purchase price a public record in Kerala? How much did the seller buy it for across prior deeds, and how does it compare to Government Notified Fair Value (ന്യായവില)?')" title="Audit public purchase prices, fair value, and consideration history">
+        <div class="chip" data-cat="lineage" id="chip-fair-value" onclick="onChipClick('fair_value')" title="Audit public purchase prices, fair value, and consideration history">
           💰 Public Purchase Price & Fair Value
         </div>
-        <div class="chip" data-cat="lineage" onclick="runSampleDeedOCR()" title="Run instant Gemini Vision OCR on realistic Aluva Title Deed">
+        <div class="chip" data-cat="lineage" id="chip-sample-deed" onclick="runSampleDeedOCR('deed')" title="Run instant Gemini Vision OCR on realistic Aluva Title Deed">
           📄 Scan Sample Deed (Aluva 1420/2014)
         </div>
-        <div class="chip" data-cat="lineage" onclick="document.getElementById('deed-file-input').click()" title="Upload scanned Kerala deed PDF or image">
+        <div class="chip" data-cat="lineage" id="chip-upload-deed" onclick="document.getElementById('deed-file-input').click()" title="Upload scanned Kerala deed PDF or image">
           📎 Upload Scanned Deed
         </div>
 
         <!-- Statutory Traps -->
-        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Explain Kerala Stamp Act Section 45A undervaluation risk: What happens if seller requests registering at a lower consideration than market price?')">
+        <div class="chip" data-cat="statutory" id="chip-sec45a" style="display:none;" onclick="onChipClick('sec45a')">
           ⚖️ Sec 45A Undervaluation & Deficit Stamp
         </div>
-        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Audit this partition deed under Mary Roy precedent: Ancestral Syrian Christian land partitioned in 1994 among sons only, excluding sister without registered release deed.')">
+        <div class="chip" data-cat="statutory" id="chip-mary-roy" style="display:none;" onclick="onChipClick('mary_roy')">
           👩 Mary Roy Excluded Heirs
         </div>
-        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Check EC entry: SRO Encumbrance Certificate shows equitable mortgage registered in 2022 with Federal Bank, but seller has no Gehan release deed.')">
+        <div class="chip" data-cat="statutory" id="chip-ec-mortgage" style="display:none;" onclick="onChipClick('ec_mortgage')">
           🏦 Undischarged Bank Mortgage (EC)
         </div>
-        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Scan this deed clause for traps: Schedule: 10 cents in Re-Sy 345/1. 2-meter pathway along southern boundary reserved for party of 2nd part.')">
+        <div class="chip" data-cat="statutory" id="chip-pathway" style="display:none;" onclick="onChipClick('pathway')">
           🔍 Pathway / Vazhi Avakasham
         </div>
-        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Check this for wetland trap: The property is 12 cents classified as Nilam in prior deed 142/1998, with unregularized dry status.')">
+        <div class="chip" data-cat="statutory" id="chip-wetland" style="display:none;" onclick="onChipClick('wetland')">
           🌾 Nilam / Wetland 2008 Risk
         </div>
 
         <!-- KPBR Rules -->
-        <div class="chip" data-cat="kpbr" style="display:none;" onclick="sendPrompt('Under Kerala Panchayat Building Rules (KPBR 2019), what is the minimum road access width required to get a residential building permit?')">
+        <div class="chip" data-cat="kpbr" id="chip-kpbr" style="display:none;" onclick="onChipClick('kpbr')">
           📐 Residential Road Width (3m vs 5m)
         </div>
-        <div class="chip" data-cat="kpbr" style="display:none;" onclick="sendPrompt('How does the Kerala Conservation of Paddy Land Act Section 27A work? What is the fee slab for Form 6 and who gets the 25-cent free exemption?')">
+        <div class="chip" data-cat="kpbr" id="chip-form6" style="display:none;" onclick="onChipClick('form6')">
           📑 Form 6 / 27A Fee Slabs
         </div>
 
         <!-- Field Inspection -->
-        <div class="chip" data-cat="field" style="display:none;" onclick="sendPrompt('What physical checks must I perform on the ground regarding Survey Kallu, boundaries, and road access before paying an advance?')">
+        <div class="chip" data-cat="field" id="chip-survey-kallu" style="display:none;" onclick="onChipClick('survey_kallu')">
           📍 Survey Kallu (Boundary Stones)
         </div>
-        <div class="chip" data-cat="field" style="display:none;" onclick="setMapTool('road'); setViewMode('split');">
+        <div class="chip" data-cat="field" id="chip-measure-road" style="display:none;" onclick="setMapTool('road'); setViewMode('split');">
           📏 Measure Road Width on Map
         </div>
       </div>
@@ -1698,16 +1698,16 @@
       <div class="deed-dropzone" id="deed-dropzone" onclick="document.getElementById('deed-file-input').click()" title="Click to browse or drop any deed file">
         <div class="dropzone-badge-row">
           <span class="dropzone-live-pulse"></span>
-          <span class="dropzone-tag">Cloud Document AI & Multimodal Vision</span>
+          <span class="dropzone-tag" id="dropzone-tag">Cloud Document AI & Multimodal Vision</span>
           <span class="dropzone-model">Gemini 3.8 Flash</span>
         </div>
         <div class="dropzone-content">
           <div class="dropzone-icon">📥</div>
           <div class="dropzone-text">
             <div class="dropzone-title">
-              <strong>Drag & Drop Kerala Title Deed (*ആധാരം*) or Encumbrance Certificate (*കുടിക്കടം*)</strong>
+              <strong id="dropzone-title">Drag & Drop Kerala Title Deed (*ആധാരം*) or Encumbrance Certificate (*കുടിക്കടം*)</strong>
             </div>
-            <div class="dropzone-desc">
+            <div class="dropzone-desc" id="dropzone-desc">
               Directly extracts 4 boundaries (ചതുരതിരുകൾ), survey numbers, prior deeds (മുന്നാധാരം) & audits 4 fatal statutory traps
             </div>
           </div>
@@ -1718,20 +1718,20 @@
             <span class="format-pill">PNG</span>
             <span class="format-pill">JPG</span>
             <span class="format-pill">WEBP</span>
-            <span class="format-pill lang">മലയാളം & English</span>
+            <span class="format-pill lang" id="dropzone-pill-lang">മലയാളം & English</span>
           </div>
           <div class="dropzone-btns" onclick="event.stopPropagation()">
             <button type="button" class="dropzone-btn primary" onclick="document.getElementById('deed-file-input').click()">
-              <span>📁 Browse Files</span>
+              <span id="btn-browse-text">📁 Browse Files</span>
             </button>
             <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR('deed')" title="Run instant Gemini 3.8 Flash Vision OCR on authentic Kerala Sale Deed PDF">
-              <span>✨ Ingest Sale Deed (PDF)</span>
+              <span id="btn-sample-deed-text">✨ Ingest Sale Deed (PDF)</span>
             </button>
             <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR('ec')" title="Run instant Gemini 3.8 Flash Vision OCR on official Kerala SRO Encumbrance Certificate PDF">
-              <span>📜 Ingest SRO EC (PDF)</span>
+              <span id="btn-sample-ec-text">📜 Ingest SRO EC (PDF)</span>
             </button>
             <a href="/api/sample_deed?doc_type=deed" download="kerala_sale_deed_aluva_re_sy_345_1.pdf" class="dropzone-btn secondary" style="text-decoration:none;" title="Download real test Kerala deed PDF to your machine to test drag-and-drop">
-              <span>⬇️ Download Test Deed</span>
+              <span id="btn-download-deed-text">⬇️ Download Test Deed</span>
             </a>
           </div>
         </div>
@@ -1741,7 +1741,7 @@
     <div id="log">
       <div class="msg agent">
         <div class="msg-label">Kandezhuthu AI</div>
-        <div class="bubble">
+        <div class="bubble" id="welcome-bubble">
           <strong>നമസ്കാരം! Welcome to Kandezhuthu AI (കണ്ടെഴുത്ത് - ആധാരംനോക്കി).</strong>
           <p>I am your specialized assistant for evaluating Kerala land deeds (*Aadharam*), prior lineage (*Munnadharam*), and property regulatory risks before you advance token money to a seller or broker.</p>
           <p style="margin-top: 0.5rem;"><strong>📄 Scanned Malayalam Deed OCR:</strong> Click <strong>📎 Upload Scanned Deed</strong> or drag & drop any PDF/image of a Kerala deed to automatically extract survey numbers, boundaries, prior deeds, and evaluate title traps!</p>
@@ -1758,7 +1758,7 @@
       </button>
       <textarea id="input" placeholder="Paste deed excerpt, ask questions, or click 📎 to upload a scanned deed..." rows="1" autofocus></textarea>
       <button type="submit" id="send-btn">
-        <span>Send</span>
+        <span id="send-btn-text">Send</span>
         <span>➤</span>
       </button>
     </form>
@@ -1768,11 +1768,11 @@
   <div id="map-pane">
     <div class="map-header-bar">
       <div class="map-title-tag">
-        <span>🛰️</span> Satellite Inspector
+        <span>🛰️</span> <span id="map-header-title">Satellite Inspector</span>
       </div>
 
       <select class="map-preset-select" id="preset-select" onchange="applyLocationPreset(this.value)">
-        <option value="">📍 Select Kerala Region...</option>
+        <option value="" id="opt-preset-default">📍 Select Kerala Region...</option>
         <option value="aluva" selected>Aluva (Periyar River Basin - 2018 Flood Zone)</option>
         <option value="kakkanad">Kakkanad / Infopark (Elevated Midlands)</option>
         <option value="kuttanad">Kuttanad (Sub-Sea-Level Wetland Polders)</option>
@@ -1796,8 +1796,8 @@
       <button class="map-tool-btn" id="tool-plot" onclick="setMapTool('plot')">📐 Draw Plot (Cents)</button>
       <button class="map-tool-btn" id="tool-road" onclick="setMapTool('road')">📏 Measure Road Width</button>
       <button class="map-tool-btn" id="btn-undo" onclick="undoLastPoint()" disabled title="Undo last placed point">↩️ Undo</button>
-      <button class="map-tool-btn" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
-      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()">📋 Checklist <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/5</span></button>
+      <button class="map-tool-btn" id="btn-clear" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
+      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()"><span id="btn-chk-text">📋 Checklist</span> <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/5</span></button>
 
       <select class="map-layer-select" id="layer-select" onchange="switchMapLayer(this.value)">
         <option value="google-hybrid" selected>🛰️ Google Satellite Hybrid</option>
@@ -1815,7 +1815,7 @@
         <span id="guidance-text">Click anywhere on the satellite view to drop an inspection pin and view GPS coordinates.</span>
       </div>
       <div class="guidance-actions" id="guidance-actions" style="display: none;">
-        <button class="guidance-btn secondary" onclick="undoLastPoint()">↩️ Undo</button>
+        <button class="guidance-btn secondary" id="guidance-undo-btn" onclick="undoLastPoint()">↩️ Undo</button>
         <button class="guidance-btn primary" id="guidance-finish-btn" onclick="finishPlot()">✅ Seal Plot</button>
       </div>
     </div>
@@ -1827,36 +1827,36 @@
       <div class="map-hud-header">
         <span id="hud-locality-title">📍 Aluva, Ernakulam District</span>
         <div style="display: flex; align-items: center; gap: 0.4rem;">
-          <span style="font-size: 0.72rem; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Live Plot HUD</span>
+          <span id="hud-live-tag" style="font-size: 0.72rem; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Live Plot HUD</span>
           <button class="hud-toggle-btn" id="hud-toggle-btn" onclick="toggleHUD()" title="Minimize or Expand HUD">_</button>
         </div>
       </div>
 
       <div class="hud-stats-grid">
         <div class="hud-stat-box">
-          <div class="hud-stat-label">Coordinates</div>
+          <div class="hud-stat-label" id="hud-lbl-coords">Coordinates</div>
           <div class="hud-stat-val" id="hud-coords" style="font-size: 0.78rem;">10.1076, 76.3516</div>
         </div>
         <div class="hud-stat-box">
-          <div class="hud-stat-label">
+          <div class="hud-stat-label" id="hud-lbl-extent">
             <span>Plot Extent</span>
             <span style="font-size:0.65rem; color:#0f5132;" title="1 Cent = 40.47 m² = 435.6 sq.ft">ℹ️ Kerala Cents</span>
           </div>
           <div class="hud-stat-val cents" id="hud-cents">10.00 Cents</div>
         </div>
         <div class="hud-stat-box">
-          <div class="hud-stat-label">Area (Revenue Ares & Sq.M)</div>
+          <div class="hud-stat-label" id="hud-lbl-area">Area (Revenue Ares & Sq.M)</div>
           <div class="hud-stat-val" id="hud-sqm" style="font-size: 0.76rem;">4.05 Ares (404.7 m²)</div>
         </div>
         <div class="hud-stat-box">
-          <div class="hud-stat-label">Road Width (KPBR 2019)</div>
+          <div class="hud-stat-label" id="hud-lbl-road">Road Width (KPBR 2019)</div>
           <div class="hud-stat-val" id="hud-road">
             <span id="hud-road-text" style="font-size: 0.78rem;">3.2 meters</span>
             <span class="badge-road pass" id="hud-road-badge">✅ KPBR Pass (≥3m)</span>
           </div>
         </div>
         <div class="hud-stat-box full-width" id="hud-elevation-box">
-          <div class="hud-stat-label">
+          <div class="hud-stat-label" id="hud-lbl-elevation">
             <span>Elevation & Flood Exposure</span>
             <span style="font-size:0.65rem; color:#0f5132;" title="Above Mean Sea Level (MSL) & KSDMA flood hazard rating">⛰️ MSL</span>
           </div>
@@ -1869,10 +1869,10 @@
       </div>
 
       <div class="hud-actions">
-        <button class="hud-btn hud-btn-primary" onclick="sendPlotToAuditor()">
+        <button class="hud-btn hud-btn-primary" id="btn-hud-send" onclick="sendPlotToAuditor()">
           📋 Send to Auditor
         </button>
-        <button class="hud-btn hud-btn-secondary" onclick="exportPlotDossier()" title="Export Advocate Legal Dossier PDF with satellite plot geometry and KPBR compliance">
+        <button class="hud-btn hud-btn-secondary" id="btn-hud-export" onclick="exportPlotDossier()" title="Export Advocate Legal Dossier PDF with satellite plot geometry and KPBR compliance">
           📑 Export Dossier (PDF)
         </button>
         <a id="btn-open-gmaps" class="hud-btn hud-btn-secondary" target="_blank" href="https://www.google.com/maps/search/?api=1&query=10.1076,76.3516">
@@ -1884,37 +1884,37 @@
     <!-- Toggleable Interactive Field Checklist Panel -->
     <div class="checklist-panel" id="checklist-panel">
       <div class="checklist-header">
-        <span>🚩 On-Site Field Check Essentials</span>
+        <span id="chk-panel-title">🚩 On-Site Field Check Essentials</span>
         <button class="checklist-close-btn" onclick="toggleChecklist(false)" style="border:none; background:transparent; font-size:0.9rem; cursor:pointer; color:#64748b;">✕</button>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-kallu" onchange="updateChecklistProgress()">
-        <label for="chk-kallu"><strong>Survey Kallu:</strong> Verify all 4 corner stones physically intact on ground.</label>
+        <label for="chk-kallu" id="chk-lbl-kallu"><strong>Survey Kallu:</strong> Verify all 4 corner stones physically intact on ground.</label>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-road" onchange="updateChecklistProgress()">
-        <label for="chk-road"><strong>Road Access:</strong> Min 3.0m motorable road width for KPBR building permit.</label>
+        <label for="chk-road" id="chk-lbl-road"><strong>Road Access:</strong> Min 3.0m motorable road width for KPBR building permit.</label>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-wetland" onchange="updateChecklistProgress()">
-        <label for="chk-wetland"><strong>Wetland Proximity:</strong> Spot paddy fields/canals via satellite layer.</label>
+        <label for="chk-wetland" id="chk-lbl-wetland"><strong>Wetland Proximity:</strong> Spot paddy fields/canals via satellite layer.</label>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-ht" onchange="updateChecklistProgress()">
-        <label for="chk-ht"><strong>Overhead Lines:</strong> Verify no HT electricity lines cross over the plot.</label>
+        <label for="chk-ht" id="chk-lbl-ht"><strong>Overhead Lines:</strong> Verify no HT electricity lines cross over the plot.</label>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-flood" onchange="updateChecklistProgress()">
-        <label for="chk-flood"><strong>Flood Watermarks:</strong> Check compound walls & poles for 2018 monsoon waterlines.</label>
+        <label for="chk-flood" id="chk-lbl-flood"><strong>Flood Watermarks:</strong> Check compound walls & poles for 2018 monsoon waterlines.</label>
       </div>
-      <div style="font-size:0.7rem; color:#64748b; margin-top:0.3rem; border-top:1px dashed #e2e8f0; padding-top:0.3rem;">
+      <div id="chk-hint" style="font-size:0.7rem; color:#64748b; margin-top:0.3rem; border-top:1px dashed #e2e8f0; padding-top:0.3rem;">
         Tick items as you verify them on-site with your surveyor.
       </div>
     </div>
   </div>
 </div>
 
-<div class="legal-note">
+<div class="legal-note" id="legal-disclaimer">
   ⚠️ <strong>Statutory Disclaimer:</strong> Kandezhuthu AI is an investigatory triage tool, not a legal title insurer. Satellite measurements and deed scans are preliminary; always conduct on-ground survey with licensed surveyors and consult a Kerala High Court advocate before parting with earnest money.
 </div>
 

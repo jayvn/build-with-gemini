@@ -10,7 +10,7 @@
 ### Landmark Ruling: *Mary Roy & Ors. v. State of Kerala & Ors.* (1986 AIR 1011 / 1986 SCR (1) 371)
 - **Bench**: Supreme Court of India (Constitution Bench: P.N. Bhagwati, C.J., R.S. Pathak, J.)
 - **Key Legal Principle**:
-  - Declared that the discriminatory provisions of the Travancore Christian Succession Act, 1092 M.E. (Section 28–29) and the Cochin Christian Succession Act, 1097 M.E. stood repealed with effect from 1 April 1951 by the Part B States (Laws) Act, 1951.
+  - Declared that the discriminatory provisions of the Travancore Christian Succession Act, 1092 M.E. (Section 28-29) and the Cochin Christian Succession Act, 1097 M.E. stood repealed with effect from 1 April 1951 by the Part B States (Laws) Act, 1951.
   - Held that the **Indian Succession Act, 1925 applies uniformly** to Indian Christians in Travancore and Cochin territories for intestate succession since 1951.
   - Daughters inherit equally with sons in their parents' intestate property.
 - **Title Trap for Property Buyers**:
@@ -239,7 +239,7 @@
 | **Hindu Minor Alienation** | Section 8(2), HMGA 1956 (*Saroj 2014*) | Sale by parents without District Court sanction order; voidable up to age 21. | Require certified District Court Guardian Sanction Order. |
 | **Muslim Minor Alienation** | *Imambandi v. Mutsaddi* (1918 45 IA 73) | Sale by mother/brother (de facto guardian); completely void ab initio. | Confirm District Court guardianship order under Guardians & Wards Act, 1890. |
 | **Power of Attorney (PoA) Sales** | *Suraj Lamp & Industries* (2012 1 SCC 656) | GPA transfers no title; foreign PoA un-adjudicated; principal deceased. | Video confirmation with principal; check Kerala Stamp Act Sec 18 stamping. |
-| **Kudikidappu Tenancy** | Sections 75–80B, KLR Act, 1963 | Unregistered hutment dweller having permanent tenure & Land Tribunal rights. | Inspect for occupant huts; verify Taluk Land Tribunal records. |
+| **Kudikidappu Tenancy** | Sections 75-80B, KLR Act, 1963 | Unregistered hutment dweller having permanent tenure & Land Tribunal rights. | Inspect for occupant huts; verify Taluk Land Tribunal records. |
 | **Pending Litigation (Lis Pendens)** | Section 52, TPA (*T.G. Ashok Kumar 2010*) | Purchaser pendente lite bound by adverse decree in pending partition/title suit. | Comprehensive court litigation search across local Munsiff and Sub Courts. |
 | **Government Puramboke Land** | *Joseph (2023)* / Kerala Land Conservancy Act | Excess land outside deed is canal or road puramboke; subject to summary eviction. | FMB Survey Sketch verification; do not pay for undeedeed possession. |
 | **Pre-2008 Wetland Status** | *Jalaja Dileep (2015)* / *Baby (2021)* | Claiming dry status without Form 6 or pre-2017 KLUO sanction order. | Demand certified Form 6 conversion order or KLUO proceeding. |

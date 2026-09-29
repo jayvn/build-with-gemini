@@ -2022,52 +2022,107 @@ function sendPrompt(text) {
   form.dispatchEvent(new Event("submit"));
 }
 
-/* Drag and Drop Handlers */
-function handleDragOver(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  const overlay = document.getElementById("drop-overlay");
-  if (overlay) overlay.classList.add("active");
-}
+/* Drag and Drop Handlers with Window-Level Protection */
+let windowDragCounter = 0;
 
-function handleDragLeave(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  const rect = document.getElementById("chat-pane").getBoundingClientRect();
-  if (e.clientX <= rect.left || e.clientX >= rect.right || e.clientY <= rect.top || e.clientY >= rect.bottom) {
+window.addEventListener("dragenter", (e) => {
+  if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes("Files")) {
+    e.preventDefault();
+    windowDragCounter++;
     const overlay = document.getElementById("drop-overlay");
-    if (overlay) overlay.classList.remove("active");
+    const dropzone = document.getElementById("deed-dropzone");
+    if (overlay) overlay.classList.add("active");
+    if (dropzone) dropzone.classList.add("drag-hover");
   }
-}
+});
 
-function handleFileDrop(e) {
+window.addEventListener("dragover", (e) => {
   e.preventDefault();
-  e.stopPropagation();
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = "copy";
+  }
+});
+
+window.addEventListener("dragleave", (e) => {
+  e.preventDefault();
+  windowDragCounter--;
+  if (windowDragCounter <= 0) {
+    windowDragCounter = 0;
+    const overlay = document.getElementById("drop-overlay");
+    const dropzone = document.getElementById("deed-dropzone");
+    if (overlay) overlay.classList.remove("active");
+    if (dropzone) dropzone.classList.remove("drag-hover");
+  }
+});
+
+window.addEventListener("drop", (e) => {
+  e.preventDefault();
+  windowDragCounter = 0;
   const overlay = document.getElementById("drop-overlay");
+  const dropzone = document.getElementById("deed-dropzone");
   if (overlay) overlay.classList.remove("active");
+  if (dropzone) dropzone.classList.remove("drag-hover");
+
   if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
-    handleDeedUpload(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files.length === 1) {
+      handleDeedUpload(e.dataTransfer.files[0]);
+    } else {
+      handleMultipleDeedUploads(Array.from(e.dataTransfer.files));
+    }
+  }
+});
+
+/* Batch Upload Handler */
+async function handleMultipleDeedUploads(files) {
+  appendMsg("user", `📎 <strong>Uploaded ${files.length} Deed Documents in Batch</strong>`);
+  for (let i = 0; i < files.length; i++) {
+    await handleDeedUpload(files[i]);
   }
 }
 
-/* Multimodal Deed OCR Upload Handler */
+/* Multimodal Deed OCR Upload Handler with Progressive Steps */
 async function handleDeedUpload(file) {
   if (!file) return;
   const fileName = file.name;
-  appendMsg("user", `📎 <strong>Uploaded Deed Document:</strong> ${fileName} (${(file.size / 1024).toFixed(1)} KB)`);
+  const fileSizeKb = (file.size / 1024).toFixed(1);
+
+  appendMsg("user", `📎 <strong>Uploaded Deed Document:</strong> ${fileName} (${fileSizeKb} KB)`);
 
   const loadingBubble = appendMsg("agent", `
-    <div class="typing-indicator">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <span style="font-size:0.85rem; color:#0f5132; margin-left:6px; font-weight:600;">
-        Performing Multimodal Vision OCR on Malayalam/English deed text with Gemini 3.8 Flash...
-      </span>
+    <div class="ocr-progress-card">
+      <div class="ocr-progress-header">
+        <span class="ocr-spinner"></span>
+        <span>Ingesting Deed Document: <strong>${fileName}</strong> (${fileSizeKb} KB)</span>
+      </div>
+      <div class="ocr-steps">
+        <div class="ocr-step active" id="ocr-step-1">
+          <span>●</span> <span>Step 1: Reading document scan & packaging multimodal payload...</span>
+        </div>
+        <div class="ocr-step" id="ocr-step-2">
+          <span>○</span> <span>Step 2: Cloud Document AI & Gemini 3.8 Flash Multimodal OCR...</span>
+        </div>
+        <div class="ocr-step" id="ocr-step-3">
+          <span>○</span> <span>Step 3: Kerala 4-trap statutory audit & boundary extraction...</span>
+        </div>
+      </div>
     </div>
   `);
 
+  const step1 = loadingBubble.querySelector("#ocr-step-1");
+  const step2 = loadingBubble.querySelector("#ocr-step-2");
+  const step3 = loadingBubble.querySelector("#ocr-step-3");
+
   try {
+    // Step 1 done -> Step 2 active
+    setTimeout(() => {
+      if (step1 && step2) {
+        step1.className = "ocr-step done";
+        step1.innerHTML = "<span>✓</span> <span>Step 1: Document scan ingested</span>";
+        step2.className = "ocr-step active";
+        step2.innerHTML = "<span>●</span> <span>Step 2: Cloud Document AI & Gemini 3.8 Flash Vision OCR running...</span>";
+      }
+    }, 400);
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("user_id", "web-user");
@@ -2081,8 +2136,21 @@ async function handleDeedUpload(file) {
       throw new Error(`OCR processing failed with status ${res.status}`);
     }
 
+    // Step 2 done -> Step 3 active
+    if (step2 && step3) {
+      step2.className = "ocr-step done";
+      step2.innerHTML = "<span>✓</span> <span>Step 2: Malayalam/English deed text parsed</span>";
+      step3.className = "ocr-step active";
+      step3.innerHTML = "<span>●</span> <span>Step 3: Auditing 4 statutory traps & KPBR setbacks...</span>";
+    }
+
     const result = await res.json();
-    renderDeedAuditCard(loadingBubble, result, fileName);
+
+    // Render result card
+    setTimeout(() => {
+      renderDeedAuditCard(loadingBubble, result, fileName);
+    }, 300);
+
   } catch (err) {
     loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error analyzing deed document: ${err.message}</span>`;
   }
@@ -2093,13 +2161,22 @@ async function runSampleDeedOCR() {
   appendMsg("user", `📄 <strong>Demonstration Request:</strong> Scan Sample Kerala Title Deed (Aluva SRO Doc 1420/2014, Re-Sy 345/1)`);
 
   const loadingBubble = appendMsg("agent", `
-    <div class="typing-indicator">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <span style="font-size:0.85rem; color:#0f5132; margin-left:6px; font-weight:600;">
-        Scanning sample title deed with Gemini 3.8 Flash Vision OCR...
-      </span>
+    <div class="ocr-progress-card">
+      <div class="ocr-progress-header">
+        <span class="ocr-spinner"></span>
+        <span>Scanning Sample Deed: <strong>sample_aluva_deed.pdf</strong> (Gemini 3.8 Flash Vision)</span>
+      </div>
+      <div class="ocr-steps">
+        <div class="ocr-step done">
+          <span>✓</span> <span>Step 1: Sample PDF loaded (10 Cents, Aluva Village)</span>
+        </div>
+        <div class="ocr-step active">
+          <span>●</span> <span>Step 2: Paleographic OCR & recital extraction...</span>
+        </div>
+        <div class="ocr-step">
+          <span>○</span> <span>Step 3: Evaluating pathway easement & wetland status...</span>
+        </div>
+      </div>
     </div>
   `);
 
@@ -2107,7 +2184,9 @@ async function runSampleDeedOCR() {
     const res = await fetch("/api/sample_deed?process=true&user_id=web-user");
     if (!res.ok) throw new Error("Could not process sample deed");
     const result = await res.json();
-    renderDeedAuditCard(loadingBubble, result, "sample_aluva_deed.pdf");
+    setTimeout(() => {
+      renderDeedAuditCard(loadingBubble, result, "sample_aluva_deed.pdf");
+    }, 400);
   } catch (err) {
     loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error scanning sample deed: ${err.message}</span>`;
   }

@@ -76,6 +76,7 @@ Always run Python commands using `uv run` inside `kandezhuthu/`:
 ## Operational Guidelines for Coding Agents
 
 - **DO NOT RUN TESTS WITHOUT ASKING**: Do not run unit tests or integration tests unless explicitly requested by the user.
+- **Always Multi-Commit on the Way**: Always make frequent, small atomic git commits along the way as discrete steps and milestones are completed, rather than waiting to create a single large commit at the very end.
 - **Code preservation**: Only modify code directly targeted by the user's request. Preserve all surrounding code, config values (e.g., `model`), comments, and formatting.
 - **NEVER change the model**: Keep `MODEL = "gemini-3.8-flash"` in `app/agent.py` unless explicitly directed by the user.
 - **Bilingual Integrity**: Maintain accurate Malayalam legal terminology (e.g., ആധാരം, മുന്നാധാരം, തീറാധാരം, ഭാഗപത്രം, ഒഴിവുമുറി, നിലം, പുരയിടം, നടപ്പുവഴി, സർവേ കല്ല്) and ensure Malayalam WhatsApp inquiry messages remain culturally polite and natural.

@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -10,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_bilingual_workflow_test():
     """
     Automated Playwright UI Test for Bilingual UI & 3-Step Guided Workflow
-    
+
     Verifies:
     1. Bilingual Language Switcher (English <-> Malayalam)
     2. 3-Step Guided Workflow Navigation (Lineage -> Satellite Plot -> Checklist/Action)
@@ -73,7 +72,7 @@ def run_bilingual_workflow_test():
             print("  ✓ Switched language back to English.")
             results.append("Step 2: Bilingual Switcher - PASSED")
         else:
-            print("  ℹ️ Language switcher buttons not present; skipping.")
+            print("  [INFO] Language switcher buttons not present; skipping.")
             results.append("Step 2: Bilingual Switcher - SKIPPED")
 
         # -------------------------------------------------------------
@@ -126,7 +125,7 @@ def run_bilingual_workflow_test():
                 if tab.count() > 0:
                     tab.click()
                     page.wait_for_timeout(150)
-                    expect(tab).to_have_class(f"category-tab active")
+                    expect(tab).to_have_class("category-tab active")
             print("  ✓ Category tabs filtered chips reactively.")
         results.append("Step 4: Category Tabs Filtering - PASSED")
 

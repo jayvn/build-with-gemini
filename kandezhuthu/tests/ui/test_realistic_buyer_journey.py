@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -24,10 +23,10 @@ def run_realistic_buyer_journey_test():
     os.makedirs(SCREENSHOTS_DIR, exist_ok=True)
     results = []
 
-    print(f"\n=======================================================")
-    print(f"  KANDEZTHUTHU AI: REALISTIC BUYER JOURNEY TEST")
+    print("\n=======================================================")
+    print("  KANDEZTHUTHU AI: REALISTIC BUYER JOURNEY TEST")
     print(f"  Target: {BASE_URL}")
-    print(f"=======================================================\n")
+    print("=======================================================\n")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -49,15 +48,15 @@ def run_realistic_buyer_journey_test():
         # PHASE 1: Satellite Inspection & Location Verification
         # -----------------------------------------------------------------
         print("[Phase 1] Loading Kandezhuthu AI Split View...")
-        page.goto(BASE_URL, wait_until="networkidle")
-        page.wait_for_timeout(1000)
+        page.goto(BASE_URL, wait_until="domcontentloaded")
+        page.wait_for_timeout(1200)
 
         expect(page.locator(".brand-title")).to_contain_text("Kandezhuthu AI")
-        
+
         # Verify default Aluva property preset
         preset_select = page.locator("#preset-select")
         expect(preset_select).to_have_value("aluva")
-        
+
         hud_coords = page.locator("#hud-coords").text_content()
         print(f"  → Verified Satellite Coordinates: {hud_coords.strip()}")
         assert "10.1076" in hud_coords and "76.3516" in hud_coords
@@ -122,13 +121,13 @@ def run_realistic_buyer_journey_test():
             timeline_btn.first.click()
         else:
             page.locator(".chip:has-text('Timeline: Aluva 30-Yr')").click()
-            
+
         page.wait_for_timeout(800)
 
         # Verify the Timeline Card is rendered
         expect(page.locator(".timeline-card")).to_be_visible()
         timeline_text = page.locator(".timeline-card").text_content()
-        print(f"  → Ownership Timeline Card Loaded. Title Score: 0/100 DANGER")
+        print("  → Ownership Timeline Card Loaded. Title Score: 0/100 DANGER")
         assert "Mary Roy" in timeline_text or "Pattayam" in timeline_text or "Federal Bank" in timeline_text
         assert "Score: 0/100" in timeline_text
         print("  ✓ Detected Mary Roy Succession defect and Undischarged Bank Mortgage in lineage chain!")
@@ -156,7 +155,7 @@ def run_realistic_buyer_journey_test():
         # PHASE 6: Live Single-Deed Audit with Gemini 3.8 Flash
         # -----------------------------------------------------------------
         print("\n[Phase 6] Submitting Real Title Deed Recital to Gemini 3.8 Flash...")
-        
+
         realistic_deed_query = (
             "Please audit this deed schedule for an earnest money decision:\n"
             "Property: 10 Cents in Re-Sy 345/1, Aluva West Village.\n"
@@ -214,10 +213,10 @@ def run_realistic_buyer_journey_test():
         # PHASE 7: Malayalam WhatsApp Card & Action Buttons
         # -----------------------------------------------------------------
         print("\n[Phase 7] Testing WhatsApp Inquiry Card & Share Actions...")
-        
+
         wa_cards = page.locator(".whatsapp-card")
         expect(wa_cards.last).to_be_visible()
-        
+
         wa_text = wa_cards.last.locator(".whatsapp-text").text_content()
         print(f"  → Malayalam WhatsApp Draft: {wa_text.strip()[:100]}...")
         assert len(wa_text.strip()) > 20, "WhatsApp text too short!"

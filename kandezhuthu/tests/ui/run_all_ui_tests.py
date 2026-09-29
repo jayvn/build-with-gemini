@@ -18,14 +18,14 @@ import os
 import sys
 import time
 
-from tests.ui.test_ui_playwright import run_ui_tests
-from tests.ui.test_elevation_flood_ui import run_elevation_flood_ui_test
-from tests.ui.test_realistic_buyer_journey import run_realistic_buyer_journey_test
-from tests.ui.test_ocr_document_pipeline import run_ocr_document_pipeline_test
-from tests.ui.test_munnadharam_lineage_ui import run_munnadharam_lineage_test
-from tests.ui.test_pdf_dossier_export import run_pdf_dossier_export_test
-from tests.ui.test_cadastral_map_tools import run_cadastral_map_tools_test
 from tests.ui.test_bilingual_workflow_ui import run_bilingual_workflow_test
+from tests.ui.test_cadastral_map_tools import run_cadastral_map_tools_test
+from tests.ui.test_elevation_flood_ui import run_elevation_flood_ui_test
+from tests.ui.test_munnadharam_lineage_ui import run_munnadharam_lineage_test
+from tests.ui.test_ocr_document_pipeline import run_ocr_document_pipeline_test
+from tests.ui.test_pdf_dossier_export import run_pdf_dossier_export_test
+from tests.ui.test_realistic_buyer_journey import run_realistic_buyer_journey_test
+from tests.ui.test_ui_playwright import run_ui_tests
 
 SUITES = {
     "general": ("General UI & Split View Switcher", run_ui_tests),
@@ -42,7 +42,7 @@ def main():
     parser = argparse.ArgumentParser(description="Kandezhuthu AI Playwright UI Test Runner")
     parser.add_argument(
         "--suite",
-        choices=list(SUITES.keys()) + ["all"],
+        choices=[*list(SUITES.keys()), "all"],
         default="all",
         help="Specify which UI test suite to run (default: all)"
     )

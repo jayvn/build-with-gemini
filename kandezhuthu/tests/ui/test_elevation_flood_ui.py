@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -50,7 +49,7 @@ def run_elevation_flood_ui_test():
         page.wait_for_timeout(1200)
 
         expect(page.locator(".brand-title")).to_contain_text("Kandezhuthu AI")
-        
+
         # Verify Elevation Stat Box in HUD
         elev_box = page.locator("#hud-elevation-box")
         expect(elev_box).to_be_visible()
@@ -117,7 +116,7 @@ def run_elevation_flood_ui_test():
         print("\n[Step 4] Verifying 5-Item Field Checklist & Flood Check...")
         checklist_btn = page.locator("#btn-checklist-toggle")
         expect(checklist_btn).to_contain_text("0/5")
-        
+
         # Open checklist panel
         checklist_btn.click()
         page.wait_for_timeout(300)

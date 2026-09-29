@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -88,7 +87,7 @@ def run_pdf_dossier_export_test():
         timeline_btn = page.locator("#btn-timeline-export")
         if timeline_btn.count() == 0:
             timeline_btn = page.locator("button:has-text('Ownership Timeline')").first
-        
+
         timeline_btn.click()
         page.wait_for_timeout(800)
         expect(page.locator(".timeline-card")).to_be_visible()

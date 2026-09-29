@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -10,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_cadastral_map_tools_test():
     """
     Automated Playwright UI Test for Cadastral Map Tools & Plot Sealing Engine
-    
+
     Verifies:
     1. Map Locality Search & Geocoding (#map-search-input)
     2. Inspection Pin Placement (#tool-pin) and GPS Coordinate HUD updates
@@ -60,7 +59,7 @@ def run_cadastral_map_tools_test():
         search_input = page.locator("#map-search-input")
         expect(search_input).to_be_visible()
         search_input.fill("Kakkanad")
-        
+
         # Click search button or press Enter
         search_btn = page.locator(".map-search-btn")
         search_btn.click()
@@ -70,7 +69,7 @@ def run_cadastral_map_tools_test():
         hud_locality = page.locator("#hud-locality-title").text_content()
         print(f"  → Updated HUD Locality: {hud_locality.strip()}")
         assert "Kakkanad" in hud_locality, f"Expected Kakkanad in HUD, got: {hud_locality}"
-        
+
         page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "map_01_search_kakkanad.png"))
         results.append("Step 2: Map Locality Search - PASSED")
 
@@ -142,7 +141,7 @@ def run_cadastral_map_tools_test():
         # Verify acreage calculated in Cents
         cents_text = page.locator("#hud-cents").text_content()
         print(f"  → Plot Sealed! HUD Extent: {cents_text.strip()}")
-        assert "Cents" in cents_text and not "0.00" in cents_text, f"Expected non-zero Cents, got: {cents_text}"
+        assert "Cents" in cents_text and "0.00" not in cents_text, f"Expected non-zero Cents, got: {cents_text}"
 
         # Verify centroid elevation was computed
         elev_text = page.locator("#hud-elevation-text").text_content()

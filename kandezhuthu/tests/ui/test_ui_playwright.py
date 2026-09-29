@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -34,11 +33,11 @@ def run_ui_tests():
         title = page.title()
         print(f"Page title: {title}")
         assert "Kandezhuthu AI" in title, f"Unexpected title: {title}"
-        
+
         # Verify brand and view switcher
         expect(page.locator(".brand-title")).to_contain_text("Kandezhuthu AI")
         expect(page.locator(".view-btn[data-mode='split']")).to_have_class("view-btn active")
-        
+
         # Verify HUD initial values
         hud_coords = page.locator("#hud-coords").text_content()
         hud_cents = page.locator("#hud-cents").text_content()
@@ -60,7 +59,7 @@ def run_ui_tests():
         page.wait_for_timeout(400)
         expect(page.locator("body")).to_have_class("view-chat")
         page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "02_chat_only_view.png"), full_page=True)
-        
+
         # Switch to Map only
         page.click(".view-btn[data-mode='map']")
         page.wait_for_timeout(400)
@@ -78,7 +77,7 @@ def run_ui_tests():
         preset_select = page.locator("#preset-select")
         preset_select.select_option("kakkanad")
         page.wait_for_timeout(800)
-        
+
         updated_hud_title = page.locator("#hud-locality-title").text_content()
         updated_hud_cents = page.locator("#hud-cents").text_content()
         print(f"Kakkanad preset loaded: {updated_hud_title}, {updated_hud_cents}")
@@ -96,7 +95,7 @@ def run_ui_tests():
         # Click Draw Plot tool
         page.click("#tool-plot")
         expect(page.locator("#tool-plot")).to_have_class("map-tool-btn active")
-        
+
         # Check guidance bar updated for plot
         expect(page.locator("#guidance-text")).to_contain_text("corner stones")
         expect(page.locator("#guidance-actions")).to_be_visible()
@@ -106,7 +105,7 @@ def run_ui_tests():
         box = map_view.bounding_box()
         assert box is not None
         cx, cy = box["x"] + box["width"] / 2, box["y"] + box["height"] / 2
-        
+
         # Click 3 points
         page.mouse.click(cx, cy)
         page.wait_for_timeout(200)
@@ -114,11 +113,11 @@ def run_ui_tests():
         page.wait_for_timeout(200)
         page.mouse.click(cx + 40, cy + 80)
         page.wait_for_timeout(500)
-        
+
         drawn_cents = page.locator("#hud-cents").text_content()
         print(f"Drawn plot extent: {drawn_cents}")
-        assert "Cents" in drawn_cents and not "0.00" in drawn_cents, f"Plot area calculation failed: {drawn_cents}"
-        
+        assert "Cents" in drawn_cents and "0.00" not in drawn_cents, f"Plot area calculation failed: {drawn_cents}"
+
         # Test Undo Point button
         undo_btn = page.locator("#btn-undo")
         expect(undo_btn).to_be_enabled()
@@ -138,13 +137,13 @@ def run_ui_tests():
         page.click("#tool-road")
         expect(page.locator("#tool-road")).to_have_class("map-tool-btn active")
         expect(page.locator("#guidance-text")).to_contain_text("Kerala Panchayat Building Rules")
-        
+
         # Click 2 points to measure road
         page.mouse.click(cx - 50, cy - 50)
         page.wait_for_timeout(200)
         page.mouse.click(cx - 30, cy - 50)
         page.wait_for_timeout(500)
-        
+
         road_status = page.locator("#hud-road").text_content()
         print(f"Road width measurement: {road_status}")
         assert "meters" in road_status or "m" in road_status, f"Road measurement failed: {road_status}"
@@ -158,7 +157,7 @@ def run_ui_tests():
         page.click("#btn-checklist-toggle")
         page.wait_for_timeout(300)
         expect(page.locator("#checklist-panel")).to_have_class("checklist-panel visible")
-        
+
         # Check two items
         page.check("#chk-kallu")
         page.check("#chk-road")
@@ -208,7 +207,7 @@ def run_ui_tests():
         mobile_page.goto(BASE_URL, wait_until="networkidle")
         mobile_page.wait_for_timeout(800)
         mobile_page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "09_mobile_initial.png"), full_page=True)
-        
+
         # Test switching to Map on mobile
         mobile_page.click(".view-btn[data-mode='map']")
         mobile_page.wait_for_timeout(500)

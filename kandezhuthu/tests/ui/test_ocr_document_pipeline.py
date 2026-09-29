@@ -1,7 +1,6 @@
 import os
-import sys
-import time
-from playwright.sync_api import sync_playwright, expect
+
+from playwright.sync_api import expect, sync_playwright
 
 CHROMIUM_PATH = "/ms-playwright/chromium-1234/chrome-linux64/chrome" if os.path.exists("/ms-playwright/chromium-1234/chrome-linux64/chrome") else None
 SCREENSHOTS_DIR = os.path.join(os.path.dirname(__file__), "screenshots")
@@ -52,11 +51,11 @@ def run_ocr_document_pipeline_test():
         page.wait_for_timeout(1000)
 
         expect(page.locator(".brand-title")).to_contain_text("Kandezhuthu AI")
-        
+
         # Verify dropzone buttons
         deed_sample_btn = page.locator("button:has-text('Kerala Sale Deed')").first
         ec_sample_btn = page.locator("button:has-text('Encumbrance Certificate')").first
-        
+
         expect(deed_sample_btn).to_be_visible()
         expect(ec_sample_btn).to_be_visible()
         print("  ✓ Document Dropzone & Sample OCR Action buttons verified.")
@@ -77,7 +76,7 @@ def run_ocr_document_pipeline_test():
         # Wait for Deed Audit Card to render (API execution)
         print("  Waiting for Deed Sanity Scorecard rendering...")
         page.wait_for_selector(".deed-audit-card", timeout=20000)
-        
+
         deed_card = page.locator(".deed-audit-card").last
         expect(deed_card).to_be_visible()
         print("  ✓ Deed Sanity Scorecard successfully rendered!")
@@ -88,7 +87,7 @@ def run_ocr_document_pipeline_test():
         # -------------------------------------------------------------
         print("\n[Step 3] Verifying Deed Metadata Grid & Sanity Score...")
         card_text = deed_card.text_content()
-        
+
         # Check Document Number / Type
         assert "Doc" in card_text or "1420" in card_text or "Deed" in card_text
         # Check Extent
@@ -140,7 +139,7 @@ def run_ocr_document_pipeline_test():
             assert len(input_val) > 10, "Ask Legal Assistant failed to populate prompt!"
             print(f"  ✓ 'Ask Legal Assistant' populated prompt: {input_val[:80]}...")
             page.locator("#input").fill("")  # Clear input
-        
+
         results.append("Step 5: Deed Card Action Buttons - PASSED")
 
         # -------------------------------------------------------------
@@ -153,11 +152,11 @@ def run_ocr_document_pipeline_test():
         page.wait_for_selector(".ocr-progress-card", timeout=10000)
         print("  Waiting for SRO EC Audit Card rendering...")
         page.wait_for_timeout(3000)
-        
+
         # Verify another deed/EC card was appended to the conversation
         deed_cards = page.locator(".deed-audit-card")
         assert deed_cards.count() >= 2, "Expected at least 2 audit cards in chat stream!"
-        
+
         latest_card_text = deed_cards.last.text_content()
         print(f"  → SRO EC Audit Card rendered: {latest_card_text[:120]}...")
         page.screenshot(path=os.path.join(SCREENSHOTS_DIR, "ocr_03_ec_audit_card.png"))

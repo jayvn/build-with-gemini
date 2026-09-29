@@ -1,0 +1,155 @@
+# ruff: noqa
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import json
+from typing import Optional, List
+from google.adk.agents import Agent
+from google.adk.apps import App
+from google.adk.models import Gemini
+from google.genai import types
+
+from app.domain.models import DeedNode, DeedType, ECRecord
+from app.domain.auditor import MunnadharamAuditor
+from app.domain.single_deed_scanner import SingleDeedScanner
+
+# Latest Gemini Flash model for low-latency multimodal reasoning
+MODEL = "gemini-3.8-flash"
+
+
+def scan_single_deed(deed_text: str) -> str:
+    """Scans a single Kerala title deed (or schedule snippet) for 4 fatal legal/regulatory traps.
+
+    Detects:
+    1. Buried Easement / Pathway (Vazhi avakasham / വഴി അവകാശം)
+    2. 2008 Paddy Land / Wetland Risk (Nilam vs Purayidam / നിലം)
+    3. Minor's share sold without District Court order (മൈനർ അവകാശം)
+    4. Senior citizen maintenance or conditional life-interest covenants (ജീവിതകാല സംരക്ഷണ വ്യവസ്ഥ)
+
+    Args:
+        deed_text: Text snippet of the deed, recitals, or property schedule (in Malayalam or English).
+
+    Returns:
+        JSON string containing the DeedSanityResult (Verdict, Sanity Score, Findings, Malayalam WhatsApp questions for seller,
+        and explicit list of what AI cannot verify on the physical ground).
+    """
+    scanner = SingleDeedScanner()
+    result = scanner.scan(deed_text)
+    return result.model_dump_json(indent=2)
+
+
+def audit_prior_deeds_title(
+    property_identifier: str,
+    deeds_data: str,
+    ec_data: Optional[str] = None,
+) -> str:
+    """Audits the 30-year chain of prior title deeds (Munnadharam) for a property in Kerala."""
+    try:
+        raw_deeds = json.loads(deeds_data)
+        deeds = [DeedNode(**d) for d in raw_deeds]
+        
+        ec_records: List[ECRecord] = []
+        if ec_data:
+            raw_ec = json.loads(ec_data)
+            ec_records = [ECRecord(**e) for e in raw_ec]
+
+        auditor = MunnadharamAuditor(property_identifier=property_identifier)
+        scorecard = auditor.audit(deeds=deeds, ec_records=ec_records)
+        return scorecard.model_dump_json(indent=2)
+    except Exception as e:
+        return json.dumps({"error": f"Failed to audit prior deeds: {str(e)}"}, indent=2)
+
+
+def get_demo_kerala_title_audit() -> str:
+    """Runs a demonstration 30-year title audit on a realistic Kerala property."""
+    deeds = [
+        DeedNode(
+            doc_number="214/1982",
+            year=1982,
+            sro_name="Aluva",
+            deed_type=DeedType.PATTAYAM,
+            grantors=["Special Tahsildar (Land Assignment)"],
+            grantees=["Chacko Varghese"],
+            extent_cents=10.0,
+            survey_no="345/1",
+        ),
+        DeedNode(
+            doc_number="890/1996",
+            year=1996,
+            sro_name="Aluva",
+            deed_type=DeedType.BHAGAPATHRAM,
+            grantors=["Chacko Varghese (Deceased Estate)"],
+            grantees=["George Chacko", "Thomas Chacko"],
+            extent_cents=10.0,
+            survey_no="345/1",
+            family_religion="christian",
+            unrepresented_heirs=["Mary Chacko (Sister / Daughter)"],
+        ),
+        DeedNode(
+            doc_number="1420/2014",
+            year=2014,
+            sro_name="Aluva",
+            deed_type=DeedType.THEERADHARAM,
+            grantors=["George Chacko"],
+            grantees=["Current Seller: Suresh Nair"],
+            extent_cents=11.0,
+            survey_no="345/1",
+            easements_reserved=["3-meter motorable pathway along southern boundary reserved for Thomas Chacko"],
+        ),
+    ]
+
+    ec_records = [
+        ECRecord(doc_number="214/1982", year=1982, sro_name="Aluva", nature="Pattayam"),
+        ECRecord(doc_number="890/1996", year=1996, sro_name="Aluva", nature="Partition"),
+        ECRecord(doc_number="1420/2014", year=2014, sro_name="Aluva", nature="Sale"),
+        ECRecord(doc_number="3012/2022", year=2022, sro_name="Aluva", nature="Equitable Mortgage - Federal Bank"),
+    ]
+
+    auditor = MunnadharamAuditor(property_identifier="Re-Sy 345/1, Aluva West Village, Ernakulam")
+    scorecard = auditor.audit(deeds=deeds, ec_records=ec_records)
+    return scorecard.model_dump_json(indent=2)
+
+
+root_agent = Agent(
+    name="kandezhuthu_agent",
+    model=Gemini(
+        model=MODEL,
+        retry_options=types.HttpRetryOptions(attempts=3),
+    ),
+    instruction=(
+        "You are 'Kandezhuthu AI' (കണ്ടെഴുത്ത് - ആധാരംനോക്കി), an intelligent Kerala property legal audit assistant. "
+        "Your purpose is to protect home buyers, NRIs, and non-technical families from paying token advances on legally defective Kerala land.\n\n"
+        "CORE STRENGTHS & TOOL USAGE:\n"
+        "1. Single-Deed / Schedule Scan: Use `scan_single_deed` whenever the user pastes deed clauses, property schedules, or contract snippets in English or Malayalam.\n"
+        "2. 30-Year Prior Title Lineage Audit: When users describe a chain of prior deeds (Munnadharam) or ownership history in natural language, automatically parse their narrative into DeedNode JSON records and invoke `audit_prior_deeds_title`.\n"
+        "3. Demo Audit: Use `get_demo_kerala_title_audit` if the user wants to see how a realistic 30-year Kerala title audit works.\n\n"
+        "PRESENTATION GUIDELINES FOR NON-TECHNICAL USERS:\n"
+        "- Never dump raw JSON to the user. Always interpret tool outputs into clean, elegant Markdown.\n"
+        "- Prominently feature the Title Sanity Score (e.g., '🛡️ Title Sanity Score: 85/100') and the verdict badge:\n"
+        "  • 🟢 **ALL CLEAR** (No fatal legal traps found in text)\n"
+        "  • 🟡 **CAUTION** (Restrictive covenants / easements detected)\n"
+        "  • 🔴 **DANGER** (Fatal legal defects, wetland classification, or unrepresented heirs)\n"
+        "- Break down each finding into: What it means in plain English/Malayalam, the Kerala statute (e.g. 2008 Paddy Land Act, Easements Act), and why it matters to a home builder.\n"
+        "- Always provide a dedicated section: **'📱 WhatsApp Message for Seller / Broker (മലയാളം)'** with the ready-to-copy Malayalam question.\n"
+        "- Always include: **'🚶 Physical On-Site Verification Checklist'** highlighting Survey Kallu boundary stones, actual road access, and neighbor inquiries.\n\n"
+        "MANDATORY LEGAL GUARDRAIL:\n"
+        "Remind the user that AI is an initial triage and red-flag scanner, NOT a guarantee of title or a substitute for a licensed Kerala High Court / District Court advocate's formal title report."
+    ),
+    tools=[scan_single_deed, audit_prior_deeds_title, get_demo_kerala_title_audit],
+)
+
+app = App(
+    root_agent=root_agent,
+    name="kandezhuthu",
+)

@@ -37,24 +37,25 @@
   header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0.75rem 1.4rem;
+    padding: 0.65rem 1.2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
     z-index: 1000;
   }
-  .brand { display: flex; align-items: center; gap: 0.75rem; }
+  .brand { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
   .brand-icon {
     width: 38px; height: 38px; border-radius: 10px;
     background: linear-gradient(135deg, #0f5132, #198754);
     display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 1.25rem; font-weight: 700;
+    color: #fff; font-size: 1.25rem; font-weight: 700; flex-shrink: 0;
   }
-  .brand-title { font-size: 1.12rem; font-weight: 700; color: #0f5132; line-height: 1.2; }
-  .brand-subtitle { font-size: 0.76rem; color: var(--text-muted); font-weight: 500; }
+  .brand-text { min-width: 0; }
+  .brand-title { font-size: 1.05rem; font-weight: 700; color: #0f5132; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-subtitle { font-size: 0.74rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
-  .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+  .header-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
 
   /* View switch buttons */
   .view-switch {
@@ -67,8 +68,8 @@
   .view-btn {
     border: none;
     background: transparent;
-    padding: 0.35rem 0.75rem;
-    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
@@ -84,12 +85,12 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
   .badge-kerala {
-    background: #ecfdf5; color: #047857; font-size: 0.75rem; font-weight: 600;
+    background: #ecfdf5; color: #047857; font-size: 0.74rem; font-weight: 600;
     padding: 0.25rem 0.6rem; border-radius: 20px; border: 1px solid #a7f3d0;
     display: none;
   }
-  @media (min-width: 768px) {
-    .badge-kerala { display: inline-block; }
+  @media (min-width: 900px) {
+    .badge-kerala { display: inline-flex; align-items: center; gap: 0.3rem; }
   }
 
   /* Main dual-pane layout */
@@ -113,10 +114,13 @@
   }
 
   /* Quick action chips container */
-  .chips-bar {
+  .chips-container {
+    position: relative;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0.6rem 1rem;
+  }
+  .chips-bar {
+    padding: 0.55rem 0.9rem;
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;
@@ -127,13 +131,14 @@
     background: #f1f5f9;
     border: 1px solid var(--border);
     color: var(--text);
-    font-size: 0.78rem;
+    font-size: 0.77rem;
     font-weight: 600;
     padding: 0.35rem 0.75rem;
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.15s ease;
     display: flex; align-items: center; gap: 0.35rem;
+    user-select: none;
   }
   .chip:hover {
     background: #e2e8f0;
@@ -150,12 +155,13 @@
   #log {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem 1.2rem;
+    padding: 1rem 1.1rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    scroll-behavior: smooth;
   }
-  .msg { display: flex; flex-direction: column; max-width: 90%; }
+  .msg { display: flex; flex-direction: column; max-width: 92%; }
   .msg.user { align-self: flex-end; align-items: flex-end; }
   .msg.agent { align-self: flex-start; align-items: flex-start; }
   .msg-label { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.25rem; }
@@ -168,6 +174,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    word-break: break-word;
   }
   .msg.user .bubble {
     background: #0f5132;
@@ -201,14 +208,16 @@
     background: #f0fdf4;
     border: 1.5px solid #86efac;
     border-radius: 10px;
-    padding: 0.8rem 0.95rem;
-    margin: 0.75rem 0;
+    padding: 0.85rem 1rem;
+    margin: 0.8rem 0;
   }
   .whatsapp-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.45rem;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
   .whatsapp-title {
     font-size: 0.78rem;
@@ -216,52 +225,96 @@
     color: #15803d;
     display: flex; align-items: center; gap: 0.35rem;
   }
+  .whatsapp-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
   .whatsapp-text {
     font-size: 0.92rem;
     color: #166534;
-    line-height: 1.5;
-    margin-bottom: 0.55rem;
+    line-height: 1.55;
+    margin-bottom: 0.4rem;
     font-family: 'Noto Sans Malayalam', sans-serif;
+    background: #ffffff;
+    padding: 0.65rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #bbf7d0;
   }
-  .copy-btn {
-    background: #22c55e;
-    color: #fff;
+  .copy-btn, .wa-direct-btn {
     border: none;
-    padding: 0.35rem 0.7rem;
+    padding: 0.32rem 0.65rem;
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex; align-items: center; gap: 0.3rem;
-    transition: background 0.15s;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .copy-btn {
+    background: #22c55e;
+    color: #fff;
   }
   .copy-btn:hover { background: #16a34a; }
   .copy-btn.copied { background: #0f766e; }
+  
+  .wa-direct-btn {
+    background: #25d366;
+    color: #fff;
+  }
+  .wa-direct-btn:hover { background: #128c7e; }
+
+  /* Typing dots loading bubble */
+  .typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+  }
+  .typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #0f5132;
+    border-radius: 50%;
+    animation: typingPulse 1.4s infinite ease-in-out both;
+  }
+  .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+  .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes typingPulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
 
   /* Input bar */
   form#form {
     display: flex;
     gap: 0.5rem;
-    padding: 0.85rem 1.2rem;
+    padding: 0.75rem 1rem;
     border-top: 1px solid var(--border);
     background: var(--surface);
     width: 100%;
+    align-items: flex-end;
   }
   textarea#input {
     flex: 1;
-    padding: 0.7rem 0.95rem;
+    padding: 0.65rem 0.9rem;
     border: 1.5px solid var(--border);
     border-radius: 10px;
     font-size: 0.92rem;
+    line-height: 1.4;
     font-family: inherit;
     resize: none;
     outline: none;
-    height: 46px;
+    min-height: 48px;
+    max-height: 140px;
+    height: 48px;
     transition: border-color 0.15s;
   }
   textarea#input:focus { border-color: #0f5132; }
   button#send-btn {
-    padding: 0 1.3rem;
+    padding: 0 1.2rem;
+    height: 48px;
     border: none;
     border-radius: 10px;
     background: #0f5132;
@@ -270,7 +323,8 @@
     font-size: 0.92rem;
     cursor: pointer;
     transition: background 0.15s;
-    display: flex; align-items: center; gap: 0.4rem;
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    flex-shrink: 0;
   }
   button#send-btn:hover { background: #146c43; }
   button#send-btn:disabled { background: #94a3b8; cursor: not-allowed; }
@@ -290,11 +344,11 @@
   .map-header-bar {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 0.55rem 0.9rem;
+    padding: 0.5rem 0.85rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
     z-index: 500;
   }
   .map-title-tag {
@@ -304,31 +358,33 @@
     display: flex;
     align-items: center;
     gap: 0.35rem;
+    margin-right: 0.2rem;
   }
   .map-preset-select {
     padding: 0.35rem 0.6rem;
     border: 1px solid var(--border);
     border-radius: 6px;
-    font-size: 0.78rem;
+    font-size: 0.77rem;
     font-weight: 500;
     color: var(--text);
     background: #f8fafc;
     outline: none;
     cursor: pointer;
+    max-width: 250px;
   }
   .map-search-group {
     display: flex;
     align-items: center;
     gap: 0.3rem;
     flex: 1;
-    min-width: 200px;
+    min-width: 180px;
   }
   .map-search-input {
     flex: 1;
     padding: 0.35rem 0.65rem;
     border: 1px solid var(--border);
     border-radius: 6px;
-    font-size: 0.78rem;
+    font-size: 0.77rem;
     outline: none;
   }
   .map-search-input:focus { border-color: #0f5132; }
@@ -338,9 +394,10 @@
     border-radius: 6px;
     background: #0f5132;
     color: #fff;
-    font-size: 0.78rem;
+    font-size: 0.77rem;
     font-weight: 600;
     cursor: pointer;
+    flex-shrink: 0;
   }
   .map-search-btn:hover { background: #146c43; }
 
@@ -348,12 +405,13 @@
   .map-toolbar {
     background: #f8fafc;
     border-bottom: 1px solid var(--border);
-    padding: 0.4rem 0.9rem;
+    padding: 0.4rem 0.85rem;
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.4rem;
     overflow-x: auto;
     z-index: 500;
+    scrollbar-width: thin;
   }
   .map-tool-btn {
     padding: 0.3rem 0.65rem;
@@ -376,6 +434,15 @@
     color: #ffffff;
     border-color: #0f5132;
   }
+  .map-tool-btn.highlight {
+    background: #fef3c7;
+    border-color: #fde68a;
+    color: #92400e;
+  }
+  .map-tool-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
   .map-layer-select {
     padding: 0.28rem 0.5rem;
     border: 1px solid var(--border);
@@ -386,7 +453,56 @@
     color: #334155;
     cursor: pointer;
     margin-left: auto;
+    flex-shrink: 0;
   }
+
+  /* Interactive Tool Guidance Bar */
+  .map-guidance-bar {
+    background: #ecfdf5;
+    border-bottom: 1px solid #a7f3d0;
+    padding: 0.35rem 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #065f46;
+    z-index: 490;
+    gap: 0.5rem;
+  }
+  .guidance-content {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .guidance-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+  .guidance-btn {
+    border: none;
+    padding: 0.2rem 0.55rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .guidance-btn.secondary {
+    background: #ffffff;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+  }
+  .guidance-btn.secondary:hover { background: #d1fae5; }
+  .guidance-btn.primary {
+    background: #0f5132;
+    color: #ffffff;
+  }
+  .guidance-btn.primary:hover { background: #146c43; }
 
   /* Map View Canvas */
   #map-view {
@@ -396,6 +512,20 @@
     z-index: 1;
   }
 
+  /* Segment distance label tooltip styling (Survey FMB style) */
+  .fmb-segment-label {
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    padding: 1px 5px !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
+    white-space: nowrap !important;
+  }
+  .fmb-segment-label:before { border-top-color: rgba(15, 23, 42, 0.85) !important; }
+
   /* Floating HUD / Info Card over Map */
   .map-hud {
     position: absolute;
@@ -403,17 +533,27 @@
     left: 12px;
     right: 12px;
     max-width: 440px;
-    background: rgba(255, 255, 255, 0.97);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(226, 232, 240, 0.9);
     border-radius: 12px;
     padding: 0.85rem 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.14);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     font-size: 0.82rem;
+    transition: all 0.2s ease;
+  }
+  .map-hud.minimized {
+    padding: 0.45rem 0.8rem;
+    max-width: 320px;
+  }
+  .map-hud.minimized .hud-stats-grid,
+  .map-hud.minimized .hud-actions,
+  .map-hud.minimized .hud-units-info {
+    display: none !important;
   }
   .map-hud-header {
     display: flex;
@@ -423,7 +563,35 @@
     color: #0f5132;
     border-bottom: 1px solid #f1f5f9;
     padding-bottom: 0.35rem;
+    gap: 0.4rem;
   }
+  #hud-locality-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+  .map-hud.minimized .map-hud-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .hud-toggle-btn {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+  .hud-toggle-btn:hover { background: #e2e8f0; color: var(--text); }
+  
   .hud-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -435,10 +603,31 @@
     border-radius: 8px;
     padding: 0.45rem 0.65rem;
   }
-  .hud-stat-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-  .hud-stat-val { font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-top: 2px; }
-  .hud-stat-val.cents { color: #0f5132; }
+  .hud-stat-label {
+    font-size: 0.67rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .hud-stat-val { font-size: 0.88rem; font-weight: 700; color: #0f172a; margin-top: 2px; }
+  .hud-stat-val.cents { color: #0f5132; font-size: 0.98rem; }
   
+  /* Road compliance pill */
+  .badge-road {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-top: 3px;
+  }
+  .badge-road.pass { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-road.warn { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .badge-road.fail { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
   .hud-actions {
     display: flex;
     gap: 0.5rem;
@@ -446,7 +635,7 @@
   }
   .hud-btn {
     flex: 1;
-    padding: 0.4rem 0.65rem;
+    padding: 0.42rem 0.65rem;
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -464,31 +653,59 @@
   .hud-btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
   .hud-btn-secondary:hover { background: #e2e8f0; }
 
-  /* Verification Checklist Banner */
-  .checklist-banner {
+  /* Interactive Field Checklist Panel */
+  .checklist-panel {
     position: absolute;
     top: 92px;
     right: 12px;
-    width: 270px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(6px);
-    border: 1px solid #e2e8f0;
+    width: 290px;
+    max-width: calc(100% - 24px);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(8px);
+    border: 1px solid #cbd5e1;
     border-radius: 10px;
-    padding: 0.75rem 0.9rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 0.75rem 0.95rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     z-index: 1000;
-    font-size: 0.75rem;
+    font-size: 0.77rem;
+    display: none;
+    flex-direction: column;
+    gap: 0.45rem;
+    transition: all 0.2s ease;
   }
-  .checklist-title { font-weight: 700; color: #0f5132; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem; }
-  .checklist-item { display: flex; align-items: flex-start; gap: 0.4rem; margin-bottom: 0.35rem; color: #334155; }
-  .checklist-item:last-child { margin-bottom: 0; }
+  .checklist-panel.visible { display: flex; }
+  .checklist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #0f5132;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.35rem;
+  }
+  .checklist-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    color: #334155;
+    cursor: pointer;
+  }
+  .checklist-row input {
+    margin-top: 2px;
+    cursor: pointer;
+    accent-color: #0f5132;
+  }
+  .checklist-row label {
+    cursor: pointer;
+    line-height: 1.35;
+  }
 
   /* Disclaimer footer */
   .legal-note {
     text-align: center;
     font-size: 0.72rem;
     color: var(--text-muted);
-    padding: 0.35rem 1rem 0.5rem;
+    padding: 0.35rem 1rem 0.45rem;
     background: var(--surface);
     border-top: 1px solid var(--border);
     z-index: 1000;
@@ -502,12 +719,23 @@
   body.view-map #map-pane { flex: 1 1 100% !important; }
 
   body.view-split #chat-pane { flex: 1; }
-  body.view-split #map-pane { flex: 1.1; }
+  body.view-split #map-pane { flex: 1.15; }
 
   @media (max-width: 860px) {
     body.view-split #chat-pane { flex: 1 1 100%; }
     body.view-split #map-pane { display: none; }
     .view-btn[data-mode="split"] { display: none; }
+    .map-hud { bottom: 8px; left: 8px; right: 8px; }
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 0.5rem 0.75rem; }
+    .brand-title { font-size: 0.95rem; }
+    .map-header-bar { padding: 0.4rem 0.6rem; }
+    .map-preset-select { max-width: 100%; flex: 1 1 100%; }
+    .map-search-group { width: 100%; flex: 1 1 100%; }
+    .map-hud { bottom: 6px; left: 6px; right: 6px; padding: 0.65rem 0.75rem; }
+    .legal-note { font-size: 0.66rem; padding: 0.25rem 0.5rem; }
   }
 </style>
 </head>
@@ -516,7 +744,7 @@
 <header>
   <div class="brand">
     <div class="brand-icon">ക</div>
-    <div>
+    <div class="brand-text">
       <div class="brand-title">Kandezhuthu AI (കണ്ടെഴുത്ത്)</div>
       <div class="brand-subtitle">Kerala Property Legal Title & Satellite Diligence</div>
     </div>
@@ -535,24 +763,26 @@
 <div id="main-container">
   <!-- Left / Chat Pane -->
   <div id="chat-pane">
-    <div class="chips-bar">
-      <div class="chip featured" onclick="sendPrompt('Run a demonstration 30-year title audit for a realistic Kerala property and explain the risks in detail.')">
-        📜 Try 30-Year Demo Audit
-      </div>
-      <div class="chip" onclick="sendPrompt('Scan this deed clause for traps: Schedule: 10 cents in Re-Sy 345/1. 2-meter pathway along southern boundary reserved for party of 2nd part.')">
-        🔍 Check Pathway / Vazhi Avakasham
-      </div>
-      <div class="chip" onclick="sendPrompt('Check this for wetland trap: The property is 12 cents classified as Nilam in prior deed 142/1998, with unregularized dry status.')">
-        🌾 Check Nilam / Wetland Risk
-      </div>
-      <div class="chip" onclick="sendPrompt('Under Kerala Panchayat Building Rules (KPBR 2019), what is the minimum road access width required to get a residential building permit?')">
-        📐 Check Building Road Width (KPBR)
-      </div>
-      <div class="chip" onclick="sendPrompt('How does the Kerala Conservation of Paddy Land Act Section 27A work? What is the fee slab for Form 6 and who gets the 25-cent free exemption?')">
-        📑 Form 6 / 27A Fee Slabs
-      </div>
-      <div class="chip" onclick="sendPrompt('What physical checks must I perform on the ground regarding Survey Kallu, boundaries, and road access before paying an advance?')">
-        🚶 Field Verification Checklist
+    <div class="chips-container">
+      <div class="chips-bar">
+        <div class="chip featured" onclick="sendPrompt('Run a demonstration 30-year title audit for a realistic Kerala property and explain the risks in detail.')">
+          📜 Try 30-Year Demo Audit
+        </div>
+        <div class="chip" onclick="sendPrompt('Scan this deed clause for traps: Schedule: 10 cents in Re-Sy 345/1. 2-meter pathway along southern boundary reserved for party of 2nd part.')">
+          🔍 Check Pathway / Vazhi Avakasham
+        </div>
+        <div class="chip" onclick="sendPrompt('Check this for wetland trap: The property is 12 cents classified as Nilam in prior deed 142/1998, with unregularized dry status.')">
+          🌾 Check Nilam / Wetland Risk
+        </div>
+        <div class="chip" onclick="sendPrompt('Under Kerala Panchayat Building Rules (KPBR 2019), what is the minimum road access width required to get a residential building permit?')">
+          📐 Check Building Road Width (KPBR)
+        </div>
+        <div class="chip" onclick="sendPrompt('How does the Kerala Conservation of Paddy Land Act Section 27A work? What is the fee slab for Form 6 and who gets the 25-cent free exemption?')">
+          📑 Form 6 / 27A Fee Slabs
+        </div>
+        <div class="chip" onclick="sendPrompt('What physical checks must I perform on the ground regarding Survey Kallu, boundaries, and road access before paying an advance?')">
+          🚶 Field Verification Checklist
+        </div>
       </div>
     </div>
 
@@ -562,15 +792,18 @@
         <div class="bubble">
           <strong>നമസ്കാരം! Welcome to Kandezhuthu AI (കണ്ടെഴുത്ത് - ആധാരംനോക്കി).</strong>
           <p>I am your specialized assistant for evaluating Kerala land deeds (*Aadharam*), prior lineage (*Munnadharam*), and property regulatory risks before you advance token money to a seller or broker.</p>
-          <p style="margin-top: 0.5rem;"><strong>🗺️ New Google Maps & Satellite Inspector:</strong></p>
-          <p>You can now inspect any plot in Kerala using the interactive Satellite Map on the right. Search for your village or drop pins to outline boundaries, calculate land extent in <strong>Kerala Cents</strong>, and measure access road width against KPBR building rules!</p>
+          <p style="margin-top: 0.5rem;"><strong>🗺️ Interactive Google Maps & Satellite Inspector:</strong></p>
+          <p>Inspect any plot in Kerala using the interactive Satellite Map on the right. Search for your village or outline boundaries to calculate land extent in <strong>Kerala Cents</strong>, measure access road width against KPBR building rules, and check field verification essentials!</p>
         </div>
       </div>
     </div>
 
     <form id="form">
       <textarea id="input" placeholder="Paste deed excerpt, ask about Kerala land rules, or describe ownership history..." rows="1" autofocus></textarea>
-      <button type="submit" id="send-btn">Send</button>
+      <button type="submit" id="send-btn">
+        <span>Send</span>
+        <span>➤</span>
+      </button>
     </form>
   </div>
 
@@ -578,7 +811,7 @@
   <div id="map-pane">
     <div class="map-header-bar">
       <div class="map-title-tag">
-        <span>🛰️</span> Kerala Land & Satellite Inspector
+        <span>🛰️</span> Satellite Inspector
       </div>
 
       <select class="map-preset-select" id="preset-select" onchange="applyLocationPreset(this.value)">
@@ -595,7 +828,7 @@
 
       <div class="map-search-group">
         <input type="text" id="map-search" class="map-search-input" placeholder="Search village, town, or lat,lng..." onkeydown="if(event.key==='Enter') searchLocation()">
-        <button class="map-search-btn" onclick="searchLocation()">Search</button>
+        <button class="map-search-btn" onclick="searchLocation()">🔍</button>
       </div>
     </div>
 
@@ -603,7 +836,9 @@
       <button class="map-tool-btn active" id="tool-pin" onclick="setMapTool('pin')">📍 Pin Location</button>
       <button class="map-tool-btn" id="tool-plot" onclick="setMapTool('plot')">📐 Draw Plot (Cents)</button>
       <button class="map-tool-btn" id="tool-road" onclick="setMapTool('road')">📏 Measure Road Width</button>
-      <button class="map-tool-btn" onclick="clearMapDrawings()">🗑️ Clear</button>
+      <button class="map-tool-btn" id="btn-undo" onclick="undoLastPoint()" disabled title="Undo last placed point">↩️ Undo</button>
+      <button class="map-tool-btn" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
+      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()">📋 Checklist <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/4</span></button>
 
       <select class="map-layer-select" id="layer-select" onchange="switchMapLayer(this.value)">
         <option value="google-hybrid" selected>🛰️ Google Satellite Hybrid</option>
@@ -614,12 +849,28 @@
       </select>
     </div>
 
+    <!-- Active Tool Interactive Guidance Bar -->
+    <div class="map-guidance-bar" id="map-guidance-bar">
+      <div class="guidance-content">
+        <span id="guidance-icon">📍</span>
+        <span id="guidance-text">Click anywhere on the satellite view to drop an inspection pin and view GPS coordinates.</span>
+      </div>
+      <div class="guidance-actions" id="guidance-actions" style="display: none;">
+        <button class="guidance-btn secondary" onclick="undoLastPoint()">↩️ Undo</button>
+        <button class="guidance-btn primary" id="guidance-finish-btn" onclick="finishPlot()">✅ Seal Plot</button>
+      </div>
+    </div>
+
     <div id="map-view"></div>
 
+    <!-- Floating HUD -->
     <div class="map-hud" id="map-hud">
       <div class="map-hud-header">
         <span id="hud-locality-title">📍 Aluva, Ernakulam District</span>
-        <span style="font-size: 0.72rem; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Live Plot HUD</span>
+        <div style="display: flex; align-items: center; gap: 0.4rem;">
+          <span style="font-size: 0.72rem; color: #166534; background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Live Plot HUD</span>
+          <button class="hud-toggle-btn" id="hud-toggle-btn" onclick="toggleHUD()" title="Minimize or Expand HUD">_</button>
+        </div>
       </div>
 
       <div class="hud-stats-grid">
@@ -628,16 +879,22 @@
           <div class="hud-stat-val" id="hud-coords" style="font-size: 0.78rem;">10.1076, 76.3516</div>
         </div>
         <div class="hud-stat-box">
-          <div class="hud-stat-label">Plot Extent (Cents)</div>
+          <div class="hud-stat-label">
+            <span>Plot Extent</span>
+            <span style="font-size:0.65rem; color:#0f5132;" title="1 Cent = 40.47 m² = 435.6 sq.ft">ℹ️ Kerala Cents</span>
+          </div>
           <div class="hud-stat-val cents" id="hud-cents">10.00 Cents</div>
         </div>
         <div class="hud-stat-box">
-          <div class="hud-stat-label">Area (Sq.M / Sq.Ft)</div>
-          <div class="hud-stat-val" id="hud-sqm" style="font-size: 0.78rem;">404.7 m² (4,356 ft²)</div>
+          <div class="hud-stat-label">Area (Revenue Ares & Sq.M)</div>
+          <div class="hud-stat-val" id="hud-sqm" style="font-size: 0.76rem;">4.05 Ares (404.7 m²)</div>
         </div>
         <div class="hud-stat-box">
-          <div class="hud-stat-label">Road Width (KPBR)</div>
-          <div class="hud-stat-val" id="hud-road" style="font-size: 0.78rem;">3.2 m (Passes KPBR)</div>
+          <div class="hud-stat-label">Road Width (KPBR 2019)</div>
+          <div class="hud-stat-val" id="hud-road">
+            <span id="hud-road-text" style="font-size: 0.78rem;">3.2 meters</span>
+            <span class="badge-road pass" id="hud-road-badge">✅ KPBR Pass (≥3m)</span>
+          </div>
         </div>
       </div>
 
@@ -646,33 +903,42 @@
           📋 Send Plot to Auditor AI
         </button>
         <a id="btn-open-gmaps" class="hud-btn hud-btn-secondary" target="_blank" href="https://www.google.com/maps/search/?api=1&query=10.1076,76.3516">
-          🌍 Google Maps
+          🌍 Open in Maps
         </a>
       </div>
     </div>
 
-    <div class="checklist-banner">
-      <div class="checklist-title">
-        <span>🚩</span> Field Check Essentials
+    <!-- Toggleable Interactive Field Checklist Panel -->
+    <div class="checklist-panel" id="checklist-panel">
+      <div class="checklist-header">
+        <span>🚩 On-Site Field Check Essentials</span>
+        <button onclick="toggleChecklist(false)" style="border:none; background:transparent; font-size:0.9rem; cursor:pointer; color:#64748b;">✕</button>
       </div>
-      <div class="checklist-item">
-        <span>📍</span> <span><strong>Survey Kallu:</strong> Verify all 4 corner stones physically on site.</span>
+      <div class="checklist-row">
+        <input type="checkbox" id="chk-kallu" onchange="updateChecklistProgress()">
+        <label for="chk-kallu"><strong>Survey Kallu:</strong> Verify all 4 corner stones physically intact on ground.</label>
       </div>
-      <div class="checklist-item">
-        <span>🛣️</span> <span><strong>Road Access:</strong> Min 3.0m for KPBR building permit.</span>
+      <div class="checklist-row">
+        <input type="checkbox" id="chk-road" onchange="updateChecklistProgress()">
+        <label for="chk-road"><strong>Road Access:</strong> Min 3.0m motorable road width for KPBR building permit.</label>
       </div>
-      <div class="checklist-item">
-        <span>🌾</span> <span><strong>Wetland Proximity:</strong> Spot paddy fields/canals via satellite.</span>
+      <div class="checklist-row">
+        <input type="checkbox" id="chk-wetland" onchange="updateChecklistProgress()">
+        <label for="chk-wetland"><strong>Wetland Proximity:</strong> Spot paddy fields/canals via satellite layer.</label>
       </div>
-      <div class="checklist-item">
-        <span>⚡</span> <span><strong>Overhead Lines:</strong> Check for HT electricity cables.</span>
+      <div class="checklist-row">
+        <input type="checkbox" id="chk-ht" onchange="updateChecklistProgress()">
+        <label for="chk-ht"><strong>Overhead Lines:</strong> Verify no HT electricity lines cross over the plot.</label>
+      </div>
+      <div style="font-size:0.7rem; color:#64748b; margin-top:0.3rem; border-top:1px dashed #e2e8f0; padding-top:0.3rem;">
+        Tick items as you verify them on-site with your surveyor.
       </div>
     </div>
   </div>
 </div>
 
 <div class="legal-note">
-  ⚠️ <strong>Disclaimer:</strong> Kandezhuthu AI is an investigatory triage tool, not a legal title insurer. Satellite measurements and deed scans are indicative; always conduct physical survey inspection with licensed surveyors and consult a Kerala High Court advocate before advancing funds.
+  ⚠️ <strong>Statutory Disclaimer:</strong> Kandezhuthu AI is an investigatory triage tool, not a legal title insurer. Satellite measurements and deed scans are preliminary; always conduct on-ground survey with licensed surveyors and consult a Kerala High Court advocate before parting with earnest money.
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -697,7 +963,7 @@ function setViewMode(mode) {
 }
 
 input.addEventListener("input", function() {
-  this.style.height = "46px";
+  this.style.height = "48px";
   this.style.height = Math.min(this.scrollHeight, 140) + "px";
 });
 input.addEventListener("keydown", function(e) {
@@ -738,20 +1004,39 @@ function formatMarkdown(text) {
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n- (.*)/g, '<li>$1</li>');
 
-  const waRegex = /(?:വാട്സാപ്പ് ചോദ്യം|WhatsApp Message|ചോദിക്കേണ്ട ചോദ്യം)[^:]*:\s*([\s\S]*?)(?:(?=###|##|\n\n[A-Z]|$))/i;
+  // Robust Malayalam WhatsApp Inquiry Card Parser
+  const waRegex = /(?:വാട്സാപ്പ് ചോദ്യം|WhatsApp Message|WhatsApp Inquiry|ചോദിക്കേണ്ട ചോദ്യം)[^:]*:\s*([\s\S]*?)(?:(?=###|##|\n\s*---\s*\n|\n\s*⚖️|\n\s*\*\*Mandatory|$))/i;
   const waMatch = html.match(waRegex);
   if (waMatch && waMatch[1]) {
-    const rawQuote = waMatch[1].replace(/<[^>]+>/g, '').trim();
+    let rawSection = waMatch[1].trim();
+    // Stop at any disclaimer or horizontal rule separator
+    const splitParts = rawSection.split(/\n\s*---\s*\n|\n\s*⚖️|\n\s*\*\*Mandatory/i);
+    let rawQuote = splitParts[0];
+
+    // Extract quote if wrapped in quotation marks
+    const quoteMatch = rawQuote.match(/["“]([^"”]{15,})["”]/);
+    if (quoteMatch) {
+      rawQuote = quoteMatch[1].trim();
+    } else {
+      rawQuote = rawQuote.replace(/^[>\s*]+/gm, '').replace(/<[^>]+>/g, '').trim();
+    }
+
     if (rawQuote.length > 10) {
+      const encodedWaText = encodeURIComponent(rawQuote);
       const waCard = `
         <div class="whatsapp-card">
           <div class="whatsapp-header">
-            <span class="whatsapp-title">📱 Malayalam WhatsApp Draft for Seller</span>
-            <button class="copy-btn" onclick="copyText(this, decodeURIComponent('` + encodeURIComponent(rawQuote) + `'))">
-              📋 Copy Draft
-            </button>
+            <span class="whatsapp-title">📱 Malayalam WhatsApp Inquiry for Seller / Broker</span>
+            <div class="whatsapp-actions">
+              <button class="copy-btn" onclick="copyText(this, decodeURIComponent('${encodedWaText}'))">
+                📋 Copy Draft
+              </button>
+              <a class="wa-direct-btn" href="https://api.whatsapp.com/send?text=${encodedWaText}" target="_blank">
+                💬 Open in WhatsApp
+              </a>
+            </div>
           </div>
-          <div class="whatsapp-text">` + rawQuote + `</div>
+          <div class="whatsapp-text">${rawQuote}</div>
         </div>
       `;
       html = html.replace(waMatch[0], waCard);
@@ -785,10 +1070,19 @@ form.addEventListener("submit", async (e) => {
 
   appendMsg("user", text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
   input.value = "";
-  input.style.height = "46px";
+  input.style.height = "48px";
   sendBtn.disabled = true;
 
-  const loadingBubble = appendMsg("agent", "<em>Analyzing property documents and Kerala statutes...</em>");
+  const loadingBubble = appendMsg("agent", `
+    <div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <span style="font-size:0.85rem; color:#0f5132; margin-left:6px; font-weight:500;">
+        Analyzing property documents, prior title lineage, and Kerala statutes...
+      </span>
+    </div>
+  `);
 
   try {
     const res = await fetch("/chat", {
@@ -822,6 +1116,7 @@ let currentRoadLine = null;
 let polygonPoints = [];
 let roadPoints = [];
 let vertexMarkers = [];
+let dimensionLabels = [];
 
 let googleHybridLayer, googleSatelliteLayer, googleRoadsLayer, googleTerrainLayer, osmLayer;
 
@@ -912,14 +1207,34 @@ function setMapTool(toolName) {
     btn.classList.toggle("active", btn.id === "tool-" + toolName);
   });
 
-  if (toolName === "plot") {
+  const guidanceIcon = document.getElementById("guidance-icon");
+  const guidanceText = document.getElementById("guidance-text");
+  const guidanceActions = document.getElementById("guidance-actions");
+
+  if (toolName === "pin") {
+    guidanceIcon.textContent = "📍";
+    guidanceText.textContent = "Click anywhere on the satellite view to drop an inspection pin and view GPS coordinates.";
+    guidanceActions.style.display = "none";
+  } else if (toolName === "plot") {
     polygonPoints = [];
     clearVertexMarkers();
+    clearDimensionLabels();
     if (currentPolygon) { map.removeLayer(currentPolygon); currentPolygon = null; }
+    
+    guidanceIcon.textContent = "📐";
+    guidanceText.textContent = "Click on map to place plot boundary corner stones (min 3 corners). Click 'Seal Plot' or starting stone to finish.";
+    guidanceActions.style.display = "flex";
   } else if (toolName === "road") {
     roadPoints = [];
+    clearDimensionLabels();
     if (currentRoadLine) { map.removeLayer(currentRoadLine); currentRoadLine = null; }
+    
+    guidanceIcon.textContent = "📏";
+    guidanceText.textContent = "Click 2 points across the access road to measure width under Kerala Panchayat Building Rules (KPBR 2019).";
+    guidanceActions.style.display = "none";
   }
+
+  updateUndoState();
 }
 
 function handleMapClick(e) {
@@ -949,13 +1264,33 @@ function setPin(lat, lng) {
 function addPlotVertex(lat, lng) {
   polygonPoints.push(L.latLng(lat, lng));
 
+  const vertexIndex = polygonPoints.length;
   const vertexMarker = L.circleMarker([lat, lng], {
-    radius: 5,
+    radius: 6,
     color: "#0f5132",
     fillColor: "#22c55e",
-    fillOpacity: 1
+    fillOpacity: 1,
+    weight: 2
   }).addTo(map);
+  
+  vertexMarker.bindTooltip(`Kallu #${vertexIndex}`, { permanent: false, direction: 'top' });
   vertexMarkers.push(vertexMarker);
+
+  // If clicking near the first point when >=3 points, seal plot
+  if (polygonPoints.length >= 4 && calculateDistance(polygonPoints[0], L.latLng(lat, lng)) < 8) {
+    polygonPoints.pop();
+    map.removeLayer(vertexMarker);
+    vertexMarkers.pop();
+    finishPlot();
+    return;
+  }
+
+  updatePlotDisplay();
+  updateUndoState();
+}
+
+function updatePlotDisplay() {
+  clearDimensionLabels();
 
   if (polygonPoints.length >= 2) {
     if (currentPolygon) map.removeLayer(currentPolygon);
@@ -968,28 +1303,67 @@ function addPlotVertex(lat, lng) {
       dashArray: polygonPoints.length === 2 ? "5, 5" : undefined
     }).addTo(map);
 
+    // Calculate FMB segment dimensions
+    for (let i = 0; i < polygonPoints.length; i++) {
+      const nextIdx = (i + 1) % polygonPoints.length;
+      if (polygonPoints.length === 2 && i === 1) break; // Don't close if only 2 points
+      const p1 = polygonPoints[i];
+      const p2 = polygonPoints[nextIdx];
+      const distM = calculateDistance(p1, p2);
+      const midLat = (p1.lat + p2.lat) / 2;
+      const midLng = (p1.lng + p2.lng) / 2;
+
+      const dimLabel = L.tooltip({
+        permanent: true,
+        direction: 'center',
+        className: 'fmb-segment-label'
+      })
+      .setContent(`${distM.toFixed(1)}m`)
+      .setLatLng([midLat, midLng])
+      .addTo(map);
+
+      dimensionLabels.push(dimLabel);
+    }
+
     if (polygonPoints.length >= 3) {
       const areaSqM = calculatePolygonArea(polygonPoints);
       const cents = (areaSqM / 40.4686).toFixed(2);
+      const ares = (areaSqM / 100).toFixed(2);
       const sqFt = (areaSqM * 10.7639).toFixed(0);
 
       document.getElementById("hud-cents").textContent = `${cents} Cents`;
-      document.getElementById("hud-sqm").textContent = `${areaSqM.toFixed(1)} m² (${sqFt} ft²)`;
-      updateHUDLocation(lat, lng);
+      document.getElementById("hud-sqm").textContent = `${ares} Ares (${areaSqM.toFixed(1)} m²)`;
+      document.getElementById("guidance-text").textContent = `Plot in progress: ${polygonPoints.length} corner stones marked (${cents} Cents). Click 'Seal Plot' to finish.`;
     }
   }
+}
+
+function finishPlot() {
+  if (polygonPoints.length < 3) {
+    alert("Please place at least 3 corner points to seal a plot boundary.");
+    return;
+  }
+  updatePlotDisplay();
+  const areaSqM = calculatePolygonArea(polygonPoints);
+  const cents = (areaSqM / 40.4686).toFixed(2);
+  document.getElementById("guidance-text").textContent = `✅ Plot sealed! Extent: ${cents} Cents. Review stats in HUD below or click 'Send Plot to Auditor AI'.`;
+  setMapTool("pin");
 }
 
 function addRoadPoint(lat, lng) {
   roadPoints.push(L.latLng(lat, lng));
 
   const roadMarker = L.circleMarker([lat, lng], {
-    radius: 4,
+    radius: 5,
     color: "#b02a37",
     fillColor: "#ef4444",
     fillOpacity: 1
   }).addTo(map);
   vertexMarkers.push(roadMarker);
+
+  if (roadPoints.length === 1) {
+    document.getElementById("guidance-text").textContent = "First road edge marked! Now click directly opposite across the road.";
+  }
 
   if (roadPoints.length === 2) {
     if (currentRoadLine) map.removeLayer(currentRoadLine);
@@ -1001,19 +1375,69 @@ function addRoadPoint(lat, lng) {
     }).addTo(map);
 
     const distM = calculateDistance(roadPoints[0], roadPoints[1]);
-    let statusText = "";
+    let statusBadgeClass = "pass";
+    let statusBadgeText = "✅ KPBR Pass (≥3m)";
+    let desc = "";
+
     if (distM >= 3.0) {
-      statusText = `${distM.toFixed(1)} m (Passes KPBR >= 3m)`;
+      statusBadgeClass = "pass";
+      statusBadgeText = "✅ KPBR Pass (≥3m)";
+      desc = "Permit Eligible for Residential Construction";
     } else if (distM >= 1.2) {
-      statusText = `${distM.toFixed(1)} m (Small Plot Only)`;
+      statusBadgeClass = "warn";
+      statusBadgeText = "⚠️ Small Plot Only";
+      desc = "Restricted built-up area under KPBR Rule 59";
     } else {
-      statusText = `${distM.toFixed(1)} m (Defective / <1.2m)`;
+      statusBadgeClass = "fail";
+      statusBadgeText = "❌ Defective Access";
+      desc = "Cannot get residential permit under Kerala Building Rules (<1.2m)";
     }
 
-    document.getElementById("hud-road").textContent = statusText;
-    currentRoadLine.bindPopup(`<b>Access Road Width:</b> ${distM.toFixed(1)} meters<br>${statusText}`).openPopup();
+    document.getElementById("hud-road-text").textContent = `${distM.toFixed(1)} meters`;
+    const badgeEl = document.getElementById("hud-road-badge");
+    badgeEl.className = `badge-road ${statusBadgeClass}`;
+    badgeEl.textContent = statusBadgeText;
+
+    currentRoadLine.bindPopup(`<b>Access Road Width:</b> ${distM.toFixed(1)} meters<br><b>KPBR Status:</b> ${statusBadgeText}<br>${desc}`).openPopup();
     
+    document.getElementById("guidance-text").textContent = `Road measured: ${distM.toFixed(1)}m. ${statusBadgeText}`;
     roadPoints = [];
+  }
+
+  updateUndoState();
+}
+
+function undoLastPoint() {
+  if (activeTool === "plot" && polygonPoints.length > 0) {
+    polygonPoints.pop();
+    if (vertexMarkers.length > 0) {
+      map.removeLayer(vertexMarkers.pop());
+    }
+    if (polygonPoints.length >= 2) {
+      updatePlotDisplay();
+    } else {
+      clearDimensionLabels();
+      if (currentPolygon) { map.removeLayer(currentPolygon); currentPolygon = null; }
+      document.getElementById("hud-cents").textContent = "0.00 Cents";
+      document.getElementById("hud-sqm").textContent = "0.0 Ares (0.0 m²)";
+    }
+  } else if (activeTool === "road" && roadPoints.length > 0) {
+    roadPoints.pop();
+    if (vertexMarkers.length > 0) {
+      map.removeLayer(vertexMarkers.pop());
+    }
+  }
+  updateUndoState();
+}
+
+function updateUndoState() {
+  const btn = document.getElementById("btn-undo");
+  if (activeTool === "plot") {
+    btn.disabled = polygonPoints.length === 0;
+  } else if (activeTool === "road") {
+    btn.disabled = roadPoints.length === 0;
+  } else {
+    btn.disabled = true;
   }
 }
 
@@ -1022,17 +1446,27 @@ function clearMapDrawings() {
   if (currentPolygon) { map.removeLayer(currentPolygon); currentPolygon = null; }
   if (currentRoadLine) { map.removeLayer(currentRoadLine); currentRoadLine = null; }
   clearVertexMarkers();
+  clearDimensionLabels();
   polygonPoints = [];
   roadPoints = [];
   
   document.getElementById("hud-cents").textContent = "0.00 Cents";
-  document.getElementById("hud-sqm").textContent = "0.0 m² (0 ft²)";
-  document.getElementById("hud-road").textContent = "Not Measured";
+  document.getElementById("hud-sqm").textContent = "0.0 Ares (0.0 m²)";
+  document.getElementById("hud-road-text").textContent = "Not Measured";
+  const badgeEl = document.getElementById("hud-road-badge");
+  badgeEl.className = "badge-road warn";
+  badgeEl.textContent = "No Road Measured";
+  updateUndoState();
 }
 
 function clearVertexMarkers() {
   vertexMarkers.forEach(m => map.removeLayer(m));
   vertexMarkers = [];
+}
+
+function clearDimensionLabels() {
+  dimensionLabels.forEach(l => map.removeLayer(l));
+  dimensionLabels = [];
 }
 
 function createSamplePlot(lat, lng) {
@@ -1047,12 +1481,7 @@ function createSamplePlot(lat, lng) {
     L.latLng(lat - dLat/2, lng + dLng/2)
   ];
 
-  currentPolygon = L.polygon(polygonPoints, {
-    color: "#0f5132",
-    weight: 2.5,
-    fillColor: "#10b981",
-    fillOpacity: 0.35
-  }).addTo(map);
+  updatePlotDisplay();
 
   currentMarker = L.marker([lat, lng]).addTo(map);
   currentMarker.bindPopup("<b>Re-Sy 345/1 Sample Plot</b><br>Extent: ~10 Cents<br>Aluva West Village").openPopup();
@@ -1066,6 +1495,8 @@ function createSamplePlot(lat, lng) {
   }).addTo(map);
 
   updateHUDLocation(lat, lng, "Aluva (Demo Property - Re-Sy 345/1)", 10.0, 3.2);
+  document.getElementById("guidance-icon").textContent = "📍";
+  document.getElementById("guidance-text").textContent = "Demo plot loaded (~10 Cents). Click 'Draw Plot' to trace custom boundary, 'Measure Road' for KPBR check, or click on map to move inspection pin.";
 }
 
 function applyLocationPreset(presetKey) {
@@ -1121,16 +1552,60 @@ function updateHUDLocation(lat, lng, localityName, centsVal, roadVal) {
   if (centsVal) {
     document.getElementById("hud-cents").textContent = `${centsVal.toFixed(2)} Cents`;
     const sqm = centsVal * 40.4686;
-    document.getElementById("hud-sqm").textContent = `${sqm.toFixed(1)} m² (${(sqm * 10.7639).toFixed(0)} ft²)`;
+    const ares = sqm / 100;
+    document.getElementById("hud-sqm").textContent = `${ares.toFixed(2)} Ares (${sqm.toFixed(1)} m²)`;
   }
 
   if (roadVal) {
-    const pass = roadVal >= 3.0 ? "Passes KPBR >= 3m" : (roadVal >= 1.2 ? "Small Plot Only" : "Defective Access");
-    document.getElementById("hud-road").textContent = `${roadVal.toFixed(1)} m (${pass})`;
+    document.getElementById("hud-road-text").textContent = `${roadVal.toFixed(1)} meters`;
+    const badgeEl = document.getElementById("hud-road-badge");
+    if (roadVal >= 3.0) {
+      badgeEl.className = "badge-road pass";
+      badgeEl.textContent = "✅ KPBR Pass (≥3m)";
+    } else if (roadVal >= 1.2) {
+      badgeEl.className = "badge-road warn";
+      badgeEl.textContent = "⚠️ Small Plot Only";
+    } else {
+      badgeEl.className = "badge-road fail";
+      badgeEl.textContent = "❌ Defective Access";
+    }
   }
 
   const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
   document.getElementById("btn-open-gmaps").setAttribute("href", gmapsLink);
+}
+
+function toggleHUD() {
+  const hud = document.getElementById("map-hud");
+  const btn = document.getElementById("hud-toggle-btn");
+  const isMin = hud.classList.toggle("minimized");
+  btn.textContent = isMin ? "↗" : "_";
+  btn.title = isMin ? "Expand HUD" : "Minimize HUD";
+}
+
+function toggleChecklist(forceState) {
+  const panel = document.getElementById("checklist-panel");
+  if (forceState !== undefined) {
+    panel.classList.toggle("visible", forceState);
+  } else {
+    panel.classList.toggle("visible");
+  }
+}
+
+function updateChecklistProgress() {
+  const checks = [
+    document.getElementById("chk-kallu").checked,
+    document.getElementById("chk-road").checked,
+    document.getElementById("chk-wetland").checked,
+    document.getElementById("chk-ht").checked
+  ];
+  const count = checks.filter(Boolean).length;
+  document.getElementById("chk-badge").textContent = `${count}/4`;
+  if (count === 4) {
+    document.getElementById("chk-badge").style.background = "#15803d";
+  } else {
+    document.getElementById("chk-badge").style.background = "#0f5132";
+  }
 }
 
 function calculatePolygonArea(latlngs) {
@@ -1164,11 +1639,12 @@ function sendPlotToAuditor() {
   const coords = document.getElementById("hud-coords").textContent;
   const locality = document.getElementById("hud-locality-title").textContent.replace("📍 ", "");
   const cents = document.getElementById("hud-cents").textContent;
-  const road = document.getElementById("hud-road").textContent;
+  const roadM = document.getElementById("hud-road-text").textContent;
+  const roadBadge = document.getElementById("hud-road-badge").textContent;
 
   const promptText = `I am inspecting a property plot in ${locality} (Coordinates: ${coords}). ` +
     `Estimated extent from satellite plot: ${cents}. ` +
-    `Access road width measured: ${road}. ` +
+    `Access road width measured: ${roadM} (${roadBadge}). ` +
     `Please audit this against Kerala Panchayat Building Rules (KPBR 2019) road width requirements, setbacks, ` +
     `and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
 

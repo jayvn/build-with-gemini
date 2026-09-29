@@ -2083,8 +2083,11 @@ function renderOwnershipTimeline(container, data, currentPreset = 'aluva_broken'
         <button class="timeline-btn" onclick="toggleChecklist(true)">
           <span>📋 On-Site Checklist</span>
         </button>
-        <button class="timeline-btn" onclick="window.print()">
-          <span>🖨️ Print / Export Report</span>
+        <button class="timeline-btn" onclick="exportDossierPDF('${currentPreset}')" title="Download Publication-Grade Advocate Legal PDF Report">
+          <span>📥 Download Advocate PDF</span>
+        </button>
+        <button class="timeline-btn" onclick="window.print()" title="Print this view">
+          <span>🖨️ Print</span>
         </button>
       </div>
     </div>
@@ -2131,6 +2134,31 @@ function setWorkflowStep(stepNum) {
   } else if (stepNum === 3) {
     toggleChecklist(true);
     switchActionCategory("statutory");
+  }
+}
+
+async function exportDossierPDF(preset = 'aluva_broken') {
+  try {
+    const res = await fetch(`/api/timeline_demo?preset=${preset}`);
+    if (!res.ok) throw new Error("Could not fetch audit data");
+    const data = await res.json();
+    const pdfRes = await fetch('/api/export_dossier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!pdfRes.ok) throw new Error("Failed to generate PDF dossier");
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kandezhuthu_legal_audit_${preset}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Could not generate PDF dossier: " + err.message);
   }
 }
 

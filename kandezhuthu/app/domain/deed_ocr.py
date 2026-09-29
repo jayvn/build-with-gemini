@@ -72,6 +72,8 @@ class ExtractedDeedMetadata(BaseModel):
     maintenance_covenants: str | None = Field(default=None, description="Any condition to maintain parents/donors or life interest reservation")
     raw_schedule_snippet: str = Field(default="", description="Verbatim Malayalam or English text snippet of property schedule and recitals")
     malayalam_summary: str = Field(default="", description="Concise bilingual summary of the property in Malayalam & English")
+    ocr_engine_used: str = Field(default="Gemini 3.8 Flash Multimodal Vision", description="OCR/Vision Engine utilized")
+    source_format: str = Field(default="PDF/Scan", description="Document input format")
 
 
 class DeedOCRResult(BaseModel):
@@ -81,6 +83,8 @@ class DeedOCRResult(BaseModel):
     paddy_conversion: dict[str, Any] | None = None
     whatsapp_draft: str = ""
     field_verification_checklist: list[str] = Field(default_factory=list)
+    ocr_engine_used: str = "Gemini 3.8 Flash Multimodal Vision"
+    document_type_detected: str = "Title Deed (ആധാരം)"
 
 
 def _get_genai_client() -> Client:
@@ -251,6 +255,26 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
         )
         return meta
 
+    def _try_documentai_ocr(self, file_bytes: bytes, mime_type: str) -> str | None:
+        """Attempts Google Cloud Document AI processing if processor is configured."""
+        processor_id = os.getenv("DOCUMENTAI_PROCESSOR_ID")
+        if not processor_id:
+            return None
+        project = os.getenv("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("DOCUMENTAI_LOCATION", "us")
+        try:
+            from google.cloud import documentai
+            client = documentai.DocumentProcessorServiceClient()
+            name = client.processor_path(project, location, processor_id)
+            raw_document = documentai.RawDocument(content=file_bytes, mime_type=mime_type)
+            request = documentai.ProcessRequest(name=name, raw_document=raw_document)
+            result = client.process_document(request=request)
+            logger.info("Successfully extracted text via Google Cloud Document AI processor")
+            return result.document.text
+        except Exception as e:
+            logger.warning(f"Google Cloud Document AI invocation skipped or unavailable: {e}")
+            return None
+
     def process_file_bytes(
         self,
         file_bytes: bytes,
@@ -262,26 +286,39 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
 
         last_error = None
         extracted_metadata: ExtractedDeedMetadata | None = None
+        engine_label = "Gemini 3.8 Flash Multimodal Vision"
 
-        for model_name in OCR_MODEL_CANDIDATES:
+        # Check for Google Cloud Document AI processor if configured
+        docai_text = self._try_documentai_ocr(file_bytes, mime_type)
+        if docai_text and docai_text.strip():
             try:
-                response = self.client.models.generate_content(
-                    model=model_name,
-                    contents=[part, self.EXTRACTION_PROMPT],
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=ExtractedDeedMetadata,
-                        temperature=0.1,
-                    ),
-                )
-                if response.text:
-                    parsed_json = json.loads(response.text)
-                    extracted_metadata = ExtractedDeedMetadata(**parsed_json)
-                    logger.info(f"Successfully extracted deed metadata using {model_name}")
-                    break
-            except Exception as e:
-                logger.warning(f"Failed OCR extraction with model {model_name}: {e}")
-                last_error = e
+                extracted_metadata = self._extract_metadata_from_text(docai_text)
+                engine_label = "Google Cloud Document AI (Processor OCR)"
+                logger.info("Successfully utilized Cloud Document AI extracted text")
+            except Exception as d_err:
+                logger.warning(f"Failed parsing DocAI extracted text: {d_err}")
+
+        if not extracted_metadata:
+            for model_name in OCR_MODEL_CANDIDATES:
+                try:
+                    response = self.client.models.generate_content(
+                        model=model_name,
+                        contents=[part, self.EXTRACTION_PROMPT],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=ExtractedDeedMetadata,
+                            temperature=0.1,
+                        ),
+                    )
+                    if response.text:
+                        parsed_json = json.loads(response.text)
+                        extracted_metadata = ExtractedDeedMetadata(**parsed_json)
+                        engine_label = f"Cloud Multimodal Vision ({model_name})"
+                        logger.info(f"Successfully extracted deed metadata using {model_name}")
+                        break
+                except Exception as e:
+                    logger.warning(f"Failed OCR extraction with model {model_name}: {e}")
+                    last_error = e
 
         if not extracted_metadata:
             # Deterministic fallback for PDF documents
@@ -290,12 +327,17 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
                     pdf_text = self._extract_text_from_pdf(file_bytes)
                     if pdf_text.strip():
                         extracted_metadata = self._extract_metadata_from_text(pdf_text)
+                        engine_label = "Deterministic PDF Stream Parser"
                         logger.info("Successfully extracted deed metadata using local PDF text parser fallback")
                 except Exception as fb_err:
                     logger.warning(f"PDF fallback parser failed: {fb_err}")
 
         if not extracted_metadata:
             raise RuntimeError(f"Multimodal OCR extraction failed across all model candidates: {last_error}")
+
+        # Record engine and format
+        extracted_metadata.ocr_engine_used = engine_label
+        extracted_metadata.source_format = "PDF Document" if ("pdf" in mime_type.lower() or file_bytes.startswith(b"%PDF")) else "Image Scan"
 
         # Deterministic Legal Sanity Scan
         scan_payload = (

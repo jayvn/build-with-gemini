@@ -671,8 +671,20 @@ async def export_dossier(request: Request):
 async def chat(req: Request):
     body = await req.json()
     message = body.get("message", "")
+    language = body.get("language", "en")
     user_id = body.get("user_id") or "kandezhuthu-user"
     parts: list[dict] = []
+
+    if language == "ml":
+        prompt_message = (
+            "[User Interface Preference: Malayalam (മലയാളം). "
+            "Please deliver your full audit response in clear, native Malayalam, "
+            "while retaining standard Kerala legal terminology (e.g. ആധാരം, മുന്നാധാരം, കുടിക്കടം, "
+            "തീറാധാരം, ഭാഗപത്രം, നിലം, പുരയിടം, നടപ്പുവഴി, സർവേ കല്ല്, etc.) and statutory citations.]\n\n"
+            + message
+        )
+    else:
+        prompt_message = message
 
     if LOCAL_MODE:
         session_id = _user_sessions.get(user_id)
@@ -683,7 +695,7 @@ async def chat(req: Request):
 
         content = types.Content(
             role="user",
-            parts=[types.Part.from_text(text=message)],
+            parts=[types.Part.from_text(text=prompt_message)],
         )
 
         reply_chunks = []
@@ -715,7 +727,7 @@ async def chat(req: Request):
             msg = Message(
                 message_id=str(uuid.uuid4()),
                 role=Role.user,
-                parts=[Part(root=TextPart(text=message))],
+                parts=[Part(root=TextPart(text=prompt_message))],
                 context_id=_contexts.get(user_id),
             )
             last_task = None

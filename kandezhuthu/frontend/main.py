@@ -122,11 +122,39 @@ async def get_config():
     }
 
 
+@app.get("/api/ocr_capabilities")
+async def get_ocr_capabilities():
+    """Returns Cloud Document AI & Multimodal Vision OCR ingestion capabilities."""
+    docai_id = os.environ.get("DOCUMENTAI_PROCESSOR_ID", "")
+    return {
+        "status": "ready",
+        "primary_engine": "Gemini 3.8 Flash Multimodal Vision",
+        "cloud_document_ai_configured": bool(docai_id),
+        "document_ai_processor": docai_id if docai_id else None,
+        "supported_mime_types": [
+            "application/pdf",
+            "image/png",
+            "image/jpeg",
+            "image/webp"
+        ],
+        "supported_extensions": [".pdf", ".png", ".jpg", ".jpeg", ".webp"],
+        "max_upload_size_mb": 25,
+        "supported_deed_types": [
+            "തീറാധാരം / Sale Deed",
+            "ഭാഗപത്രം / Partition Deed",
+            "ധനനിശ്ചയാധാരം / Settlement Deed",
+            "കുടിക്കടം / Encumbrance Certificate (EC)",
+            "പട്ടയം / Land Assignment Pattayam"
+        ]
+    }
+
+
 @app.post("/api/upload_deed")
 async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-user"):  # noqa: B008
-    """Accepts scanned deed (PDF/PNG/JPEG/WEBP), runs Gemini OCR, and returns structured audit."""
+    """Accepts scanned deed (PDF/PNG/JPEG/WEBP), runs Cloud Document AI / Gemini Multimodal OCR, and returns structured audit."""
     content = await file.read()
     mime_type = file.content_type or "application/pdf"
+    file_name = file.filename or "uploaded_deed.pdf"
 
     engine = DeedOCREngine()
     session_id = _user_sessions.get(user_id) if LOCAL_MODE else _contexts.get(user_id)
@@ -134,7 +162,7 @@ async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-
 
     # Inject context into session for subsequent chat
     deed_context = (
-        f"[SYSTEM CONTEXT: The user uploaded a title deed document with Doc No: {result.metadata.document_number or 'Unknown'}, "
+        f"[SYSTEM CONTEXT: The user uploaded a title deed document '{file_name}' with Doc No: {result.metadata.document_number or 'Unknown'}, "
         f"Survey No: {result.metadata.survey_no}, Village: {result.metadata.village}, Extent: {result.metadata.extent_cents} Cents, "
         f"Classification: {result.metadata.revenue_classification}, Sanity Score: {result.sanity_result.sanity_score}/100]. "
         f"Use this property context to answer any follow-up questions from the buyer."
@@ -153,7 +181,10 @@ async def upload_deed(file: UploadFile = File(...), user_id: str = "kandezhuthu-
         except Exception:
             pass
 
-    return JSONResponse(result.model_dump())
+    out_data = result.model_dump()
+    out_data["file_name"] = file_name
+    out_data["file_size_bytes"] = len(content)
+    return JSONResponse(out_data)
 
 
 @app.get("/api/sample_deed")

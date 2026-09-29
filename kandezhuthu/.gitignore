@@ -210,3 +210,7 @@ tools/a2a-inspector/
 *.pem
 *-key.json
 credentials*.json
+
+# Parallel agent git worktrees
+.worktrees/
+worktrees/

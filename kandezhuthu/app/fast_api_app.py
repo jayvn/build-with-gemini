@@ -24,6 +24,7 @@ from google.adk.runners import Runner
 
 from app.app_utils import services
 from app.app_utils.a2a import attach_a2a_routes
+from app.app_utils.reasoning_engine_adapter import attach_reasoning_engine_routes
 
 load_dotenv()
 allow_origins = (
@@ -70,6 +71,10 @@ app: FastAPI = get_fast_api_app(
 )
 app.title = "kandezhuthu"
 app.description = "API for interacting with the Agent kandezhuthu"
+
+# Proxy routes so the Vertex AI Console Playground (reasoning_engine SDK) can
+# talk to this agent alongside the native adk_api routes.
+attach_reasoning_engine_routes(app)
 
 
 # Main execution

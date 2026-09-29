@@ -8,3 +8,7 @@ context.md
 node_modules/
 package-lock.json
 .video_tmp/
+
+# Parallel agent git worktrees
+.worktrees/
+worktrees/

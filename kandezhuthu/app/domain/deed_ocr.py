@@ -8,10 +8,13 @@ deterministic legal sanity auditing and database persistence.
 
 from __future__ import annotations
 
+import base64
 import json
 import logging
 import os
+import re
 from typing import Any
+import zlib
 
 from dotenv import load_dotenv
 from google.genai import Client, types
@@ -25,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 # Primary OCR vision models supported on Vertex AI / Gemini API
 OCR_MODEL_CANDIDATES = [
+    "gemini-3.8-flash",
     "gemini-2.5-flash",
     "gemini-1.5-flash",
 ]
@@ -68,6 +72,8 @@ class ExtractedDeedMetadata(BaseModel):
     maintenance_covenants: str | None = Field(default=None, description="Any condition to maintain parents/donors or life interest reservation")
     raw_schedule_snippet: str = Field(default="", description="Verbatim Malayalam or English text snippet of property schedule and recitals")
     malayalam_summary: str = Field(default="", description="Concise bilingual summary of the property in Malayalam & English")
+    ocr_engine_used: str = Field(default="Gemini 3.8 Flash Multimodal Vision", description="OCR/Vision Engine utilized")
+    source_format: str = Field(default="PDF/Scan", description="Document input format")
 
 
 class DeedOCRResult(BaseModel):
@@ -77,6 +83,8 @@ class DeedOCRResult(BaseModel):
     paddy_conversion: dict[str, Any] | None = None
     whatsapp_draft: str = ""
     field_verification_checklist: list[str] = Field(default_factory=list)
+    ocr_engine_used: str = "Gemini 3.8 Flash Multimodal Vision"
+    document_type_detected: str = "Title Deed (ആധാരം)"
 
 
 def _get_genai_client() -> Client:
@@ -125,6 +133,148 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
         self.knowledge_repo = KnowledgeRepository()
         self.audit_repo = AuditRepository()
 
+    @staticmethod
+    def _extract_text_from_pdf(pdf_bytes: bytes) -> str:
+        lines: list[str] = []
+        idx = pdf_bytes.find(b"stream")
+        while idx != -1:
+            end = pdf_bytes.find(b"endstream", idx)
+            if end == -1:
+                break
+            chunk = pdf_bytes[idx + 6 : end].strip()
+            for candidate in [chunk, b"<~" + chunk, chunk + b"~>", b"<~" + chunk + b"~>"]:
+                try:
+                    a85 = base64.a85decode(candidate, adobe=True)
+                    decomp = zlib.decompress(a85)
+                    texts = re.findall(rb"\(([^\)]+)\)", decomp)
+                    for t in texts:
+                        clean = (
+                            t.decode("latin1", errors="ignore")
+                            .replace(r"\(", "(")
+                            .replace(r"\)", ")")
+                        )
+                        lines.append(clean)
+                    break
+                except Exception:
+                    pass
+            idx = pdf_bytes.find(b"stream", end)
+        return "\n".join(lines)
+
+    @staticmethod
+    def _extract_metadata_from_text(raw_text: str) -> ExtractedDeedMetadata:
+        meta = ExtractedDeedMetadata(raw_schedule_snippet=raw_text)
+
+        doc_match = re.search(r"Document\s*No[:\s]+(\d+)\s*/\s*(\d+)", raw_text, re.I)
+        if doc_match:
+            meta.document_number = f"{doc_match.group(1)}/{doc_match.group(2)}"
+            meta.year = int(doc_match.group(2))
+
+        sro_match = re.search(r"Sub-Registrar\s*Office[:\s]+([^\n|]+)", raw_text, re.I)
+        if sro_match:
+            meta.sro_name = sro_match.group(1).strip()
+
+        type_match = re.search(r"Nature[:\s]+([^\n|]+)", raw_text, re.I)
+        if type_match:
+            meta.deed_type = type_match.group(1).strip()
+
+        resy_match = re.search(r"Re-Survey\s*No[:\s]+([^\n|]+)", raw_text, re.I)
+        if resy_match:
+            meta.re_survey_no = resy_match.group(1).strip()
+            meta.survey_no = meta.re_survey_no
+        else:
+            sy_match = re.search(r"Survey\s*No[:\s]+([^\n|]+)", raw_text, re.I)
+            if sy_match:
+                meta.survey_no = sy_match.group(1).strip()
+
+        vil_match = re.search(r"Village[:\s]+([^\n|]+)", raw_text, re.I)
+        if vil_match:
+            meta.village = vil_match.group(1).strip()
+        tal_match = re.search(r"Taluk[:\s]+([^\n|]+)", raw_text, re.I)
+        if tal_match:
+            meta.taluk = tal_match.group(1).strip()
+        dist_match = re.search(r"District[:\s]+([^\n|]+)", raw_text, re.I)
+        if dist_match:
+            meta.district = dist_match.group(1).strip()
+
+        cents_match = re.search(r"(\d+(?:\.\d+)?)\s*Cents?", raw_text, re.I)
+        if cents_match:
+            meta.extent_cents = float(cents_match.group(1))
+        ares_match = re.search(r"(\d+(?:\.\d+)?)\s*Ares?", raw_text, re.I)
+        if ares_match:
+            meta.extent_ares = float(ares_match.group(1))
+
+        if re.search(r"Nilam|Nanja|Punja|Wetland|Paddy", raw_text, re.I):
+            meta.revenue_classification = "Nilam"
+            meta.is_paddy_wetland_risk = True
+        else:
+            meta.revenue_classification = "Purayidam"
+
+        boundaries: list[DeedBoundary] = []
+        east_match = re.search(r"East\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if east_match:
+            boundaries.append(DeedBoundary(direction="East (കിഴക്ക്)", boundary_description=east_match.group(1).strip()))
+        south_match = re.search(r"South\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if south_match:
+            boundaries.append(DeedBoundary(direction="South (തെക്ക്)", boundary_description=south_match.group(1).strip()))
+        west_match = re.search(r"West\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if west_match:
+            boundaries.append(DeedBoundary(direction="West (പടിഞ്ഞാറ്)", boundary_description=west_match.group(1).strip()))
+        north_match = re.search(r"North\s*(?:\([^)]+\))?[:\s]+([^\n]+)", raw_text, re.I)
+        if north_match:
+            boundaries.append(DeedBoundary(direction="North (വടക്ക്)", boundary_description=north_match.group(1).strip()))
+        meta.boundaries = boundaries
+
+        priors: list[PriorDeedReference] = []
+        for line in raw_text.splitlines():
+            if re.search(r"Partition Deed|Sale Deed|Pattayam|Theeradharam|Bhagapathram", line, re.I):
+                num_m = re.search(r"No\.?\s*(\d+(?:/\d+)?)", line, re.I)
+                priors.append(PriorDeedReference(
+                    doc_number=num_m.group(1) if num_m else "Prior Doc",
+                    deed_type="Munnadharam",
+                    notes=line.strip(),
+                ))
+        meta.prior_deeds = priors
+
+        for line in raw_text.splitlines():
+            if re.search(r"pathway|vazhi|right\s*of\s*way|road|നടപ്പുവഴി|വഴി", line, re.I) and not re.search(r"East|South|West|North", line, re.I):
+                meta.easements_reserved.append(line.strip())
+            elif re.search(r"vazhi\s*avakasham", line, re.I):
+                meta.easements_reserved.append(line.strip())
+
+        minor_m = re.search(r"[^\n]*(?:minor|മൈനർ)[^\n]*", raw_text, re.I)
+        if minor_m:
+            meta.minor_involvement = minor_m.group(0).strip()
+
+        maint_m = re.search(r"[^\n]*(?:maintenance|സംരക്ഷണം|senior\s*citizen)[^\n]*", raw_text, re.I)
+        if maint_m:
+            meta.maintenance_covenants = maint_m.group(0).strip()
+
+        meta.malayalam_summary = (
+            f"{meta.village} വില്ലേജിൽ സർവേ നമ്പർ {meta.survey_no}-ൽപ്പെട്ട {meta.extent_cents} സെന്റ് വസ്തു "
+            f"({meta.revenue_classification})."
+        )
+        return meta
+
+    def _try_documentai_ocr(self, file_bytes: bytes, mime_type: str) -> str | None:
+        """Attempts Google Cloud Document AI processing if processor is configured."""
+        processor_id = os.getenv("DOCUMENTAI_PROCESSOR_ID")
+        if not processor_id:
+            return None
+        project = os.getenv("GOOGLE_CLOUD_PROJECT")
+        location = os.getenv("DOCUMENTAI_LOCATION", "us")
+        try:
+            from google.cloud import documentai
+            client = documentai.DocumentProcessorServiceClient()
+            name = client.processor_path(project, location, processor_id)
+            raw_document = documentai.RawDocument(content=file_bytes, mime_type=mime_type)
+            request = documentai.ProcessRequest(name=name, raw_document=raw_document)
+            result = client.process_document(request=request)
+            logger.info("Successfully extracted text via Google Cloud Document AI processor")
+            return result.document.text
+        except Exception as e:
+            logger.warning(f"Google Cloud Document AI invocation skipped or unavailable: {e}")
+            return None
+
     def process_file_bytes(
         self,
         file_bytes: bytes,
@@ -136,29 +286,58 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
 
         last_error = None
         extracted_metadata: ExtractedDeedMetadata | None = None
+        engine_label = "Gemini 3.8 Flash Multimodal Vision"
 
-        for model_name in OCR_MODEL_CANDIDATES:
+        # Check for Google Cloud Document AI processor if configured
+        docai_text = self._try_documentai_ocr(file_bytes, mime_type)
+        if docai_text and docai_text.strip():
             try:
-                response = self.client.models.generate_content(
-                    model=model_name,
-                    contents=[part, self.EXTRACTION_PROMPT],
-                    config=types.GenerateContentConfig(
-                        response_mime_type="application/json",
-                        response_schema=ExtractedDeedMetadata,
-                        temperature=0.1,
-                    ),
-                )
-                if response.text:
-                    parsed_json = json.loads(response.text)
-                    extracted_metadata = ExtractedDeedMetadata(**parsed_json)
-                    logger.info(f"Successfully extracted deed metadata using {model_name}")
-                    break
-            except Exception as e:
-                logger.warning(f"Failed OCR extraction with model {model_name}: {e}")
-                last_error = e
+                extracted_metadata = self._extract_metadata_from_text(docai_text)
+                engine_label = "Google Cloud Document AI (Processor OCR)"
+                logger.info("Successfully utilized Cloud Document AI extracted text")
+            except Exception as d_err:
+                logger.warning(f"Failed parsing DocAI extracted text: {d_err}")
+
+        if not extracted_metadata:
+            for model_name in OCR_MODEL_CANDIDATES:
+                try:
+                    response = self.client.models.generate_content(
+                        model=model_name,
+                        contents=[part, self.EXTRACTION_PROMPT],
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema=ExtractedDeedMetadata,
+                            temperature=0.1,
+                        ),
+                    )
+                    if response.text:
+                        parsed_json = json.loads(response.text)
+                        extracted_metadata = ExtractedDeedMetadata(**parsed_json)
+                        engine_label = f"Cloud Multimodal Vision ({model_name})"
+                        logger.info(f"Successfully extracted deed metadata using {model_name}")
+                        break
+                except Exception as e:
+                    logger.warning(f"Failed OCR extraction with model {model_name}: {e}")
+                    last_error = e
+
+        if not extracted_metadata:
+            # Deterministic fallback for PDF documents
+            if "pdf" in mime_type.lower() or file_bytes.startswith(b"%PDF"):
+                try:
+                    pdf_text = self._extract_text_from_pdf(file_bytes)
+                    if pdf_text.strip():
+                        extracted_metadata = self._extract_metadata_from_text(pdf_text)
+                        engine_label = "Deterministic PDF Stream Parser"
+                        logger.info("Successfully extracted deed metadata using local PDF text parser fallback")
+                except Exception as fb_err:
+                    logger.warning(f"PDF fallback parser failed: {fb_err}")
 
         if not extracted_metadata:
             raise RuntimeError(f"Multimodal OCR extraction failed across all model candidates: {last_error}")
+
+        # Record engine and format
+        extracted_metadata.ocr_engine_used = engine_label
+        extracted_metadata.source_format = "PDF Document" if ("pdf" in mime_type.lower() or file_bytes.startswith(b"%PDF")) else "Image Scan"
 
         # Deterministic Legal Sanity Scan
         scan_payload = (
@@ -223,4 +402,21 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
             paddy_conversion=paddy_calc,
             whatsapp_draft=whatsapp_draft,
             field_verification_checklist=sanity_result.what_ai_cannot_verify,
+            ocr_engine_used=extracted_metadata.ocr_engine_used,
+            document_type_detected=extracted_metadata.deed_type or "Title Deed (ആധാരം)",
         )
+
+    def process_file_path(self, file_path: str, session_id: str | None = None) -> DeedOCRResult:
+        """Reads a local or uploaded deed file path and processes it via vision OCR."""
+        with open(file_path, "rb") as f:
+            file_bytes = f.read()
+        mime_type = "application/pdf"
+        lower = file_path.lower()
+        if lower.endswith(".png"):
+            mime_type = "image/png"
+        elif lower.endswith((".jpg", ".jpeg")):
+            mime_type = "image/jpeg"
+        elif lower.endswith(".webp"):
+            mime_type = "image/webp"
+        return self.process_file_bytes(file_bytes=file_bytes, mime_type=mime_type, session_id=session_id)
+

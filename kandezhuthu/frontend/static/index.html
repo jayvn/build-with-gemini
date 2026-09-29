@@ -103,6 +103,7 @@
 
   /* Chat Pane */
   #chat-pane {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -355,25 +356,274 @@
   .drop-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(240, 253, 244, 0.94);
-    border: 3px dashed #22c55e;
+    background: rgba(236, 253, 245, 0.94);
+    backdrop-filter: blur(4px);
+    border: 3px dashed #10b981;
     z-index: 1000;
     display: none;
     align-items: center;
     justify-content: center;
     pointer-events: none;
+    animation: fadeInDrop 0.2s ease-out;
   }
   .drop-overlay.active { display: flex; }
   .drop-card {
     text-align: center;
-    background: #fff;
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(15, 81, 50, 0.15);
+    background: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(15, 81, 50, 0.18);
+    border: 1px solid #a7f3d0;
+    max-width: 440px;
+    margin: 1rem;
+    animation: scaleInDrop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .drop-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-  .drop-title { font-size: 1.1rem; font-weight: 700; color: #0f5132; }
-  .drop-subtitle { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
+  @keyframes fadeInDrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scaleInDrop {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .drop-icon-animated {
+    font-size: 3rem;
+    margin-bottom: 0.6rem;
+    animation: bounceIcon 1.4s infinite ease-in-out;
+  }
+  @keyframes bounceIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .drop-title { font-size: 1.15rem; font-weight: 700; color: #065f46; margin-bottom: 0.3rem; }
+  .drop-subtitle { font-size: 0.82rem; color: #475569; line-height: 1.4; margin-bottom: 0.8rem; }
+  .drop-badges { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
+  .drop-badges span {
+    font-size: 0.7rem; font-weight: 700; background: #ecfdf5; color: #047857;
+    padding: 3px 8px; border-radius: 12px; border: 1px solid #a7f3d0;
+  }
+
+  /* Dedicated Deed Dropzone Card in Chat Pane */
+  .deed-dropzone-container {
+    padding: 0.75rem 1rem 0.25rem 1rem;
+  }
+  .deed-dropzone {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 2px dashed #34d399;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+  }
+  .deed-dropzone:hover, .deed-dropzone.drag-hover {
+    background: #e6fcf0;
+    border-color: #059669;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.16);
+    transform: translateY(-1px);
+  }
+  .dropzone-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.45rem;
+  }
+  .dropzone-live-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulseDropzone 1.8s infinite;
+  }
+  @keyframes pulseDropzone {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+  .dropzone-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #047857;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .dropzone-model {
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: #065f46;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+  .dropzone-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.55rem;
+  }
+  .dropzone-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .dropzone-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
+  }
+  .dropzone-desc {
+    font-size: 0.75rem;
+    color: #475569;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+  .dropzone-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+    padding-top: 0.45rem;
+  }
+  .dropzone-formats {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .format-pill {
+    font-size: 0.66rem;
+    font-weight: 700;
+    background: #ffffff;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  .format-pill.lang {
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .dropzone-btns {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .dropzone-btn {
+    border: none;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+  }
+  .dropzone-btn.primary {
+    background: #0f5132;
+    color: white;
+  }
+  .dropzone-btn.primary:hover {
+    background: #146c43;
+  }
+  .dropzone-btn.secondary {
+    background: #ffffff;
+    color: #0f5132;
+    border: 1px solid #a7f3d0;
+  }
+  .dropzone-btn.secondary:hover {
+    background: #f0fdf4;
+    border-color: #059669;
+  }
+
+  /* Progress card during upload & vision OCR */
+  .ocr-progress-card {
+    background: #ffffff;
+    border: 1.5px solid #a7f3d0;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+  }
+  .ocr-progress-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #065f46;
+    margin-bottom: 0.6rem;
+  }
+  .ocr-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #a7f3d0;
+    border-top-color: #059669;
+    border-radius: 50%;
+    animation: spinOcr 0.8s linear infinite;
+  }
+  @keyframes spinOcr {
+    to { transform: rotate(360deg); }
+  }
+  .ocr-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .ocr-step {
+    font-size: 0.74rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .ocr-step.done {
+    color: #059669;
+    font-weight: 600;
+  }
+  .ocr-step.active {
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .deed-engine-badge {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 12px;
+  }
+  .deed-action-buttons {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    margin-top: 0.65rem;
+  }
+  .deed-action-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+  .deed-action-btn:hover {
+    background: #f8fafc;
+    border-color: #0f5132;
+    color: #0f5132;
+  }
 
   /* Deed Audit Card */
   .deed-audit-card {
@@ -671,10 +921,21 @@
     padding: 1px 5px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.3) !important;
     white-space: nowrap !important;
-  }
   .fmb-segment-label:before { border-top-color: rgba(15, 23, 42, 0.85) !important; }
 
-  /* Floating HUD / Info Card over Map */
+  /* Draggable Survey Kallu (Corner Stone) Marker */
+  .custom-kallu-marker {
+    background: transparent;
+    border: none;
+  }
+  .custom-kallu-marker div {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .custom-kallu-marker div:hover {
+    transform: scale(1.35);
+    box-shadow: 0 0 8px #22c55e !important;
+  }
+
   .map-hud {
     position: absolute;
     bottom: 12px;
@@ -750,6 +1011,9 @@
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 0.45rem 0.65rem;
+  }
+  .hud-stat-box.full-width {
+    grid-column: span 2;
   }
   .hud-stat-label {
     font-size: 0.67rem;
@@ -883,7 +1147,383 @@
     .map-preset-select { max-width: 100%; flex: 1 1 100%; }
     .map-search-group { width: 100%; flex: 1 1 100%; }
     .map-hud { bottom: 6px; left: 6px; right: 6px; padding: 0.65rem 0.75rem; }
-    .legal-note { font-size: 0.66rem; padding: 0.25rem 0.5rem; }
+  /* Guided 3-Step Workflow Bar */
+  .workflow-bar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    padding: 0.35rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    overflow-x: auto;
+    font-size: 0.76rem;
+  }
+  .workflow-steps {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: nowrap;
+  }
+  .workflow-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: var(--text-muted);
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+  .workflow-step:hover {
+    background: #f1f5f9;
+    color: var(--text);
+  }
+  .workflow-step.active {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+  }
+  .workflow-step-num {
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+  .workflow-step.active .workflow-step-num {
+    background: #047857;
+    color: #fff;
+  }
+  .workflow-arrow {
+    color: #cbd5e1;
+    font-size: 0.8rem;
+  }
+  .export-report-btn {
+    background: #0f5132;
+    color: #ffffff;
+    border: none;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+    transition: background 0.15s ease;
+  }
+  .export-report-btn:hover {
+    background: #146c43;
+  }
+
+  /* Categorized Action Tabs */
+  .category-tabs {
+    display: flex;
+    gap: 0.35rem;
+    padding: 0.4rem 0.9rem 0;
+    background: var(--surface);
+    border-bottom: 1px solid #f1f5f9;
+    overflow-x: auto;
+  }
+  .category-tab {
+    padding: 0.28rem 0.65rem;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .category-tab:hover {
+    color: var(--text);
+  }
+  .category-tab.active {
+    color: #0f5132;
+    border-bottom-color: #0f5132;
+    font-weight: 700;
+  }
+
+  /* Interactive Ownership Timeline Styles */
+  .timeline-card {
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    margin: 0.75rem 0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+    width: 100%;
+  }
+  .timeline-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    flex-wrap: wrap;
+  }
+  .timeline-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .timeline-title {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0f5132;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .timeline-subtitle {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+  }
+  .timeline-preset-bar {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.85rem;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .timeline-preset-btn {
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .timeline-preset-btn:hover {
+    background: #f1f5f9;
+  }
+  .timeline-preset-btn.active {
+    background: #0f5132;
+    color: #fff;
+    border-color: #0f5132;
+  }
+  .timeline-track {
+    position: relative;
+    padding-left: 28px;
+    margin-top: 0.6rem;
+  }
+  .timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 6px;
+    bottom: 16px;
+    width: 2.5px;
+    background: #cbd5e1;
+    border-radius: 2px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 1.15rem;
+  }
+  .timeline-item:last-child {
+    margin-bottom: 0.3rem;
+  }
+  .timeline-marker {
+    position: absolute;
+    left: -28px;
+    top: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 3px solid #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+    z-index: 2;
+    transition: transform 0.15s ease;
+  }
+  .timeline-item.valid .timeline-marker {
+    border-color: #16a34a;
+    background: #dcfce7;
+    color: #15803d;
+  }
+  .timeline-item.warning .timeline-marker {
+    border-color: #d97706;
+    background: #fef3c7;
+    color: #b45309;
+  }
+  .timeline-item.broken .timeline-marker {
+    border-color: #dc2626;
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+  .timeline-item:hover .timeline-marker {
+    transform: scale(1.15);
+  }
+  .timeline-node-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 0.75rem 0.9rem;
+    transition: all 0.15s ease;
+  }
+  .timeline-item.broken .timeline-node-card {
+    border-color: #fca5a5;
+    background: #fff5f5;
+  }
+  .timeline-item.warning .timeline-node-card {
+    border-color: #fcd34d;
+    background: #fffbeb;
+  }
+  .timeline-node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.35rem;
+  }
+  .timeline-doc-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .timeline-year-tag {
+    background: #0f5132;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .timeline-extent-tag {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .timeline-parties {
+    font-size: 0.79rem;
+    color: #334155;
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .timeline-party-arrow {
+    color: #64748b;
+    font-weight: 700;
+  }
+  .timeline-flags-list {
+    margin-top: 0.45rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .timeline-flag-pill {
+    background: #ffffff;
+    border: 1px solid #fecaca;
+    border-left: 3.5px solid #dc2626;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.76rem;
+    line-height: 1.4;
+  }
+  .timeline-flag-pill.warning {
+    border-color: #fde68a;
+    border-left-color: #d97706;
+  }
+  .timeline-flag-title {
+    font-weight: 700;
+    color: #b91c1c;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .timeline-flag-pill.warning .timeline-flag-title {
+    color: #b45309;
+  }
+  .timeline-flag-statute {
+    font-size: 0.7rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .timeline-flag-desc {
+    color: #334155;
+    margin-top: 2px;
+  }
+  .timeline-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+  }
+  .timeline-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.73rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #334155;
+    transition: all 0.15s;
+  }
+  .timeline-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+  }
+  .timeline-btn.primary {
+    background: #0f5132;
+    color: #fff;
+    border-color: #0f5132;
+  }
+  .timeline-btn.primary:hover {
+    background: #146c43;
+  }
+
+  /* Print Styles for Export Report */
+  @media print {
+    body { height: auto !important; overflow: visible !important; }
+    header, .workflow-bar, .chips-container, .category-tabs, #form, #map-pane, .view-switch {
+      display: none !important;
+    }
+    #main-container { display: block !important; }
+    #chat-pane { border: none !important; height: auto !important; width: 100% !important; }
+    #log { padding: 0 !important; overflow: visible !important; }
+    .msg.user { display: none !important; }
+    .bubble { border: none !important; box-shadow: none !important; padding: 0 !important; }
+    .timeline-card, .deed-audit-card { border: 1px solid #000 !important; page-break-inside: avoid; }
+    .whatsapp-actions, .timeline-preset-bar { display: none !important; }
   }
 </style>
 </head>
@@ -908,41 +1548,145 @@
   </div>
 </header>
 
+<div class="workflow-bar">
+  <div class="workflow-steps">
+    <div class="workflow-step active" id="wf-step-1" onclick="setWorkflowStep(1)" title="Document OCR, Deed Recitals & 30-Year Prior Title Lineage">
+      <span class="workflow-step-num">1</span>
+      <span>📜 Document & Title Lineage</span>
+    </div>
+    <span class="workflow-arrow">➔</span>
+    <div class="workflow-step" id="wf-step-2" onclick="setWorkflowStep(2)" title="Satellite boundary measurement in Cents & KPBR Road Access Width">
+      <span class="workflow-step-num">2</span>
+      <span>🛰️ Satellite & KPBR Road</span>
+    </div>
+    <span class="workflow-arrow">➔</span>
+    <div class="workflow-step" id="wf-step-3" onclick="setWorkflowStep(3)" title="Bilingual WhatsApp seller inquiry & Physical on-ground checklist">
+      <span class="workflow-step-num">3</span>
+      <span>⚖️ Action & WhatsApp Draft</span>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:0.45rem;">
+    <button class="export-report-btn" onclick="openOwnershipTimeline('aluva_broken')" title="Open 30-Year Ownership Timeline Visualizer">
+      <span>📜 Ownership Timeline</span>
+    </button>
+    <button class="export-report-btn" style="background:#1e293b;" onclick="window.print()" title="Print or Save PDF of Audit Report">
+      <span>🖨️ Export PDF</span>
+    </button>
+  </div>
+</div>
+
 <div id="main-container">
-  <div id="chat-pane" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleFileDrop(event)">
+  <div id="chat-pane">
     <div id="drop-overlay" class="drop-overlay">
       <div class="drop-card">
-        <div class="drop-icon">📄</div>
-        <div class="drop-title">Drop Scanned Kerala Deed Here</div>
-        <div class="drop-subtitle">PDF, PNG, JPG, or WEBP (Gemini 3.8 Flash Vision OCR)</div>
+        <div class="drop-icon-animated">📄</div>
+        <div class="drop-title">Drop Scanned Kerala Deed or EC Here</div>
+        <div class="drop-subtitle">Directly ingests Malayalam/English deed text using Google Cloud Document AI & Gemini 3.8 Flash Multimodal Vision</div>
+        <div class="drop-badges">
+          <span>PDF Documents</span>
+          <span>PNG Scans</span>
+          <span>JPG/JPEG</span>
+          <span>WEBP</span>
+          <span>കുടിക്കടം (EC)</span>
+        </div>
       </div>
+    </div>
+
+    <!-- Categorized Action Tabs -->
+    <div class="category-tabs">
+      <div class="category-tab active" data-cat="lineage" onclick="switchActionCategory('lineage')">📜 Ownership & Lineage</div>
+      <div class="category-tab" data-cat="statutory" onclick="switchActionCategory('statutory')">⚖️ Statutory Traps</div>
+      <div class="category-tab" data-cat="kpbr" onclick="switchActionCategory('kpbr')">📐 KPBR Building Rules</div>
+      <div class="category-tab" data-cat="field" onclick="switchActionCategory('field')">🚶 Field Inspection</div>
+      <div class="category-tab" data-cat="all" onclick="switchActionCategory('all')">✨ Show All</div>
     </div>
 
     <div class="chips-container">
       <div class="chips-bar">
-        <div class="chip featured" onclick="runSampleDeedOCR()" title="Run instant Gemini Vision OCR on realistic Aluva Title Deed">
+        <!-- Lineage & Timelines -->
+        <div class="chip featured" data-cat="lineage" onclick="openOwnershipTimeline('aluva_broken')" title="Open Interactive 30-Year Ownership Timeline with 3 Critical Defects">
+          📜 Timeline: Aluva 30-Yr (3 Traps)
+        </div>
+        <div class="chip" data-cat="lineage" onclick="openOwnershipTimeline('kakkanad_wetland')" title="Open Kakkanad Wetland & Minor Share Timeline">
+          🌾 Timeline: Kakkanad Wetland & Minor
+        </div>
+        <div class="chip" data-cat="lineage" onclick="openOwnershipTimeline('clean_title')" title="Open 100% Clean 39-Year Prior Deeds Timeline">
+          🟢 Timeline: Clean Title (39 Yrs)
+        </div>
+        <div class="chip" data-cat="lineage" onclick="runSampleDeedOCR()" title="Run instant Gemini Vision OCR on realistic Aluva Title Deed">
           📄 Scan Sample Deed (Aluva 1420/2014)
         </div>
-        <div class="chip" onclick="document.getElementById('deed-file-input').click()" title="Upload scanned Kerala deed PDF or image">
+        <div class="chip" data-cat="lineage" onclick="document.getElementById('deed-file-input').click()" title="Upload scanned Kerala deed PDF or image">
           📎 Upload Scanned Deed
         </div>
-        <div class="chip" onclick="sendPrompt('Run a demonstration 30-year title audit for a realistic Kerala property and explain the risks in detail.')">
-          📜 Try 30-Year Demo Audit
+
+        <!-- Statutory Traps -->
+        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Audit this partition deed under Mary Roy precedent: Ancestral Syrian Christian land partitioned in 1994 among sons only, excluding sister without registered release deed.')">
+          👩 Mary Roy Excluded Heirs
         </div>
-        <div class="chip" onclick="sendPrompt('Scan this deed clause for traps: Schedule: 10 cents in Re-Sy 345/1. 2-meter pathway along southern boundary reserved for party of 2nd part.')">
-          🔍 Check Pathway / Vazhi Avakasham
+        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Check EC entry: SRO Encumbrance Certificate shows equitable mortgage registered in 2022 with Federal Bank, but seller has no Gehan release deed.')">
+          🏦 Undischarged Bank Mortgage (EC)
         </div>
-        <div class="chip" onclick="sendPrompt('Check this for wetland trap: The property is 12 cents classified as Nilam in prior deed 142/1998, with unregularized dry status.')">
-          🌾 Check Nilam / Wetland Risk
+        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Scan this deed clause for traps: Schedule: 10 cents in Re-Sy 345/1. 2-meter pathway along southern boundary reserved for party of 2nd part.')">
+          🔍 Pathway / Vazhi Avakasham
         </div>
-        <div class="chip" onclick="sendPrompt('Under Kerala Panchayat Building Rules (KPBR 2019), what is the minimum road access width required to get a residential building permit?')">
-          📐 Check Building Road Width (KPBR)
+        <div class="chip" data-cat="statutory" style="display:none;" onclick="sendPrompt('Check this for wetland trap: The property is 12 cents classified as Nilam in prior deed 142/1998, with unregularized dry status.')">
+          🌾 Nilam / Wetland 2008 Risk
         </div>
-        <div class="chip" onclick="sendPrompt('How does the Kerala Conservation of Paddy Land Act Section 27A work? What is the fee slab for Form 6 and who gets the 25-cent free exemption?')">
+
+        <!-- KPBR Rules -->
+        <div class="chip" data-cat="kpbr" style="display:none;" onclick="sendPrompt('Under Kerala Panchayat Building Rules (KPBR 2019), what is the minimum road access width required to get a residential building permit?')">
+          📐 Residential Road Width (3m vs 5m)
+        </div>
+        <div class="chip" data-cat="kpbr" style="display:none;" onclick="sendPrompt('How does the Kerala Conservation of Paddy Land Act Section 27A work? What is the fee slab for Form 6 and who gets the 25-cent free exemption?')">
           📑 Form 6 / 27A Fee Slabs
         </div>
-        <div class="chip" onclick="sendPrompt('What physical checks must I perform on the ground regarding Survey Kallu, boundaries, and road access before paying an advance?')">
-          🚶 Field Verification Checklist
+
+        <!-- Field Inspection -->
+        <div class="chip" data-cat="field" style="display:none;" onclick="sendPrompt('What physical checks must I perform on the ground regarding Survey Kallu, boundaries, and road access before paying an advance?')">
+          📍 Survey Kallu (Boundary Stones)
+        </div>
+        <div class="chip" data-cat="field" style="display:none;" onclick="setMapTool('road'); setViewMode('split');">
+          📏 Measure Road Width on Map
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Deed Drag & Drop Zone -->
+    <div class="deed-dropzone-container" id="deed-dropzone-container">
+      <div class="deed-dropzone" id="deed-dropzone" onclick="document.getElementById('deed-file-input').click()" title="Click to browse or drop any deed file">
+        <div class="dropzone-badge-row">
+          <span class="dropzone-live-pulse"></span>
+          <span class="dropzone-tag">Cloud Document AI & Multimodal Vision</span>
+          <span class="dropzone-model">Gemini 3.8 Flash</span>
+        </div>
+        <div class="dropzone-content">
+          <div class="dropzone-icon">📥</div>
+          <div class="dropzone-text">
+            <div class="dropzone-title">
+              <strong>Drag & Drop Kerala Title Deed (*ആധാരം*) or Encumbrance Certificate (*കുടിക്കടം*)</strong>
+            </div>
+            <div class="dropzone-desc">
+              Directly extracts 4 boundaries (ചതുരതിരുകൾ), survey numbers, prior deeds (മുന്നാധാരം) & audits 4 fatal statutory traps
+            </div>
+          </div>
+        </div>
+        <div class="dropzone-footer">
+          <div class="dropzone-formats">
+            <span class="format-pill">PDF</span>
+            <span class="format-pill">PNG</span>
+            <span class="format-pill">JPG</span>
+            <span class="format-pill">WEBP</span>
+            <span class="format-pill lang">മലയാളം & English</span>
+          </div>
+          <div class="dropzone-btns" onclick="event.stopPropagation()">
+            <button type="button" class="dropzone-btn primary" onclick="document.getElementById('deed-file-input').click()">
+              <span>📁 Browse Files</span>
+            </button>
+            <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR()" title="Run instant demonstration OCR on sample Aluva deed">
+              <span>✨ Try Demo Deed</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -982,11 +1726,13 @@
 
       <select class="map-preset-select" id="preset-select" onchange="applyLocationPreset(this.value)">
         <option value="">📍 Select Kerala Region...</option>
-        <option value="aluva" selected>Aluva (Demo Property - Re-Sy 345/1)</option>
-        <option value="kakkanad">Kakkanad / Infopark (IT & Wetland Zone)</option>
+        <option value="aluva" selected>Aluva (Periyar River Basin - 2018 Flood Zone)</option>
+        <option value="kakkanad">Kakkanad / Infopark (Elevated Midlands)</option>
+        <option value="kuttanad">Kuttanad (Sub-Sea-Level Wetland Polders)</option>
+        <option value="chengannur">Chengannur (Pamba River Flood Corridor)</option>
         <option value="angamaly">Angamaly (Paddy & Agricultural Zone)</option>
-        <option value="kaloor">Kaloor / Kochi (High Density Urban)</option>
-        <option value="thrissur">Thrissur (Swaraj Round & Central)</option>
+        <option value="kaloor">Kaloor / Kochi (High Density Coastal)</option>
+        <option value="thrissur">Thrissur (Swaraj Round & Kole Wetlands)</option>
         <option value="kottayam">Kottayam (Meenachil Wetland Valley)</option>
         <option value="kozhikode">Kozhikode (Coastal City)</option>
         <option value="trivandrum">Thiruvananthapuram (Kazhakkoottam)</option>
@@ -1004,7 +1750,7 @@
       <button class="map-tool-btn" id="tool-road" onclick="setMapTool('road')">📏 Measure Road Width</button>
       <button class="map-tool-btn" id="btn-undo" onclick="undoLastPoint()" disabled title="Undo last placed point">↩️ Undo</button>
       <button class="map-tool-btn" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
-      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()">📋 Checklist <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/4</span></button>
+      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()">📋 Checklist <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/5</span></button>
 
       <select class="map-layer-select" id="layer-select" onchange="switchMapLayer(this.value)">
         <option value="google-hybrid" selected>🛰️ Google Satellite Hybrid</option>
@@ -1062,14 +1808,28 @@
             <span class="badge-road pass" id="hud-road-badge">✅ KPBR Pass (≥3m)</span>
           </div>
         </div>
+        <div class="hud-stat-box full-width" id="hud-elevation-box">
+          <div class="hud-stat-label">
+            <span>Elevation & Flood Exposure</span>
+            <span style="font-size:0.65rem; color:#0f5132;" title="Above Mean Sea Level (MSL) & KSDMA flood hazard rating">⛰️ MSL</span>
+          </div>
+          <div class="hud-stat-val" id="hud-elevation" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+            <span id="hud-elevation-text" style="font-size: 0.85rem; font-weight: 700;">6.5m MSL</span>
+            <span class="badge-road warn" id="hud-flood-badge">🟡 Moderate Flood Risk</span>
+          </div>
+          <div id="hud-basin-text" style="font-size: 0.7rem; color: #475569; margin-top: 3px;">Periyar River Basin • Plinth: ≥0.75m</div>
+        </div>
       </div>
 
       <div class="hud-actions">
         <button class="hud-btn hud-btn-primary" onclick="sendPlotToAuditor()">
-          📋 Send Plot to Auditor AI
+          📋 Send to Auditor
+        </button>
+        <button class="hud-btn hud-btn-secondary" onclick="exportPlotDossier()" title="Export Advocate Legal Dossier PDF with satellite plot geometry and KPBR compliance">
+          📑 Export Dossier (PDF)
         </button>
         <a id="btn-open-gmaps" class="hud-btn hud-btn-secondary" target="_blank" href="https://www.google.com/maps/search/?api=1&query=10.1076,76.3516">
-          🌍 Open in Maps
+          🌍 Maps
         </a>
       </div>
     </div>
@@ -1078,7 +1838,7 @@
     <div class="checklist-panel" id="checklist-panel">
       <div class="checklist-header">
         <span>🚩 On-Site Field Check Essentials</span>
-        <button onclick="toggleChecklist(false)" style="border:none; background:transparent; font-size:0.9rem; cursor:pointer; color:#64748b;">✕</button>
+        <button class="checklist-close-btn" onclick="toggleChecklist(false)" style="border:none; background:transparent; font-size:0.9rem; cursor:pointer; color:#64748b;">✕</button>
       </div>
       <div class="checklist-row">
         <input type="checkbox" id="chk-kallu" onchange="updateChecklistProgress()">
@@ -1095,6 +1855,10 @@
       <div class="checklist-row">
         <input type="checkbox" id="chk-ht" onchange="updateChecklistProgress()">
         <label for="chk-ht"><strong>Overhead Lines:</strong> Verify no HT electricity lines cross over the plot.</label>
+      </div>
+      <div class="checklist-row">
+        <input type="checkbox" id="chk-flood" onchange="updateChecklistProgress()">
+        <label for="chk-flood"><strong>Flood Watermarks:</strong> Check compound walls & poles for 2018 monsoon waterlines.</label>
       </div>
       <div style="font-size:0.7rem; color:#64748b; margin-top:0.3rem; border-top:1px dashed #e2e8f0; padding-top:0.3rem;">
         Tick items as you verify them on-site with your surveyor.
@@ -1186,6 +1950,7 @@ function formatMarkdown(text) {
     } else {
       rawQuote = rawQuote.replace(/^[>\s*]+/gm, '').replace(/<[^>]+>/g, '').trim();
     }
+    rawQuote = rawQuote.replace(/^```[a-z]*\s*/i, '').replace(/\s*```$/g, '').trim();
 
     if (rawQuote.length > 10) {
       const encodedWaText = encodeURIComponent(rawQuote);
@@ -1194,7 +1959,7 @@ function formatMarkdown(text) {
           <div class="whatsapp-header">
             <span class="whatsapp-title">📱 Malayalam WhatsApp Inquiry for Seller / Broker</span>
             <div class="whatsapp-actions">
-              <button class="copy-btn" onclick="copyText(this, decodeURIComponent('${encodedWaText}'))">
+              <button class="copy-btn" onclick="copyText(this)">
                 📋 Copy Draft
               </button>
               <a class="wa-direct-btn" href="https://api.whatsapp.com/send?text=${encodedWaText}" target="_blank">
@@ -1212,8 +1977,27 @@ function formatMarkdown(text) {
   return '<p>' + html + '</p>';
 }
 
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try { document.execCommand("copy"); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
 function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
+  if (!text) {
+    const card = btn.closest(".whatsapp-card");
+    if (card) {
+      const textEl = card.querySelector(".whatsapp-text");
+      if (textEl) text = textEl.textContent.trim();
+    }
+  }
+  const doFeedback = () => {
     const originalText = btn.innerHTML;
     btn.innerHTML = "✅ Copied!";
     btn.classList.add("copied");
@@ -1221,18 +2005,765 @@ function copyText(btn, text) {
       btn.innerHTML = originalText;
       btn.classList.remove("copied");
     }, 2000);
-  });
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(doFeedback).catch(() => {
+      fallbackCopy(text);
+      doFeedback();
+    });
+  } else {
+    fallbackCopy(text);
+    doFeedback();
+  }
 }
+const copyWhatsApp = copyText;
 
 function sendPrompt(text) {
   input.value = text;
   form.dispatchEvent(new Event("submit"));
 }
 
+/* Drag and Drop Handlers with Window-Level Protection */
+let windowDragCounter = 0;
+
+window.addEventListener("dragenter", (e) => {
+  if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes("Files")) {
+    e.preventDefault();
+    windowDragCounter++;
+    const overlay = document.getElementById("drop-overlay");
+    const dropzone = document.getElementById("deed-dropzone");
+    if (overlay) overlay.classList.add("active");
+    if (dropzone) dropzone.classList.add("drag-hover");
+  }
+});
+
+window.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  if (e.dataTransfer) {
+    e.dataTransfer.dropEffect = "copy";
+  }
+});
+
+window.addEventListener("dragleave", (e) => {
+  e.preventDefault();
+  windowDragCounter--;
+  if (windowDragCounter <= 0) {
+    windowDragCounter = 0;
+    const overlay = document.getElementById("drop-overlay");
+    const dropzone = document.getElementById("deed-dropzone");
+    if (overlay) overlay.classList.remove("active");
+    if (dropzone) dropzone.classList.remove("drag-hover");
+  }
+});
+
+window.addEventListener("drop", (e) => {
+  e.preventDefault();
+  windowDragCounter = 0;
+  const overlay = document.getElementById("drop-overlay");
+  const dropzone = document.getElementById("deed-dropzone");
+  if (overlay) overlay.classList.remove("active");
+  if (dropzone) dropzone.classList.remove("drag-hover");
+
+  if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+    if (e.dataTransfer.files.length === 1) {
+      handleDeedUpload(e.dataTransfer.files[0]);
+    } else {
+      handleMultipleDeedUploads(Array.from(e.dataTransfer.files));
+    }
+  }
+});
+
+/* Batch Upload Handler */
+async function handleMultipleDeedUploads(files) {
+  appendMsg("user", `📎 <strong>Uploaded ${files.length} Deed Documents in Batch</strong>`);
+  for (let i = 0; i < files.length; i++) {
+    await handleDeedUpload(files[i]);
+  }
+}
+
+/* Multimodal Deed OCR Upload Handler with Progressive Steps */
+async function handleDeedUpload(file) {
+  if (!file) return;
+  const fileName = file.name;
+  const fileSizeKb = (file.size / 1024).toFixed(1);
+
+  appendMsg("user", `📎 <strong>Uploaded Deed Document:</strong> ${fileName} (${fileSizeKb} KB)`);
+
+  const loadingBubble = appendMsg("agent", `
+    <div class="ocr-progress-card">
+      <div class="ocr-progress-header">
+        <span class="ocr-spinner"></span>
+        <span>Ingesting Deed Document: <strong>${fileName}</strong> (${fileSizeKb} KB)</span>
+      </div>
+      <div class="ocr-steps">
+        <div class="ocr-step active" id="ocr-step-1">
+          <span>●</span> <span>Step 1: Reading document scan & packaging multimodal payload...</span>
+        </div>
+        <div class="ocr-step" id="ocr-step-2">
+          <span>○</span> <span>Step 2: Cloud Document AI & Gemini 3.8 Flash Multimodal OCR...</span>
+        </div>
+        <div class="ocr-step" id="ocr-step-3">
+          <span>○</span> <span>Step 3: Kerala 4-trap statutory audit & boundary extraction...</span>
+        </div>
+      </div>
+    </div>
+  `);
+
+  const step1 = loadingBubble.querySelector("#ocr-step-1");
+  const step2 = loadingBubble.querySelector("#ocr-step-2");
+  const step3 = loadingBubble.querySelector("#ocr-step-3");
+
+  try {
+    // Step 1 done -> Step 2 active
+    setTimeout(() => {
+      if (step1 && step2) {
+        step1.className = "ocr-step done";
+        step1.innerHTML = "<span>✓</span> <span>Step 1: Document scan ingested</span>";
+        step2.className = "ocr-step active";
+        step2.innerHTML = "<span>●</span> <span>Step 2: Cloud Document AI & Gemini 3.8 Flash Vision OCR running...</span>";
+      }
+    }, 400);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("user_id", "web-user");
+
+    const res = await fetch("/api/upload_deed", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error(`OCR processing failed with status ${res.status}`);
+    }
+
+    // Step 2 done -> Step 3 active
+    if (step2 && step3) {
+      step2.className = "ocr-step done";
+      step2.innerHTML = "<span>✓</span> <span>Step 2: Malayalam/English deed text parsed</span>";
+      step3.className = "ocr-step active";
+      step3.innerHTML = "<span>●</span> <span>Step 3: Auditing 4 statutory traps & KPBR setbacks...</span>";
+    }
+
+    const result = await res.json();
+
+    // Render result card
+    setTimeout(() => {
+      renderDeedAuditCard(loadingBubble, result, fileName);
+    }, 300);
+
+  } catch (err) {
+    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error analyzing deed document: ${err.message}</span>`;
+  }
+}
+
+/* Sample Deed OCR Runner */
+async function runSampleDeedOCR() {
+  appendMsg("user", `📄 <strong>Demonstration Request:</strong> Scan Sample Kerala Title Deed (Aluva SRO Doc 1420/2014, Re-Sy 345/1)`);
+
+  const loadingBubble = appendMsg("agent", `
+    <div class="ocr-progress-card">
+      <div class="ocr-progress-header">
+        <span class="ocr-spinner"></span>
+        <span>Scanning Sample Deed: <strong>sample_aluva_deed.pdf</strong> (Gemini 3.8 Flash Vision)</span>
+      </div>
+      <div class="ocr-steps">
+        <div class="ocr-step done">
+          <span>✓</span> <span>Step 1: Sample PDF loaded (10 Cents, Aluva Village)</span>
+        </div>
+        <div class="ocr-step active">
+          <span>●</span> <span>Step 2: Paleographic OCR & recital extraction...</span>
+        </div>
+        <div class="ocr-step">
+          <span>○</span> <span>Step 3: Evaluating pathway easement & wetland status...</span>
+        </div>
+      </div>
+    </div>
+  `);
+
+  try {
+    const res = await fetch("/api/sample_deed?process=true&user_id=web-user");
+    if (!res.ok) throw new Error("Could not process sample deed");
+    const result = await res.json();
+    setTimeout(() => {
+      renderDeedAuditCard(loadingBubble, result, "sample_aluva_deed.pdf");
+    }, 400);
+  } catch (err) {
+    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error scanning sample deed: ${err.message}</span>`;
+  }
+}
+
+/* Render Extracted Deed Card */
+function renderDeedAuditCard(container, data, fileName) {
+  window._lastUploadedDeedData = data;
+  const meta = data.metadata || {};
+  const sanity = data.sanity_result || {};
+  const score = sanity.sanity_score ?? 100;
+
+  let scoreClass = "clear";
+  let scoreIcon = "🟢";
+  if (score < 50) {
+    scoreClass = "danger";
+    scoreIcon = "🔴";
+  } else if (score < 85) {
+    scoreClass = "caution";
+    scoreIcon = "🟡";
+  }
+
+  // Boundaries list
+  let boundariesHtml = "";
+  if (meta.boundaries && meta.boundaries.length) {
+    boundariesHtml = `
+      <div class="boundary-box">
+        <div class="boundary-title">🧭 Four Boundaries (ചതുരതിരുകൾ):</div>
+        ${meta.boundaries.map(b => `
+          <div class="boundary-row">
+            <span class="boundary-dir">${b.direction}:</span>
+            <span>${b.boundary_description}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // Prior Deeds list
+  let priorHtml = "";
+  if (meta.prior_deeds && meta.prior_deeds.length) {
+    priorHtml = `
+      <div class="prior-deeds-box">
+        <div class="prior-title">🔗 Prior Title Lineage (മുന്നാധാരം):</div>
+        ${meta.prior_deeds.map(p => `
+          <div class="prior-item">
+            <strong>${p.doc_number || "Doc"}</strong> ${p.year ? `(${p.year})` : ""} - ${p.deed_type || "Prior Deed"}
+            ${p.sro_name ? `· SRO ${p.sro_name}` : ""}
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // Findings list
+  let findingsHtml = "";
+  if (sanity.findings && sanity.findings.length) {
+    findingsHtml = `
+      <div class="findings-box">
+        <div style="font-weight:700; color:#b91c1c; font-size:0.82rem; margin-bottom:0.35rem;">⚠️ Statutory Red Flags Detected:</div>
+        ${sanity.findings.map(f => `
+          <div class="finding-alert ${f.severity === 'CRITICAL' ? 'critical' : ''}">
+            <div class="finding-alert-header">
+              <span>${f.title} (${f.title_malayalam || ''})</span>
+              <span style="font-size:0.7rem; text-transform:uppercase;">${f.severity}</span>
+            </div>
+            <div>${f.explanation}</div>
+            <div style="font-size:0.72rem; color:#6b7280; margin-top:3px;"><strong>Statute:</strong> ${f.kerala_statute}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  // Building rules pill
+  let buildingHtml = "";
+  if (data.building_rules) {
+    const br = data.building_rules;
+    buildingHtml = `
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:0.55rem 0.75rem; margin-bottom:0.85rem; font-size:0.8rem; color:#166534;">
+        <strong>📐 Building Rules Match (${br.rule_citation || 'KPBR 2019'}):</strong><br>
+        • Min Access Road Width: <strong>${br.min_road_width_m} meters</strong><br>
+        • Setbacks: Front ${br.front_setback_m}m | Rear ${br.rear_setback_m}m | Sides ${br.side_setback_1_m}m & ${br.side_setback_2_m}m
+      </div>
+    `;
+  }
+
+  // Paddy conversion fee pill
+  let paddyHtml = "";
+  if (data.paddy_conversion && data.paddy_conversion.statutory_conversion_fee_inr > 0) {
+    const pc = data.paddy_conversion;
+    paddyHtml = `
+      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:0.55rem 0.75rem; margin-bottom:0.85rem; font-size:0.8rem; color:#92400e;">
+        <strong>🌾 Form 6 Section 27A Conversion Fee:</strong><br>
+        • Estimated Govt Fee: <strong>₹${pc.statutory_conversion_fee_inr.toLocaleString('en-IN')}</strong> (${pc.applicable_slab_percentage}% slab)<br>
+        • Free Exemption Applied: ${pc.free_exemption_cents} Cents (Govt exemption for residential plots up to 25 cents).
+      </div>
+    `;
+  }
+
+  // WhatsApp draft card
+  let waHtml = "";
+  if (data.whatsapp_draft) {
+    const safeWa = data.whatsapp_draft.replace(/"/g, '&quot;');
+    const waEncoded = encodeURIComponent(data.whatsapp_draft);
+    waHtml = `
+      <div class="whatsapp-card">
+        <div class="whatsapp-header">
+          <div class="whatsapp-title">📱 Malayalam WhatsApp Question for Seller:</div>
+          <div class="whatsapp-actions">
+            <button class="copy-btn" onclick="copyWhatsApp(this, '${safeWa}')">📋 Copy</button>
+            <a class="wa-direct-btn" href="https://api.whatsapp.com/send?text=${waEncoded}" target="_blank" rel="noopener noreferrer">💬 WhatsApp</a>
+          </div>
+        </div>
+        <div class="whatsapp-text">${data.whatsapp_draft}</div>
+      </div>
+    `;
+  }
+
+  const cardHtml = `
+    <div class="deed-audit-card">
+      <div class="deed-card-header">
+        <div class="deed-title-group">
+          <span>📄</span>
+          <span class="deed-doc-tag">${meta.document_number ? `Doc ${meta.document_number}` : fileName}</span>
+          ${meta.year ? `<span style="font-size:0.8rem; color:#64748b;">(${meta.year})</span>` : ""}
+          <span class="deed-type-badge">${meta.deed_type || "Kerala Title Deed"}</span>
+          <span class="deed-engine-badge">⚡ ${data.ocr_engine_used || meta.ocr_engine_used || 'Gemini 3.8 Flash Vision'}</span>
+          ${meta.sro_name ? `<span style="font-size:0.75rem; color:#475569;">SRO ${meta.sro_name}</span>` : ""}
+        </div>
+        <div class="deed-score-badge ${scoreClass}">
+          <span>${scoreIcon}</span>
+          <span>Score: ${score}/100</span>
+        </div>
+      </div>
+
+      <div class="deed-card-body">
+        <div class="deed-grid">
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Survey / Re-Sy No</div>
+            <div class="deed-grid-val">${meta.re_survey_no || meta.survey_no || "Unknown"}</div>
+          </div>
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Village & Taluk</div>
+            <div class="deed-grid-val">${meta.village || "Unknown"}${meta.taluk ? `, ${meta.taluk}` : ""}</div>
+          </div>
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Extent (Area)</div>
+            <div class="deed-grid-val" style="color:#0f5132;">${meta.extent_cents} Cents ${meta.extent_ares ? `(${meta.extent_ares} Ares)` : ""}</div>
+          </div>
+          <div class="deed-grid-item">
+            <div class="deed-grid-label">Land Classification</div>
+            <div class="deed-grid-val" style="${meta.is_paddy_wetland_risk ? 'color:#b91c1c;' : 'color:#15803d;'}">
+              ${meta.revenue_classification} ${meta.is_paddy_wetland_risk ? '⚠️' : '✓'}
+            </div>
+          </div>
+        </div>
+
+        ${boundariesHtml}
+        ${priorHtml}
+        ${findingsHtml}
+        ${buildingHtml}
+        ${paddyHtml}
+        ${waHtml}
+
+        <div class="deed-action-buttons">
+          <button class="deed-action-btn" onclick="locatePlotOnSatellite('${meta.village || ''}', '${meta.re_survey_no || meta.survey_no || ''}')" title="Locate this survey plot on the interactive satellite map">
+            <span>🛰️</span> Locate Plot on Map
+          </button>
+          <button class="deed-action-btn" onclick="openOwnershipTimeline('aluva_broken')" title="Trace 30-year chronological chain of prior deeds">
+            <span>📜</span> Audit Munnadharam Chain
+          </button>
+          <button class="deed-action-btn" onclick="askAboutDeed('${meta.document_number || ''}', '${meta.survey_no || ''}')" title="Ask follow-up questions to Kandezhuthu legal assistant">
+            <span>💬</span> Ask Legal Assistant
+          </button>
+        </div>
+
+        <div class="dossier-export-banner" style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; display:flex; align-items:center; justify-content:space-between; gap:0.6rem; flex-wrap:wrap;">
+          <div style="font-size:0.78rem; color:#166534; line-height:1.35;">
+            <strong>⚖️ Advocate Title Vetting Dossier:</strong><br/>
+            Export publication-grade PDF brief with boundary schedule, 5-point SRO checklist, and statutory disclaimers.
+          </div>
+          <button class="dossier-download-btn" onclick="exportCurrentDeedDossier()" style="background:#0f5132; color:white; border:none; padding:6px 12px; border-radius:6px; font-size:0.8rem; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 1px 3px rgba(0,0,0,0.12); white-space:nowrap;">
+            <span>📑</span>
+            <span>Export Advocate Dossier (PDF)</span>
+          </button>
+        </div>
+
+        <div style="font-size:0.72rem; color:#64748b; margin-top:0.6rem; border-top:1px dashed #e2e8f0; padding-top:0.5rem;">
+          🔍 <em>Ask follow-up questions about this property below (e.g. "Can I construct a house on this plot?", "Is the pathway legally binding on future buyers?").</em>
+        </div>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = cardHtml;
+  log.scrollTop = log.scrollHeight;
+}
+
+function locatePlotOnSatellite(village, survey) {
+  setViewMode('split');
+  const v = (village || 'Aluva').toLowerCase();
+  if (v.includes('aluva')) {
+    applyLocationPreset('aluva');
+  } else if (v.includes('kakkanad')) {
+    applyLocationPreset('kakkanad');
+  } else {
+    const searchInput = document.getElementById('map-search');
+    if (searchInput) {
+      searchInput.value = `${village || 'Kerala'}, Kerala`;
+      searchLocation();
+    }
+  }
+}
+
+function askAboutDeed(docNo, surveyNo) {
+  const prompt = `Based on deed ${docNo ? 'Doc ' + docNo : ''} (Survey No ${surveyNo || '345/1'}), what are the critical legal risks, pathway easements, and physical checks needed before paying token advance?`;
+  input.value = prompt;
+  input.focus();
+}
+
+/* Open Interactive 30-Year Ownership Timeline */
+async function openOwnershipTimeline(preset = 'aluva_broken') {
+  const presetLabels = {
+    aluva_broken: "Aluva Broken Chain (Doc 1420/2014 · Mary Roy Defect & Federal Bank Mortgage)",
+    kakkanad_wetland: "Kakkanad Wetland & Minor Share (Doc 1204/2015 · Sec 8 HMGA & Data Bank)",
+    clean_title: "Clean 39-Year Lineage Chain (Doc 945/2018 · Complete Continuity 100/100)"
+  };
+
+  appendMsg("user", `📜 <strong>Timeline Audit Request:</strong> Trace 30-Year Ownership Lineage for <em>${presetLabels[preset] || preset}</em>`);
+
+  const loadingBubble = appendMsg("agent", `
+    <div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <span style="font-size:0.85rem; color:#0f5132; margin-left:6px; font-weight:600;">
+        Reconstructing 30-year chronological title chain (മുന്നാധാരം) across decades...
+      </span>
+    </div>
+  `);
+
+  try {
+    const res = await fetch(`/api/timeline_demo?preset=${preset}`);
+    if (!res.ok) throw new Error("Could not load ownership timeline");
+    const data = await res.json();
+    renderOwnershipTimeline(loadingBubble, data, preset);
+  } catch (err) {
+    loadingBubble.innerHTML = `<span style="color:#b91c1c;">⚠️ Error loading ownership timeline: ${err.message}</span>`;
+  }
+}
+
+/* Render Interactive Ownership Timeline Card */
+function renderOwnershipTimeline(container, data, currentPreset = 'aluva_broken') {
+  const score = data.score ?? 0;
+  let scoreClass = "danger";
+  let scoreIcon = "🔴";
+  if (score >= 85) {
+    scoreClass = "clear";
+    scoreIcon = "🟢";
+  } else if (score >= 50) {
+    scoreClass = "caution";
+    scoreIcon = "🟡";
+  }
+
+  const nodes = data.nodes || [];
+  const nodesHtml = nodes.map((node, idx) => {
+    const statusClass = node.status || (node.flags && node.flags.length ? "broken" : "valid");
+    const markerIcon = statusClass === "valid" ? "✓" : (statusClass === "warning" ? "!" : "✕");
+
+    let flagsHtml = "";
+    if (node.flags && node.flags.length) {
+      flagsHtml = `
+        <div class="timeline-flags-list">
+          ${node.flags.map(f => `
+            <div class="timeline-flag-pill ${statusClass === 'warning' ? 'warning' : ''}">
+              <div class="timeline-flag-title">
+                <span>${statusClass === 'warning' ? '🟡' : '🚨'}</span>
+                <span>${f.title}</span>
+              </div>
+              <div class="timeline-flag-statute">⚖️ <strong>Statute:</strong> ${f.statute}</div>
+              <div class="timeline-flag-desc">${f.desc}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    return `
+      <div class="timeline-item ${statusClass}">
+        <div class="timeline-marker">${markerIcon}</div>
+        <div class="timeline-node-card">
+          <div class="timeline-node-header">
+            <div class="timeline-doc-title">
+              <span class="timeline-year-tag">${node.year}</span>
+              <span>${node.deed_type}</span>
+              <span style="font-weight:400; color:#475569; font-size:0.78rem;">(${node.deed_malayalam || ''})</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.35rem;">
+              <span class="timeline-extent-tag">📐 ${node.extent_cents} Cents</span>
+              <span style="font-size:0.73rem; background:#f1f5f9; padding:1px 5px; border-radius:4px; color:#475569;">Doc #${node.doc_number}</span>
+            </div>
+          </div>
+
+          <div class="timeline-parties">
+            <span><strong>From:</strong> ${node.from_parties.join(", ")}</span>
+            <span class="timeline-party-arrow">➔</span>
+            <span><strong>To:</strong> ${node.to_parties.join(", ")}</span>
+            <span style="color:#64748b; font-size:0.73rem;">· SRO ${node.sro}</span>
+          </div>
+
+          ${node.notes ? `<div style="font-size:0.77rem; color:#475569; margin-top:2px;">ℹ️ <em>${node.notes}</em></div>` : ''}
+          ${flagsHtml}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  let waHtml = "";
+  if (data.whatsapp_inquiry) {
+    const safeWa = data.whatsapp_inquiry.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const waEncoded = encodeURIComponent(data.whatsapp_inquiry);
+    waHtml = `
+      <div class="whatsapp-card" style="margin-top:1rem;">
+        <div class="whatsapp-header">
+          <div class="whatsapp-title">📱 Malayalam WhatsApp Questions for Broker / Seller:</div>
+          <div class="whatsapp-actions">
+            <button class="copy-btn" onclick="copyWhatsApp(this, '${safeWa}')">📋 Copy Draft</button>
+            <a class="wa-direct-btn" href="https://api.whatsapp.com/send?text=${waEncoded}" target="_blank" rel="noopener noreferrer">💬 Send WhatsApp</a>
+          </div>
+        </div>
+        <div class="whatsapp-text">${data.whatsapp_inquiry}</div>
+      </div>
+    `;
+  }
+
+  const cardHtml = `
+    <div class="timeline-card">
+      <div class="timeline-card-header">
+        <div class="timeline-title-group">
+          <div class="timeline-title">
+            <span>📜</span>
+            <span>30-Year Prior Title Lineage (*Munnadharam* Timeline)</span>
+          </div>
+          <div class="timeline-subtitle">📍 ${data.property_identifier}</div>
+        </div>
+        <div class="deed-score-badge ${scoreClass}">
+          <span>${scoreIcon}</span>
+          <span>Score: ${score}/100 · ${data.risk_verdict}</span>
+        </div>
+      </div>
+
+      <div class="timeline-preset-bar">
+        <button class="timeline-preset-btn ${currentPreset === 'aluva_broken' ? 'active' : ''}" onclick="openOwnershipTimeline('aluva_broken')">
+          🚨 Aluva (3 Red-Flag Traps)
+        </button>
+        <button class="timeline-preset-btn ${currentPreset === 'kakkanad_wetland' ? 'active' : ''}" onclick="openOwnershipTimeline('kakkanad_wetland')">
+          🌾 Kakkanad (Wetland & Minor Share)
+        </button>
+        <button class="timeline-preset-btn ${currentPreset === 'clean_title' ? 'active' : ''}" onclick="openOwnershipTimeline('clean_title')">
+          🟢 100% Clean Title Chain (39 Yrs)
+        </button>
+      </div>
+
+      <div style="background:${data.chain_intact ? '#f0fdf4' : '#fff5f5'}; border:1px solid ${data.chain_intact ? '#bbf7d0' : '#fecaca'}; border-radius:8px; padding:0.6rem 0.8rem; font-size:0.8rem; color:${data.chain_intact ? '#166534' : '#991b1b'}; margin-bottom:0.75rem;">
+        <strong>Audit Summary:</strong> ${data.summary}
+      </div>
+
+      <div class="timeline-track">
+        ${nodesHtml}
+      </div>
+
+      ${waHtml}
+
+      <div class="timeline-actions">
+        <button class="timeline-btn primary" onclick="locateTimelineOnMap('${currentPreset}')">
+          <span>📍 View Region on Satellite</span>
+        </button>
+        <button class="timeline-btn" onclick="toggleChecklist(true)">
+          <span>📋 On-Site Checklist</span>
+        </button>
+        <button class="timeline-btn" onclick="exportDossierPDF('${currentPreset}')" title="Download Publication-Grade Advocate Legal PDF Report">
+          <span>📥 Download Advocate PDF</span>
+        </button>
+        <button class="timeline-btn" onclick="window.print()" title="Print this view">
+          <span>🖨️ Print</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  container.innerHTML = cardHtml;
+  log.scrollTop = log.scrollHeight;
+}
+
+function locateTimelineOnMap(preset) {
+  if (currentViewMode === "chat") {
+    setViewMode("split");
+  }
+  if (preset === "kakkanad_wetland") {
+    applyLocationPreset("kakkanad");
+  } else {
+    applyLocationPreset("aluva");
+  }
+}
+
+function switchActionCategory(cat) {
+  document.querySelectorAll(".category-tab").forEach(tab => {
+    tab.classList.toggle("active", tab.dataset.cat === cat);
+  });
+  document.querySelectorAll(".chips-bar .chip[data-cat]").forEach(chip => {
+    if (cat === "all" || chip.dataset.cat === cat) {
+      chip.style.display = "inline-flex";
+    } else {
+      chip.style.display = "none";
+    }
+  });
+}
+
+function setWorkflowStep(stepNum) {
+  document.querySelectorAll(".workflow-step").forEach((el, idx) => {
+    el.classList.toggle("active", idx + 1 === stepNum);
+  });
+  if (stepNum === 1) {
+    if (currentViewMode === "map") setViewMode("split");
+    switchActionCategory("lineage");
+  } else if (stepNum === 2) {
+    if (currentViewMode === "chat") setViewMode("split");
+    setMapTool("plot");
+  } else if (stepNum === 3) {
+    toggleChecklist(true);
+    switchActionCategory("statutory");
+  }
+}
+
+async function exportDossierPDF(preset = 'aluva_broken') {
+  try {
+    const res = await fetch(`/api/timeline_demo?preset=${preset}`);
+    if (!res.ok) throw new Error("Could not fetch audit data");
+    const data = await res.json();
+    const pdfRes = await fetch('/api/export_dossier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!pdfRes.ok) throw new Error("Failed to generate PDF dossier");
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kandezhuthu_legal_audit_${preset}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Could not generate PDF dossier: " + err.message);
+  }
+}
+
+async function exportCurrentDeedDossier() {
+  if (!window._lastUploadedDeedData) {
+    alert("No uploaded deed data available. Please upload or scan a deed first.");
+    return;
+  }
+  try {
+    const pdfRes = await fetch('/api/export_dossier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(window._lastUploadedDeedData)
+    });
+    if (!pdfRes.ok) throw new Error("Failed to generate PDF dossier");
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const docNo = (window._lastUploadedDeedData.metadata?.document_number || "deed").replace(/[\/\s]/g, "_");
+    a.download = `kandezhuthu_deed_dossier_${docNo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Could not generate PDF dossier: " + err.message);
+  }
+}
+
+async function exportPlotDossier() {
+  const coords = document.getElementById("hud-coords").textContent;
+  const locality = document.getElementById("hud-locality-title").textContent.replace("📍 ", "");
+  const centsText = document.getElementById("hud-cents").textContent;
+  const centsVal = parseFloat(centsText) || 10.0;
+  const roadMText = document.getElementById("hud-road-text").textContent;
+  const roadMVal = parseFloat(roadMText) || 3.0;
+
+  const plotPayload = {
+    property_identifier: `${locality} (GPS: ${coords})`,
+    document_number: "Satellite Ground Inspection Plot",
+    sro: "Jurisdictional SRO",
+    extent_cents: centsVal,
+    classification: "Purayidam (Ground Check Required)",
+    sanity_score: roadMVal >= 3.0 ? 85 : 45,
+    risk_verdict: roadMVal >= 3.0 ? "PASS WITH CONDITIONS" : "DEFECTIVE ACCESS ROAD",
+    findings: [
+      {
+        title: roadMVal >= 3.0 ? "KPBR 2019 Access Road Pass" : "Defective Access Road (< 3m)",
+        severity: roadMVal >= 3.0 ? "LOW" : "CRITICAL",
+        kerala_statute: "Kerala Panchayat Building Rules, 2019 (Rule 26 / Table 5)",
+        explanation: `Satellite access road measured: ${roadMVal} meters. Under KPBR 2019, residential plots requiring building permits require minimum 3.0m motorable access.`
+      }
+    ],
+    boundaries: [
+      { direction: "Satellite Polygon", boundary_description: `${polygonPoints.length || 4} marked survey corner stones encompassing ${centsVal} Cents.` }
+    ],
+    building_rules: {
+      rule_citation: "KPBR 2019 Rule 26 (Table 5)",
+      min_road_width_m: 3.0,
+      front_setback_m: 3.0,
+      rear_setback_m: 1.5,
+      side_setback_1_m: 1.0,
+      side_setback_2_m: 1.2
+    },
+    whatsapp_inquiry: `നമസ്കാരം, ${locality}-ൽ ഞാൻ കണ്ട വസ്തുവിന്റെ സാറ്റലൈറ്റ് പരിശോധനയിൽ ഏകദേശം ${centsVal} സെന്റ് സ്ഥലവും ${roadMVal} മീറ്റർ വഴി വീതിയും കാണുന്നുണ്ട്. ഈ വസ്തുവിലേക്കുള്ള വഴി പഞ്ചായത്ത് വഴിയാണോ അതോ സ്വകാര്യ വഴിയവകാശമാണോ എന്ന് വ്യക്തമാക്കാമോ?`
+  };
+
+  if (window.currentElevationData) {
+    const elev = window.currentElevationData;
+    plotPayload.findings.push({
+      title: `Topographic Elevation: ${elev.elevation_meters}m MSL (${elev.flood_risk_level} Flood Risk)`,
+      severity: (elev.flood_risk_level === "CRITICAL" || elev.flood_risk_level === "HIGH") ? "CRITICAL" : "LOW",
+      kerala_statute: "KSDMA Flood Hazard Advisory & Kerala Conservation of Paddy Land Act 2008",
+      explanation: `${elev.ksdma_hazard_advisory} River Basin: ${elev.river_basin || 'Local Watershed'}. Recommended Plinth Level: ≥${elev.recommended_plinth_height_m}m above road level.`
+    });
+  }
+
+  try {
+    const pdfRes = await fetch('/api/export_dossier', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(plotPayload)
+    });
+    if (!pdfRes.ok) throw new Error("Failed to generate PDF dossier");
+    const blob = await pdfRes.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kandezhuthu_plot_dossier_${locality.replace(/[\/,\s]/g, "_")}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("Could not generate PDF dossier: " + err.message);
+  }
+}
+
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = input.value.trim();
   if (!text) return;
+
+  const lower = text.toLowerCase();
+  if (lower.includes("timeline") || (lower.includes("ownership") && lower.includes("history")) || lower.includes("munnadharam") || lower.includes("മുന്നാധാരം")) {
+    input.value = "";
+    input.style.height = "48px";
+    let preset = "aluva_broken";
+    if (lower.includes("kakkanad") || lower.includes("wetland") || lower.includes("minor")) {
+      preset = "kakkanad_wetland";
+    } else if (lower.includes("clean")) {
+      preset = "clean_title";
+    }
+    openOwnershipTimeline(preset);
+    return;
+  }
 
   appendMsg("user", text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"));
   input.value = "";
@@ -1431,15 +2962,39 @@ function addPlotVertex(lat, lng) {
   polygonPoints.push(L.latLng(lat, lng));
 
   const vertexIndex = polygonPoints.length;
-  const vertexMarker = L.circleMarker([lat, lng], {
-    radius: 6,
-    color: "#0f5132",
-    fillColor: "#22c55e",
-    fillOpacity: 1,
-    weight: 2
+  const kalluIcon = L.divIcon({
+    className: 'custom-kallu-marker',
+    html: `<div style="width:14px; height:14px; background:#22c55e; border:2.5px solid #0f5132; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.45); cursor:grab;" title="Corner Stone #${vertexIndex} (Survey Kallu) - Drag to adjust"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+
+  const vertexMarker = L.marker([lat, lng], {
+    icon: kalluIcon,
+    draggable: true,
+    riseOnHover: true
   }).addTo(map);
   
-  vertexMarker.bindTooltip(`Kallu #${vertexIndex}`, { permanent: false, direction: 'top' });
+  vertexMarker.bindTooltip(`Kallu #${vertexIndex} (Drag to move)`, { permanent: false, direction: 'top' });
+
+  // Real-time FMB edge dimensions and area recalculation on drag
+  vertexMarker.on('drag', function(e) {
+    const idx = vertexMarkers.indexOf(vertexMarker);
+    if (idx !== -1) {
+      polygonPoints[idx] = e.target.getLatLng();
+      updatePlotDisplay();
+    }
+  });
+
+  vertexMarker.on('dragend', function() {
+    const idx = vertexMarkers.indexOf(vertexMarker);
+    if (polygonPoints.length >= 3) {
+      const areaSqM = calculatePolygonArea(polygonPoints);
+      const cents = (areaSqM / 40.4686).toFixed(2);
+      document.getElementById("guidance-text").textContent = `Corner Stone #${idx + 1} adjusted. Updated extent: ${cents} Cents.`;
+    }
+  });
+
   vertexMarkers.push(vertexMarker);
 
   // If clicking near the first point when >=3 points, seal plot
@@ -1513,6 +3068,13 @@ function finishPlot() {
   const areaSqM = calculatePolygonArea(polygonPoints);
   const cents = (areaSqM / 40.4686).toFixed(2);
   document.getElementById("guidance-text").textContent = `✅ Plot sealed! Extent: ${cents} Cents. Review stats in HUD below or click 'Send Plot to Auditor AI'.`;
+  
+  let sumLat = 0, sumLng = 0;
+  for (const pt of polygonPoints) { sumLat += pt.lat; sumLng += pt.lng; }
+  const cLat = sumLat / polygonPoints.length;
+  const cLng = sumLng / polygonPoints.length;
+  updateHUDLocation(cLat, cLng, undefined, parseFloat(cents));
+
   setMapTool("pin");
 }
 
@@ -1647,6 +3209,31 @@ function createSamplePlot(lat, lng) {
     L.latLng(lat - dLat/2, lng + dLng/2)
   ];
 
+  polygonPoints.forEach((pt, idx) => {
+    const kalluIcon = L.divIcon({
+      className: 'custom-kallu-marker',
+      html: `<div style="width:14px; height:14px; background:#22c55e; border:2.5px solid #0f5132; border-radius:50%; box-shadow:0 1px 4px rgba(0,0,0,0.45); cursor:grab;" title="Corner Stone #${idx + 1} - Drag to adjust"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    const vm = L.marker(pt, { icon: kalluIcon, draggable: true, riseOnHover: true }).addTo(map);
+    vm.bindTooltip(`Kallu #${idx + 1} (Drag to move)`, { permanent: false, direction: 'top' });
+    vm.on('drag', function(e) {
+      const mIdx = vertexMarkers.indexOf(vm);
+      if (mIdx !== -1) {
+        polygonPoints[mIdx] = e.target.getLatLng();
+        updatePlotDisplay();
+      }
+    });
+    vm.on('dragend', function() {
+      const areaSqM = calculatePolygonArea(polygonPoints);
+      const cents = (areaSqM / 40.4686).toFixed(2);
+      document.getElementById("hud-cents").textContent = `${cents} Cents`;
+      document.getElementById("guidance-text").textContent = `Corner Stone #${idx + 1} adjusted. Updated extent: ${cents} Cents.`;
+    });
+    vertexMarkers.push(vm);
+  });
+
   updatePlotDisplay();
 
   currentMarker = L.marker([lat, lng]).addTo(map);
@@ -1706,6 +3293,67 @@ function searchLocation() {
     });
 }
 
+let currentElevationData = null;
+
+async function fetchElevationAndFlood(lat, lng, localityName, centsVal) {
+  const elevValEl = document.getElementById("hud-elevation-text");
+  const badgeEl = document.getElementById("hud-flood-badge");
+  const basinEl = document.getElementById("hud-basin-text");
+
+  if (elevValEl) elevValEl.textContent = "Calculating...";
+  if (badgeEl) {
+    badgeEl.className = "badge-road warn";
+    badgeEl.textContent = "⏳ Assessing Flood...";
+  }
+
+  try {
+    const res = await fetch("/api/plot_elevation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lat: lat,
+        lng: lng,
+        locality: localityName || undefined,
+        cents: centsVal || undefined
+      })
+    });
+    if (!res.ok) throw new Error("Elevation request failed");
+    const data = await res.json();
+    currentElevationData = data;
+    window.currentElevationData = data;
+
+    if (elevValEl) {
+      elevValEl.textContent = `${data.elevation_meters}m MSL`;
+    }
+    if (basinEl) {
+      basinEl.textContent = `${data.river_basin || 'Local Watershed'} • Plinth: ≥${data.recommended_plinth_height_m}m`;
+    }
+    if (badgeEl) {
+      if (data.flood_risk_level === "LOW") {
+        badgeEl.className = "badge-road pass";
+        badgeEl.textContent = "🟢 Low Flood Risk";
+      } else if (data.flood_risk_level === "MODERATE") {
+        badgeEl.className = "badge-road warn";
+        badgeEl.textContent = "🟡 Moderate Flood Risk";
+      } else if (data.flood_risk_level === "HIGH") {
+        badgeEl.className = "badge-road fail";
+        badgeEl.textContent = "🔴 High Flood Risk";
+      } else {
+        badgeEl.className = "badge-road fail";
+        badgeEl.textContent = "🚨 Critical Sub-MSL Trap";
+      }
+      badgeEl.title = data.ksdma_hazard_advisory;
+    }
+  } catch (err) {
+    console.warn("Failed to fetch plot elevation:", err);
+    if (elevValEl) elevValEl.textContent = "Elevation N/A";
+    if (badgeEl) {
+      badgeEl.className = "badge-road warn";
+      badgeEl.textContent = "⚠️ Check On Ground";
+    }
+  }
+}
+
 function updateHUDLocation(lat, lng, localityName, centsVal, roadVal) {
   document.getElementById("hud-coords").textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
   
@@ -1739,6 +3387,8 @@ function updateHUDLocation(lat, lng, localityName, centsVal, roadVal) {
 
   const gmapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
   document.getElementById("btn-open-gmaps").setAttribute("href", gmapsLink);
+
+  fetchElevationAndFlood(lat, lng, localityName, centsVal);
 }
 
 function toggleHUD() {
@@ -1760,14 +3410,15 @@ function toggleChecklist(forceState) {
 
 function updateChecklistProgress() {
   const checks = [
-    document.getElementById("chk-kallu").checked,
-    document.getElementById("chk-road").checked,
-    document.getElementById("chk-wetland").checked,
-    document.getElementById("chk-ht").checked
+    document.getElementById("chk-kallu")?.checked,
+    document.getElementById("chk-road")?.checked,
+    document.getElementById("chk-wetland")?.checked,
+    document.getElementById("chk-ht")?.checked,
+    document.getElementById("chk-flood")?.checked
   ];
   const count = checks.filter(Boolean).length;
-  document.getElementById("chk-badge").textContent = `${count}/4`;
-  if (count === 4) {
+  document.getElementById("chk-badge").textContent = `${count}/5`;
+  if (count === 5) {
     document.getElementById("chk-badge").style.background = "#15803d";
   } else {
     document.getElementById("chk-badge").style.background = "#0f5132";
@@ -1808,11 +3459,24 @@ function sendPlotToAuditor() {
   const roadM = document.getElementById("hud-road-text").textContent;
   const roadBadge = document.getElementById("hud-road-badge").textContent;
 
+  let elevInfo = "";
+  if (window.currentElevationData) {
+    const elev = window.currentElevationData;
+    elevInfo = `Plot Elevation: ${elev.elevation_meters}m MSL (Flood Risk: ${elev.flood_risk_level}, Basin: ${elev.river_basin || 'Local Watershed'}, Recommended Plinth: ≥${elev.recommended_plinth_height_m}m). `;
+  } else {
+    const elevText = document.getElementById("hud-elevation-text")?.textContent;
+    const floodBadge = document.getElementById("hud-flood-badge")?.textContent;
+    if (elevText) {
+      elevInfo = `Plot Elevation: ${elevText} (${floodBadge}). `;
+    }
+  }
+
   const promptText = `I am inspecting a property plot in ${locality} (Coordinates: ${coords}). ` +
     `Estimated extent from satellite plot: ${cents}. ` +
     `Access road width measured: ${roadM} (${roadBadge}). ` +
+    elevInfo +
     `Please audit this against Kerala Panchayat Building Rules (KPBR 2019) road width requirements, setbacks, ` +
-    `and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
+    `flood vulnerability (KSDMA & 2018 flood zone), and tell me what physical Survey Kallu and wetland (Nilam) checks I must perform before paying token advance.`;
 
   if (currentViewMode === "map") {
     setViewMode("split");

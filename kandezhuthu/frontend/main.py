@@ -7,6 +7,7 @@ Supports both:
 
 import os
 import sys
+import time
 import uuid
 
 # Ensure parent directory is in pythonpath
@@ -16,7 +17,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
@@ -460,6 +461,29 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
 
     preset_data = presets.get(preset) or presets["aluva_broken"]
     return JSONResponse(preset_data)
+
+
+@app.post("/api/export_dossier")
+async def export_dossier(request: Request):
+    """Generates an advocate-ready PDF legal title diligence dossier from audit data."""
+    try:
+        body = await request.json()
+        from app.domain.dossier_pdf import AdvocateDossierGenerator
+
+        pdf_bytes = AdvocateDossierGenerator.generate_pdf_bytes(body)
+        filename = f"kandezhuthu_legal_dossier_{int(time.time())}.pdf"
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "Cache-Control": "no-cache",
+            },
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Error generating PDF dossier: {e}", exc_info=True)
+        return JSONResponse({"error": f"Failed to generate legal dossier: {str(e)}"}, status_code=500)
 
 
 @app.post("/chat")

@@ -328,6 +328,84 @@ def query_kerala_land_rules(topic: str) -> str:
     )
 
 
+def audit_encumbrance_certificate(
+    property_identifier: str,
+    ec_text: str,
+    known_deeds_data: Optional[str] = None,
+) -> str:
+    """Audits an SRO Encumbrance Certificate (EC / കുടിക്കടം) and cross-checks for undisclosed mortgages or attachments.
+
+    Detects:
+    1. Undischarged bank mortgages (Gehan) with SARFAESI liability.
+    2. Civil court, Munsiff/Sub-court, or Revenue Recovery attachments.
+    3. Conflicting sale deeds or missing lineage links.
+
+    Args:
+        property_identifier: Property description (e.g. 'Re-Sy 345/1, Aluva West Village').
+        ec_text: Raw tabular text or transcribed entries from the Encumbrance Certificate.
+        known_deeds_data: Optional JSON array of known prior DeedNode objects to cross-reference against.
+
+    Returns:
+        JSON string containing ECAuditResult (Safety score, list of undisclosed mortgages, attachments, Malayalam inquiry, and checklist).
+    """
+    from app.domain.ec_parser import EncumbranceCertificateAuditor
+
+    known_deeds = []
+    if known_deeds_data:
+        try:
+            raw = json.loads(known_deeds_data)
+            known_deeds = [DeedNode(**d) for d in raw]
+        except Exception:
+            pass
+
+    auditor = EncumbranceCertificateAuditor(property_identifier=property_identifier)
+    result = auditor.audit_ec(raw_ec_text=ec_text, known_deeds=known_deeds)
+    return result.model_dump_json(indent=2)
+
+
+def check_kerala_databank_and_cadastral(
+    survey_no: str,
+    village: str = "Aluva West",
+    extent_cents: float = 10.0,
+    fair_value_per_are: float = 240000.0,
+) -> str:
+    """Checks the statutory Kerala 2008 Agricultural Data Bank status and returns BhuNaksha cadastral parcel geometry.
+
+    Evaluates:
+    1. Whether the survey number is listed as Nilam / Paddy Land in the local Krishi Bhavan Data Bank.
+    2. Applicable statutory conversion procedures (Form 5 exclusion vs Form 6 Section 27A fee).
+    3. Calculated Section 27A fee (free under 25 cents; 10% for 25-50 cents).
+    4. Building permit issuance eligibility under KPBR 2019.
+    5. Official FMB-style cadastral sub-division sketch geometry and segment dimensions in meters.
+
+    Args:
+        survey_no: Survey or Re-Survey number (e.g. '182/4', '345/1', '412/3').
+        village: Kerala village name (e.g. 'Kakkanad', 'Aluva West').
+        extent_cents: Plot extent in Kerala Cents.
+        fair_value_per_are: Government notified Fair Value in INR per are.
+
+    Returns:
+        JSON string with DataBankCheckResult and CadastralParcel FMB sketch coordinates.
+    """
+    from app.domain.cadastral_databank import BhuNakshaCadastralService, KeralaDataBankService
+
+    db_res = KeralaDataBankService.check_databank(
+        survey_no=survey_no,
+        village=village,
+        extent_cents=extent_cents,
+        fair_value_per_are=fair_value_per_are,
+    )
+    cadastral = BhuNakshaCadastralService.get_cadastral_parcel(
+        survey_no=survey_no,
+        village=village,
+        extent_cents=extent_cents,
+    )
+    return json.dumps({
+        "data_bank_status": db_res.model_dump(),
+        "cadastral_parcel": cadastral.model_dump(),
+    }, indent=2)
+
+
 root_agent = Agent(
     name="kandezhuthu_agent",
     model=Gemini(
@@ -345,7 +423,9 @@ root_agent = Agent(
         "5. Paddy Land Conversion Calculator: Use `calculate_paddy_conversion_cost` when users ask about government fee for converting Nilam / paddy land to Purayidam.\n"
         "6. Historical Property Audit Search: Use `get_historical_audits_for_property` when checking a specific survey number for previous red flags or duplicate sales.\n"
         "7. Kerala Land Rules & Precedents Retrieval: Use `query_kerala_land_rules` to consult official Kerala building rules, 2008 Paddy Land Act, and High Court / Supreme Court precedents.\n"
-        "8. Plot Elevation & Flood Exposure Calculator: Use `calculate_plot_elevation_and_flood_exposure` when users ask about flood risk, plot elevation, Mean Sea Level (MSL), monsoonal inundation, 2018 flood zones, or mark/specify plot coordinates.\n\n"
+        "8. Plot Elevation & Flood Exposure Calculator: Use `calculate_plot_elevation_and_flood_exposure` when users ask about flood risk, plot elevation, Mean Sea Level (MSL), monsoonal inundation, 2018 flood zones, or mark/specify plot coordinates.\n"
+        "9. SRO Encumbrance Certificate (EC) Audit: Use `audit_encumbrance_certificate` when users provide EC records, Nil-EC text, bank loan entries, or court attachment records to cross-reference with title deeds.\n"
+        "10. BhuNaksha & Data Bank Verification: Use `check_kerala_databank_and_cadastral` when users provide a survey number and village to check Agricultural Data Bank status (Form 5/6) and retrieve FMB cadastral parcel geometry.\n\n"
         "PRESENTATION GUIDELINES FOR NON-TECHNICAL USERS:\n"
         "- Never dump raw JSON to the user. Always interpret tool outputs into clean, elegant Markdown.\n"
         "- Prominently feature the Title Sanity Score (e.g., '🛡️ Title Sanity Score: 85/100') and the verdict badge:\n"
@@ -368,6 +448,8 @@ root_agent = Agent(
         get_historical_audits_for_property,
         query_kerala_land_rules,
         calculate_plot_elevation_and_flood_exposure,
+        audit_encumbrance_certificate,
+        check_kerala_databank_and_cadastral,
     ],
 )
 

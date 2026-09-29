@@ -58,6 +58,25 @@ def scan_single_deed(deed_text: str) -> str:
     return result.model_dump_json(indent=2)
 
 
+def scan_deed_document_file(file_path: str) -> str:
+    """Scans and extracts structured legal metadata from an uploaded or local Kerala title deed document (PDF or image).
+
+    Uses multimodal vision OCR to extract document number, year, SRO, survey number, extent in cents,
+    4 boundaries (ചതുരതിരുകൾ), prior deeds (മുന്നാധാരം), evaluates 4 statutory traps, and retrieves building rules.
+
+    Args:
+        file_path: Local filesystem path to the deed file (.pdf, .png, .jpg, .jpeg, .webp).
+
+    Returns:
+        JSON string containing the extracted metadata, sanity score, findings, and Malayalam WhatsApp seller question.
+    """
+    from app.domain.deed_ocr import DeedOCREngine
+
+    engine = DeedOCREngine()
+    result = engine.process_file_path(file_path)
+    return result.model_dump_json(indent=2)
+
+
 def audit_prior_deeds_title(
     property_identifier: str,
     deeds_data: str,
@@ -302,6 +321,7 @@ root_agent = Agent(
     ),
     tools=[
         scan_single_deed,
+        scan_deed_document_file,
         audit_prior_deeds_title,
         get_demo_kerala_title_audit,
         lookup_building_road_and_setbacks,

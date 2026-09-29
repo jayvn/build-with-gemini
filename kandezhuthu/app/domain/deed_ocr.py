@@ -361,3 +361,18 @@ Extract all details faithfully without fabrication. If a field is not mentioned 
             whatsapp_draft=whatsapp_draft,
             field_verification_checklist=sanity_result.what_ai_cannot_verify,
         )
+
+    def process_file_path(self, file_path: str, session_id: str | None = None) -> DeedOCRResult:
+        """Reads a local or uploaded deed file path and processes it via vision OCR."""
+        with open(file_path, "rb") as f:
+            file_bytes = f.read()
+        mime_type = "application/pdf"
+        lower = file_path.lower()
+        if lower.endswith(".png"):
+            mime_type = "image/png"
+        elif lower.endswith((".jpg", ".jpeg")):
+            mime_type = "image/jpeg"
+        elif lower.endswith(".webp"):
+            mime_type = "image/webp"
+        return self.process_file_bytes(file_bytes=file_bytes, mime_type=mime_type, session_id=session_id)
+

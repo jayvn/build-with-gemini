@@ -1564,18 +1564,22 @@
   <div class="brand">
     <div class="brand-icon">ക</div>
     <div class="brand-text">
-      <div class="brand-title">Kandezhuthu AI (കണ്ടെഴുത്ത്)</div>
-      <div class="brand-subtitle">Kerala Property Legal Title & Satellite Diligence</div>
+      <div class="brand-title" id="brand-title">Kandezhuthu AI (കണ്ടെഴുത്ത്)</div>
+      <div class="brand-subtitle" id="brand-subtitle">Kerala Property Legal Title & Satellite Diligence</div>
     </div>
   </div>
 
   <div class="header-actions">
-    <div class="view-switch">
-      <button class="view-btn" data-mode="chat" onclick="setViewMode('chat')">💬 Chat</button>
-      <button class="view-btn active" data-mode="split" onclick="setViewMode('split')">📑 Split View</button>
-      <button class="view-btn" data-mode="map" onclick="setViewMode('map')">🗺️ Map & Satellite</button>
+    <div class="lang-switch" id="lang-switch" title="Change Language / ഭാഷ മാറ്റുക">
+      <button type="button" class="lang-btn active" id="lang-btn-en" onclick="setLanguage('en')">English</button>
+      <button type="button" class="lang-btn" id="lang-btn-ml" onclick="setLanguage('ml')">മലയാളം</button>
     </div>
-    <div class="badge-kerala">🌴 Kerala Real Estate Guardrail</div>
+    <div class="view-switch">
+      <button class="view-btn" data-mode="chat" id="view-btn-chat" onclick="setViewMode('chat')">💬 Chat</button>
+      <button class="view-btn active" data-mode="split" id="view-btn-split" onclick="setViewMode('split')">📑 Split View</button>
+      <button class="view-btn" data-mode="map" id="view-btn-map" onclick="setViewMode('map')">🗺️ Map & Satellite</button>
+    </div>
+    <div class="badge-kerala" id="badge-kerala">🌴 Kerala Real Estate Guardrail</div>
   </div>
 </header>
 
@@ -1583,25 +1587,25 @@
   <div class="workflow-steps">
     <div class="workflow-step active" id="wf-step-1" onclick="setWorkflowStep(1)" title="Document OCR, Deed Recitals & 30-Year Prior Title Lineage">
       <span class="workflow-step-num">1</span>
-      <span>📜 Document & Title Lineage</span>
+      <span id="wf-text-1">📜 Document & Title Lineage</span>
     </div>
     <span class="workflow-arrow">➔</span>
     <div class="workflow-step" id="wf-step-2" onclick="setWorkflowStep(2)" title="Satellite boundary measurement in Cents & KPBR Road Access Width">
       <span class="workflow-step-num">2</span>
-      <span>🛰️ Satellite & KPBR Road</span>
+      <span id="wf-text-2">🛰️ Satellite & KPBR Road</span>
     </div>
     <span class="workflow-arrow">➔</span>
     <div class="workflow-step" id="wf-step-3" onclick="setWorkflowStep(3)" title="Bilingual WhatsApp seller inquiry & Physical on-ground checklist">
       <span class="workflow-step-num">3</span>
-      <span>⚖️ Action & WhatsApp Draft</span>
+      <span id="wf-text-3">⚖️ Action & WhatsApp Draft</span>
     </div>
   </div>
   <div style="display:flex; align-items:center; gap:0.45rem;">
-    <button class="export-report-btn" onclick="openOwnershipTimeline('aluva_broken')" title="Open 30-Year Ownership Timeline Visualizer">
-      <span>📜 Ownership Timeline</span>
+    <button class="export-report-btn" id="btn-timeline-export" onclick="openOwnershipTimeline('aluva_broken')" title="Open 30-Year Ownership Timeline Visualizer">
+      <span id="btn-timeline-text">📜 Ownership Timeline</span>
     </button>
-    <button class="export-report-btn" style="background:#1e293b;" onclick="window.print()" title="Print or Save PDF of Audit Report">
-      <span>🖨️ Export PDF</span>
+    <button class="export-report-btn" id="btn-pdf-export" style="background:#1e293b;" onclick="window.print()" title="Print or Save PDF of Audit Report">
+      <span id="btn-pdf-text">🖨️ Export PDF</span>
     </button>
   </div>
 </div>
@@ -1923,6 +1927,14 @@ const input = document.getElementById("input");
 const sendBtn = document.getElementById("send-btn");
 
 let currentViewMode = "split";
+let currentLanguage = "en";
+
+function setLanguage(lang) {
+  currentLanguage = lang;
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.id === `lang-btn-${lang}`);
+  });
+}
 
 function setViewMode(mode) {
   currentViewMode = mode;
@@ -2961,7 +2973,7 @@ form.addEventListener("submit", async (e) => {
     const res = await fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: text, user_id: "web-user" }),
+      body: JSON.stringify({ message: text, language: currentLanguage, user_id: "web-user" }),
     });
 
     const data = await res.json();

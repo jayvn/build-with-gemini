@@ -356,25 +356,274 @@
   .drop-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(240, 253, 244, 0.94);
-    border: 3px dashed #22c55e;
+    background: rgba(236, 253, 245, 0.94);
+    backdrop-filter: blur(4px);
+    border: 3px dashed #10b981;
     z-index: 1000;
     display: none;
     align-items: center;
     justify-content: center;
     pointer-events: none;
+    animation: fadeInDrop 0.2s ease-out;
   }
   .drop-overlay.active { display: flex; }
   .drop-card {
     text-align: center;
-    background: #fff;
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(15, 81, 50, 0.15);
+    background: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(15, 81, 50, 0.18);
+    border: 1px solid #a7f3d0;
+    max-width: 440px;
+    margin: 1rem;
+    animation: scaleInDrop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .drop-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-  .drop-title { font-size: 1.1rem; font-weight: 700; color: #0f5132; }
-  .drop-subtitle { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
+  @keyframes fadeInDrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scaleInDrop {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .drop-icon-animated {
+    font-size: 3rem;
+    margin-bottom: 0.6rem;
+    animation: bounceIcon 1.4s infinite ease-in-out;
+  }
+  @keyframes bounceIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .drop-title { font-size: 1.15rem; font-weight: 700; color: #065f46; margin-bottom: 0.3rem; }
+  .drop-subtitle { font-size: 0.82rem; color: #475569; line-height: 1.4; margin-bottom: 0.8rem; }
+  .drop-badges { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; }
+  .drop-badges span {
+    font-size: 0.7rem; font-weight: 700; background: #ecfdf5; color: #047857;
+    padding: 3px 8px; border-radius: 12px; border: 1px solid #a7f3d0;
+  }
+
+  /* Dedicated Deed Dropzone Card in Chat Pane */
+  .deed-dropzone-container {
+    padding: 0.75rem 1rem 0.25rem 1rem;
+  }
+  .deed-dropzone {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+    border: 2px dashed #34d399;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.08);
+  }
+  .deed-dropzone:hover, .deed-dropzone.drag-hover {
+    background: #e6fcf0;
+    border-color: #059669;
+    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.16);
+    transform: translateY(-1px);
+  }
+  .dropzone-badge-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.45rem;
+  }
+  .dropzone-live-pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulseDropzone 1.8s infinite;
+  }
+  @keyframes pulseDropzone {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+  .dropzone-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #047857;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .dropzone-model {
+    font-size: 0.68rem;
+    font-weight: 600;
+    background: #065f46;
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+  .dropzone-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.55rem;
+  }
+  .dropzone-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .dropzone-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.35;
+  }
+  .dropzone-desc {
+    font-size: 0.75rem;
+    color: #475569;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+  .dropzone-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+    padding-top: 0.45rem;
+  }
+  .dropzone-formats {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .format-pill {
+    font-size: 0.66rem;
+    font-weight: 700;
+    background: #ffffff;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  .format-pill.lang {
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .dropzone-btns {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .dropzone-btn {
+    border: none;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s ease;
+  }
+  .dropzone-btn.primary {
+    background: #0f5132;
+    color: white;
+  }
+  .dropzone-btn.primary:hover {
+    background: #146c43;
+  }
+  .dropzone-btn.secondary {
+    background: #ffffff;
+    color: #0f5132;
+    border: 1px solid #a7f3d0;
+  }
+  .dropzone-btn.secondary:hover {
+    background: #f0fdf4;
+    border-color: #059669;
+  }
+
+  /* Progress card during upload & vision OCR */
+  .ocr-progress-card {
+    background: #ffffff;
+    border: 1.5px solid #a7f3d0;
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+  }
+  .ocr-progress-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #065f46;
+    margin-bottom: 0.6rem;
+  }
+  .ocr-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #a7f3d0;
+    border-top-color: #059669;
+    border-radius: 50%;
+    animation: spinOcr 0.8s linear infinite;
+  }
+  @keyframes spinOcr {
+    to { transform: rotate(360deg); }
+  }
+  .ocr-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .ocr-step {
+    font-size: 0.74rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .ocr-step.done {
+    color: #059669;
+    font-weight: 600;
+  }
+  .ocr-step.active {
+    color: #0f172a;
+    font-weight: 700;
+  }
+
+  .deed-engine-badge {
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 12px;
+  }
+  .deed-action-buttons {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    margin-top: 0.65rem;
+  }
+  .deed-action-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+  .deed-action-btn:hover {
+    background: #f8fafc;
+    border-color: #0f5132;
+    color: #0f5132;
+  }
 
   /* Deed Audit Card */
   .deed-audit-card {
@@ -1327,12 +1576,19 @@
 </div>
 
 <div id="main-container">
-  <div id="chat-pane" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleFileDrop(event)">
+  <div id="chat-pane">
     <div id="drop-overlay" class="drop-overlay">
       <div class="drop-card">
-        <div class="drop-icon">📄</div>
-        <div class="drop-title">Drop Scanned Kerala Deed Here</div>
-        <div class="drop-subtitle">PDF, PNG, JPG, or WEBP (Gemini 3.8 Flash Vision OCR)</div>
+        <div class="drop-icon-animated">📄</div>
+        <div class="drop-title">Drop Scanned Kerala Deed or EC Here</div>
+        <div class="drop-subtitle">Directly ingests Malayalam/English deed text using Google Cloud Document AI & Gemini 3.8 Flash Multimodal Vision</div>
+        <div class="drop-badges">
+          <span>PDF Documents</span>
+          <span>PNG Scans</span>
+          <span>JPG/JPEG</span>
+          <span>WEBP</span>
+          <span>കുടിക്കടം (EC)</span>
+        </div>
       </div>
     </div>
 
@@ -1396,6 +1652,45 @@
       </div>
     </div>
 
+    <!-- Dedicated Deed Drag & Drop Zone -->
+    <div class="deed-dropzone-container" id="deed-dropzone-container">
+      <div class="deed-dropzone" id="deed-dropzone" onclick="document.getElementById('deed-file-input').click()" title="Click to browse or drop any deed file">
+        <div class="dropzone-badge-row">
+          <span class="dropzone-live-pulse"></span>
+          <span class="dropzone-tag">Cloud Document AI & Multimodal Vision</span>
+          <span class="dropzone-model">Gemini 3.8 Flash</span>
+        </div>
+        <div class="dropzone-content">
+          <div class="dropzone-icon">📥</div>
+          <div class="dropzone-text">
+            <div class="dropzone-title">
+              <strong>Drag & Drop Kerala Title Deed (*ആധാരം*) or Encumbrance Certificate (*കുടിക്കടം*)</strong>
+            </div>
+            <div class="dropzone-desc">
+              Directly extracts 4 boundaries (ചതുരതിരുകൾ), survey numbers, prior deeds (മുന്നാധാരം) & audits 4 fatal statutory traps
+            </div>
+          </div>
+        </div>
+        <div class="dropzone-footer">
+          <div class="dropzone-formats">
+            <span class="format-pill">PDF</span>
+            <span class="format-pill">PNG</span>
+            <span class="format-pill">JPG</span>
+            <span class="format-pill">WEBP</span>
+            <span class="format-pill lang">മലയാളം & English</span>
+          </div>
+          <div class="dropzone-btns" onclick="event.stopPropagation()">
+            <button type="button" class="dropzone-btn primary" onclick="document.getElementById('deed-file-input').click()">
+              <span>📁 Browse Files</span>
+            </button>
+            <button type="button" class="dropzone-btn secondary" onclick="runSampleDeedOCR()" title="Run instant demonstration OCR on sample Aluva deed">
+              <span>✨ Try Demo Deed</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="log">
       <div class="msg agent">
         <div class="msg-label">Kandezhuthu AI</div>
@@ -1453,7 +1748,7 @@
       <button class="map-tool-btn" id="tool-road" onclick="setMapTool('road')">📏 Measure Road Width</button>
       <button class="map-tool-btn" id="btn-undo" onclick="undoLastPoint()" disabled title="Undo last placed point">↩️ Undo</button>
       <button class="map-tool-btn" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
-      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()">📋 Checklist <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/4</span></button>
+      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()">📋 Checklist <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/5</span></button>
 
       <select class="map-layer-select" id="layer-select" onchange="switchMapLayer(this.value)">
         <option value="google-hybrid" selected>🛰️ Google Satellite Hybrid</option>
@@ -1662,7 +1957,7 @@ function formatMarkdown(text) {
           <div class="whatsapp-header">
             <span class="whatsapp-title">📱 Malayalam WhatsApp Inquiry for Seller / Broker</span>
             <div class="whatsapp-actions">
-              <button class="copy-btn" onclick="copyText(this, decodeURIComponent('${encodedWaText}'))">
+              <button class="copy-btn" onclick="copyText(this)">
                 📋 Copy Draft
               </button>
               <a class="wa-direct-btn" href="https://api.whatsapp.com/send?text=${encodedWaText}" target="_blank">
@@ -1693,6 +1988,13 @@ function fallbackCopy(text) {
 }
 
 function copyText(btn, text) {
+  if (!text) {
+    const card = btn.closest(".whatsapp-card");
+    if (card) {
+      const textEl = card.querySelector(".whatsapp-text");
+      if (textEl) text = textEl.textContent.trim();
+    }
+  }
   const doFeedback = () => {
     const originalText = btn.innerHTML;
     btn.innerHTML = "✅ Copied!";
@@ -1713,6 +2015,7 @@ function copyText(btn, text) {
     doFeedback();
   }
 }
+const copyWhatsApp = copyText;
 
 function sendPrompt(text) {
   input.value = text;
@@ -2294,6 +2597,16 @@ async function exportPlotDossier() {
     },
     whatsapp_inquiry: `നമസ്കാരം, ${locality}-ൽ ഞാൻ കണ്ട വസ്തുവിന്റെ സാറ്റലൈറ്റ് പരിശോധനയിൽ ഏകദേശം ${centsVal} സെന്റ് സ്ഥലവും ${roadMVal} മീറ്റർ വഴി വീതിയും കാണുന്നുണ്ട്. ഈ വസ്തുവിലേക്കുള്ള വഴി പഞ്ചായത്ത് വഴിയാണോ അതോ സ്വകാര്യ വഴിയവകാശമാണോ എന്ന് വ്യക്തമാക്കാമോ?`
   };
+
+  if (window.currentElevationData) {
+    const elev = window.currentElevationData;
+    plotPayload.findings.push({
+      title: `Topographic Elevation: ${elev.elevation_meters}m MSL (${elev.flood_risk_level} Flood Risk)`,
+      severity: (elev.flood_risk_level === "CRITICAL" || elev.flood_risk_level === "HIGH") ? "CRITICAL" : "LOW",
+      kerala_statute: "KSDMA Flood Hazard Advisory & Kerala Conservation of Paddy Land Act 2008",
+      explanation: `${elev.ksdma_hazard_advisory} River Basin: ${elev.river_basin || 'Local Watershed'}. Recommended Plinth Level: ≥${elev.recommended_plinth_height_m}m above road level.`
+    });
+  }
 
   try {
     const pdfRes = await fetch('/api/export_dossier', {

@@ -260,6 +260,19 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
             "risk_color": "danger",
             "chain_intact": False,
             "summary": "Critical lineage breaks: Excluded female heir under Mary Roy precedent, undischarged Federal Bank mortgage in EC, and 1.0 Cent extent inflation.",
+            "financial_transparency": {
+                "is_public_record": True,
+                "legal_basis": "Registration Act, 1908 (Sections 51 & 57) - SRO Book 1 Public Record",
+                "kerala_stamp_act_rule": "Kerala Stamp Act, 1959 (Section 28A Fair Value & Section 45A Undervaluation Audit)",
+                "last_purchase_price": "₹16,50,000",
+                "last_purchase_year": 2014,
+                "last_buyer": "Suresh Nair (Current Seller)",
+                "historical_rate_per_cent": "₹1,50,000 / Cent (2014)",
+                "current_govt_fair_value": "₹2,40,000 / Are (~₹97,125 / Cent)",
+                "active_bank_lien_inr": "₹45,00,000 (Federal Bank - Undischarged SARFAESI Charge)",
+                "market_price_context": "Suresh Nair acquired this plot in 2014 for ₹16.50 Lakhs (Doc #1420/2014). If seller is asking ₹65 Lakhs today (+294% markup), prospective buyer must demand written bank closure letter before paying any advance.",
+                "undervaluation_warning": "Registering below Fair Value or actual transaction consideration to evade 8% Stamp Duty is penalized under Sec 45A of Kerala Stamp Act with property revenue attachment."
+            },
             "nodes": [
                 {
                     "year": 1982,
@@ -273,6 +286,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "valid",
                     "status_label": "Valid Initial Grant",
                     "badge_color": "success",
+                    "consideration_display": "₹150 (Govt Revenue Fee)",
+                    "financial_type": "Official Govt Assignment Fee",
+                    "govt_fair_value": "N/A (Pre-Fair Value Regime)",
+                    "stamp_duty_paid": "Exempt / Revenue Stamp ₹5",
+                    "financial_note": "Initial government land assignment to original occupant Chacko Varghese for nominal revenue fee.",
                     "flags": [],
                     "notes": "Official government land assignment to original holder Chacko Varghese."
                 },
@@ -288,6 +306,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "broken",
                     "status_label": "Critical Succession Defect",
                     "badge_color": "danger",
+                    "consideration_display": "₹75,000 (Family Partition Declared Value)",
+                    "financial_type": "Family Partition Share Valuation",
+                    "govt_fair_value": "₹35,000 / Cent (Declared Base)",
+                    "stamp_duty_paid": "₹1,500 (Kerala Stamp Act Schedule Art 42)",
+                    "financial_note": "Internal family partition valuation for stamp duty assessment. No money changed hands between brothers.",
                     "flags": [
                         {
                             "title": "Mary Roy Precedent: Excluded Female Heir",
@@ -314,6 +337,13 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "warning",
                     "status_label": "Extent Inflation & Easement",
                     "badge_color": "danger",
+                    "consideration_display": "₹16,50,000 (Registered Consideration)",
+                    "price_per_cent": "₹1,50,000 / Cent",
+                    "financial_type": "Registered Sale Consideration (Public SRO Book 1 Record)",
+                    "govt_fair_value": "₹1,20,000 / Are (~₹48,560 / Cent)",
+                    "stamp_duty_paid": "₹1,32,000 (8% Stamp Duty)",
+                    "registration_fee_paid": "₹33,000 (2% SRO Registration Fee)",
+                    "financial_note": "Suresh Nair purchased this property from George Chacko for a public registered consideration of ₹16,50,000 (₹1.50 Lakhs/Cent).",
                     "flags": [
                         {
                             "title": "Extent Inflation (+1.00 Cent Phantom Land)",
@@ -340,6 +370,11 @@ async def get_timeline_demo(preset: str = "aluva_broken"):
                     "status": "broken",
                     "status_label": "Ghost Undischarged Mortgage",
                     "badge_color": "danger",
+                    "consideration_display": "₹45,00,000 (Mortgage Loan Liability)",
+                    "financial_type": "Registered Bank Loan Lien (SRO EC Book 1)",
+                    "govt_fair_value": "₹2,10,000 / Are (~₹85,000 / Cent)",
+                    "stamp_duty_paid": "₹22,500 (Kerala Stamp Act Art 36 - Mortgage with Title Deposit)",
+                    "financial_note": "Federal Bank holds original title deeds against an outstanding registered liability of ₹45,00,000. Property is liable to SARFAESI seizure.",
                     "flags": [
                         {
                             "title": "Undischarged SARFAESI Mortgage in SRO EC",

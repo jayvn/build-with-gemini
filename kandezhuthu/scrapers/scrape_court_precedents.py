@@ -5,7 +5,13 @@ Extracts, structures, and documents landmark judicial precedents governing:
 - Senior citizen gift/settlement revocations (Section 23, Senior Citizens Act 2007)
 - Easements of necessity & grant (Sree Swayamprakash Ashramam, Hero Vinoth)
 - Hindu coparcenary rights of daughters (Vineeta Sharma v. Rakesh Sharma)
-- Alienation of minor immovable property without court sanction (Section 8(2), HMGA 1956)
+- Alienation of Hindu minor immovable property without court sanction (Section 8(2), HMGA 1956)
+- Muslim personal law minor property alienation (Imambandi v. Mutsaddi, Mohd. Amin v. Vakil Ahmad)
+- Power of Attorney (PoA / Mukthiyar) transfers & GPA fraud (Suraj Lamp & Industries)
+- Kudikidappu rights and tenancy protections (Kerala Land Reforms Act 1963 / Pattayam)
+- Doctrine of Lis Pendens and transfers during litigation (T.G. Ashok Kumar v. Govindammal, Sec 52 TPA)
+- Adverse possession vs government puramboke land (Ravinder Kaur Grewal, Kerala Land Conservancy Act 1957)
+- Pre-2008 Paddy Land conversions & fee exemptions (RDO Fort Kochi v. Jalaja Dileep, Baby v. District Collector)
 """
 
 from pathlib import Path
@@ -17,7 +23,7 @@ KNOWLEDGE_FILE = KNOWLEDGE_OUTPUT_DIR / "kerala_court_precedents.md"
 COURT_PRECEDENTS_CONTENT = """# Kerala Real Estate & Land Title Diligence · Landmark Judicial Precedents
 
 > **Jurisdiction**: Supreme Court of India & High Court of Kerala
-> **Core Focus**: Property title traps, succession omissions, easement enforceability, and voidable transfers.
+> **Core Focus**: Property title traps, succession omissions, easement enforceability, power of attorney validity, tenancy protections, and voidable transfers.
 
 ---
 
@@ -117,15 +123,148 @@ COURT_PRECEDENTS_CONTENT = """# Kerala Real Estate & Land Title Diligence · Lan
 
 ---
 
-## 6. Judicial Diligence Summary Table for Title Auditors
+## 6. Muslim Personal Law: Minor's Property & De Facto Guardianship
+
+### Governing Law: Muslim Personal Law (Shariat) Application Act, 1937
+### Landmark Rulings:
+- *Imambandi v. Mutsaddi* (1918 45 IA 73 / AIR 1918 PC 11 - Privy Council)
+- *Mohd. Amin & Ors. v. Vakil Ahmad & Ors.* (1952 SCR 1133 / AIR 1952 SC 358 - Supreme Court)
+- *Meethian Sidhiqu v. Muhammed Kunju* (1998 (1) KLT 416 - Kerala High Court)
+
+- **Legal Principle**:
+  - Under Muslim Law, only the **father** (and after his death, the executor appointed by the father's will, or the paternal grandfather) is the legal guardian (*Wali*) of a minor's property.
+  - The **mother, brother, or uncle is merely a de facto guardian (*Fazuli*)** and has NO legal authority to transfer, sell, or pledge the immovable property of a minor Muslim.
+  - An alienation of immovable property of a minor by a de facto guardian is **VOID AB INITIO** (completely void from the beginning, not merely voidable).
+- **Title Trap for Property Buyers**:
+  - In Kerala Muslim intestate properties, fathers frequently pass away leaving widows and minor children. The mother and adult elder brother often execute a sale deed selling the family land to raise funds or settle debts.
+  - Under *Imambandi* and *Mohd. Amin*, such a sale deed is non-est in the eyes of the law regarding the minor's share. The minor does not even need to set it aside within 3 years; they can recover possession within 12 years.
+- **Mandatory Diligence Rule**:
+  - If a prior deed involves a deceased Muslim father's estate, confirm that any minor's share was only conveyed after obtaining formal appointment and permission from the District Court under the Guardians and Wards Act, 1890.
+
+---
+
+## 7. Power of Attorney (PoA / Mukthiyar) Transfers & GPA Frauds
+
+### Governing Statutes: Powers of Attorney Act, 1882; Indian Contract Act, 1872; Kerala Stamp Act, 1959
+### Landmark Rulings:
+- *Suraj Lamp & Industries Pvt. Ltd. v. State of Haryana & Anr.* (2012 1 SCC 656 - Supreme Court 3-Judge Bench)
+- *Church of Christ Charitable Trust & Educational Charitable Society v. Ponniamman Educational Trust* (2012 8 SCC 706 - Supreme Court)
+- *Asset Reconstruction Co. (India) Ltd. v. S.P. Velayutham* (2022 8 SCC 210 - Supreme Court)
+
+- **Key Legal Principles**:
+  - **No Title Conveyance by GPA**: An unregistered or registered General Power of Attorney (GPA), Agreement to Sell, or Will does NOT convey title, ownership, or proprietary rights in immovable property (*Suraj Lamp*). Only a registered Deed of Conveyance (Sale Deed) transfers title.
+  - **Automatic Termination on Death**: Under Section 201 of the Indian Contract Act, 1872, an agency created by a Power of Attorney terminates **instantly upon the death of the principal**. Any sale deed executed by the attorney after the principal has passed away is **null and void ab initio**.
+  - **Overseas / NRI PoA Requirements in Kerala**:
+    - A Power of Attorney executed outside India (e.g., UAE, UK, USA) must be executed before an Indian Consular/Notary Officer.
+    - Under Section 18 of the Kerala Stamp Act, 1959, the document MUST be produced before the District Registrar in Kerala for adjudication and proper stamping **within 3 months of its arrival in India**. Failure to adjudicate renders registrations invalid.
+- **Title Trap for Property Buyers**:
+  - Purchasing land from a broker holding a "registered irrevocable Power of Attorney" while the actual title holder is in the Gulf or deceased.
+  - Revocations of PoA: A registered PoA may have been unilaterally canceled by the principal via a registered cancellation deed (*മുക്ത്യാർ റദ്ദ് പ്രമാണം*) unknown to the buyer.
+- **Mandatory Diligence Rule**:
+  - Direct communication with the original principal via video conference and email before token advance.
+  - Verify life certificate (*ജീവിച്ചിരിക്കുന്നു എന്ന സർട്ടിഫിക്കറ്റ്*) of the principal on the date of deed execution.
+  - Check the SRO encumbrance index for any registered revocation deeds.
+
+---
+
+## 8. Kudikidappu Rights & Tenancy Protections
+
+### Governing Statute: Kerala Land Reforms Act, 1963 (Act 1 of 1964) (Sections 75 to 80B)
+### Landmark Rulings:
+- *Govinda Pillai v. Land Tribunal* (Kerala High Court)
+- *Muhammed v. Kunhappa* (Kerala High Court Full Bench)
+
+- **Key Statutory Protections**:
+  - **Hereditary & Permanent Fixity of Tenure**: A *Kudikidappukaran* (hutment dweller residing on homestead land as on 1 January 1970) has absolute fixity of tenure and cannot be evicted by the landowner except under highly restricted statutory conditions (Section 75).
+  - **Purchase Certificate (പട്ടയം)**: Kudikidappukars have the statutory right to purchase their homestead and adjoining land (up to 3 cents in a City/Corporation, 5 cents in a Municipality, 10 cents in a Panchayat) from the Land Tribunal at a concessional price.
+  - Once a Land Tribunal Purchase Certificate (*കുടികിടപ്പ് പട്ടയം*) is issued under Section 72K or 80B, it is conclusive evidence of title.
+- **Title Trap for Property Buyers**:
+  - Purchasing a plot where an old dilapidated hut or dwelling exists, or where an erstwhile worker/caretaker resides without rental deeds.
+  - The landowner may assure the buyer: *"They are just our old workers; they will leave once you buy."*
+  - If the occupant claims *Kudikidappu* before the Land Tribunal, the civil court jurisdiction is ousted under Section 125 of the KLR Act, and the buyer will be trapped in decades of Land Tribunal litigation unable to construct or possess the land.
+- **Mandatory Diligence Rule**:
+  - Physically inspect whether any other family resides in any hut or structure on the property.
+  - Verify Land Tribunal records at the Taluk / Revenue office to ensure no Kudikidappu certificate applications are pending.
+
+---
+
+## 9. Doctrine of Lis Pendens & Pending Property Litigation
+
+### Governing Statute: Transfer of Property Act, 1882 (Section 52) & Indian Registration Act (Kerala Amendment)
+### Landmark Rulings:
+- *T.G. Ashok Kumar v. Govindammal & Anr.* (2010 14 SCC 370 - Supreme Court: R.V. Raveendran, J.)
+- *Jagan Nath v. Jagdish Rai* (1998 5 SCC 537 - Supreme Court)
+
+- **Key Legal Principle (Section 52)**:
+  - During the pendency in any court of any suit or proceeding which is not collusive and in which any right to immovable property is directly and specifically in question, the property **cannot be transferred or otherwise dealt with by any party to the suit** so as to affect the rights of any other party under any decree which may be made therein.
+  - The transferee *pendente lite* is bound by the final court decree, even if they had no knowledge of the suit and paid full market consideration in good faith.
+- **Title Trap for Property Buyers**:
+  - A seller involved in an active family partition suit (*ഭാഗക്കേസ്*) or specific performance suit (*കരാർ നടപ്പിലാക്കൽ കേസ്*) sells the land to an unsuspecting NRI buyer.
+  - The SRO Encumbrance Certificate (EC) may NOT always reflect pending civil suits unless a formal attachment order or notice of pendency under the Kerala Registration Amendment has been entered in Book 1.
+  - When the court passes a decree against the seller, the buyer's sale deed is legally wiped out without compensation.
+- **Mandatory Diligence Rule**:
+  - Verify that no civil suit, injunction petition, or insolvency proceeding is pending in the local Munsiff Court, Sub-Court, or District Court covering the property's survey number.
+  - Insist on an explicit indemnity and warranty clause in the agreement covering all pending litigation.
+
+---
+
+## 10. Adverse Possession vs. Government / Puramboke Land
+
+### Governing Statutes: Limitation Act, 1963 (Articles 65 & 112); Kerala Land Conservancy Act, 1957
+### Landmark Rulings:
+- *Ravinder Kaur Grewal & Ors. v. Manjit Kaur & Ors.* (2019 8 SCC 729 - Supreme Court 3-Judge Bench)
+- *Government of Kerala v. Joseph* (2023 SCC OnLine SC 961 - Supreme Court)
+
+- **Key Legal Principles**:
+  - **Private Land**: Under Article 65 of the Limitation Act, adverse possession requires 12 years of open, continuous, and hostile possession against the true owner. *Ravinder Kaur Grewal* established that adverse possession can be asserted by a plaintiff to declare title, not merely as a defensive shield.
+  - **Government / Puramboke Land**:
+    - Under Article 112 of the Limitation Act, the statutory limitation period against the State Government is **30 years**.
+    - Furthermore, under the **Kerala Land Conservancy Act, 1957 (Act 8 of 1958)**, encroachers on Government Puramboke lands, streams (*തോട്*), canals (*കനാൽ*), or road margins (*വഴി പുറമ്പോക്ക്*) have NO legal right to claim title or regularize possession.
+    - Revenue authorities have summary eviction powers under Section 11 of the Land Conservancy Act.
+- **Title Trap for Property Buyers**:
+  - The seller claims to possess 15 cents of land bounded by walls, but the title deed only covers 10 cents (*5 cents excess is roadside or canal puramboke encroachment*).
+  - The seller assures: *"We have held this excess 5 cents for 25 years; it is safe."*
+  - The Panchayat or PWD can demolish the compound wall overnight and reclaim the 5 cents for road widening without paying a single rupee of compensation.
+- **Mandatory Diligence Rule**:
+  - Always cross-verify the boundary sketch against the Village Field Measurement Book (FMB / *സർവേ സ്കെച്ച്*).
+  - Never pay consideration for un-deeded possession or road margin encroachments.
+
+---
+
+## 11. Pre-2008 Paddy Land Conversions & Judicial Review
+
+### Governing Statute: Kerala Conservation of Paddy Land and Wetland Act, 2008 & Kerala Land Utilisation Order, 1967 (KLUO)
+### Landmark Rulings:
+- *Revenue Divisional Officer, Fort Kochi & Ors. v. Jalaja Dileep & Anr.* (2015 2 SCC 129 / 2015 (1) KLT 984 - Supreme Court)
+- *Baby v. District Collector* (2021 (6) KLT 316 - Kerala High Court)
+- *Global Education Trust v. State of Kerala* (2020 (6) KLT 738 - Kerala High Court)
+
+- **Key Legal Principles**:
+  - **Pre-2008 Converted Lands (*Jalaja Dileep*)**: Land converted from paddy cultivation prior to the enactment of the 2008 Paddy Land Act (12 August 2008) cannot be mechanically classified as paddy land under the 2008 Act. The landowner is entitled to seek regularization under Clause 6 of the Kerala Land Utilisation Order (KLUO), 1967.
+  - **Section 27A Fee Exemption Threshold (*Baby v. District Collector*)**: The Kerala High Court clarified that the statutory government fee exemption for land up to 25 cents under Section 27A applies to the applicant's bona fide holding. Revenue authorities cannot artificially club independent historical transfers to deny the exemption.
+  - **No Conversion Fee for Valid KLUO Orders (*Global Education Trust*)**: If permission under Clause 6 of KLUO was granted by the RDO prior to the insertion of Section 27A (30 December 2017), revenue officials cannot demand 2008 Act Section 27A conversion fees to effect BTR reclassification (*പോക്കുവരവ്*).
+- **Title Trap for Property Buyers**:
+  - Sellers claiming their land was converted before 2008 and therefore does not require Form 6. Without a formal KLUO order or regularized Form 6 certificate, the Local Self Government (Panchayat/Municipality) will reject building permits.
+- **Mandatory Diligence Rule**:
+  - If the property is marked as *Nilam* in the BTR but dry on ground, demand the original pre-2017 KLUO sanction order or the registered Form 6 order before advancing payment.
+
+---
+
+## 12. Judicial Diligence Summary Table for Title Auditors
 
 | Statutory Risk Area | Key Precedent / Statute | Fatal Defect / Ground for Invalidation | Preventive Diligence Requirement |
 | :--- | :--- | :--- | :--- |
-| **Christian Female Succession** | *Mary Roy* (1986 AIR 1011) | Omission of daughters in post-1951 intestate parental succession. | Require registered release deeds from all female heirs or their descendants. |
+| **Christian Female Succession** | *Mary Roy* (1986 AIR 1011) | Omission of daughters in post-1951 intestate parental succession. | Require registered release deeds (*ഒഴിവുമുറി*) from all female heirs or their descendants. |
 | **Senior Citizen Maintenance** | Section 23, Act 56 of 2007 (*Subhashini 2020*) | Maintenance Tribunal declaring parent's gift/settlement deed void. | Living elderly parents must join as consenting parties with independent legal advice. |
 | **Pathway / Easement Rights** | *Sree Swayamprakash Ashramam* (2010 2 SCC 689) | Hidden pathway servitude running with the land blocking construction. | Inspect all prior deed boundary schedules and perform on-site path verification. |
 | **Hindu Daughter Coparcenary** | *Vineeta Sharma* (2020 9 SCC 1) | Ancestral coparcenary partition excluding daughters post-2004. | All living daughters must execute partition or registered release. |
-| **Minor Share Alienation** | Section 8(2), HMGA 1956 (*Saroj 2014*) | Sale by parents without District Court sanction order; voidable up to age 21. | Require certified District Court Guardian Sanction Order. |
+| **Hindu Minor Alienation** | Section 8(2), HMGA 1956 (*Saroj 2014*) | Sale by parents without District Court sanction order; voidable up to age 21. | Require certified District Court Guardian Sanction Order. |
+| **Muslim Minor Alienation** | *Imambandi v. Mutsaddi* (1918 45 IA 73) | Sale by mother/brother (de facto guardian); completely void ab initio. | Confirm District Court guardianship order under Guardians & Wards Act, 1890. |
+| **Power of Attorney (PoA) Sales** | *Suraj Lamp & Industries* (2012 1 SCC 656) | GPA transfers no title; foreign PoA un-adjudicated; principal deceased. | Video confirmation with principal; check Kerala Stamp Act Sec 18 stamping. |
+| **Kudikidappu Tenancy** | Sections 75–80B, KLR Act, 1963 | Unregistered hutment dweller having permanent tenure & Land Tribunal rights. | Inspect for occupant huts; verify Taluk Land Tribunal records. |
+| **Pending Litigation (Lis Pendens)** | Section 52, TPA (*T.G. Ashok Kumar 2010*) | Purchaser pendente lite bound by adverse decree in pending partition/title suit. | Comprehensive court litigation search across local Munsiff and Sub Courts. |
+| **Government Puramboke Land** | *Joseph (2023)* / Kerala Land Conservancy Act | Excess land outside deed is canal or road puramboke; subject to summary eviction. | FMB Survey Sketch verification; do not pay for undeedeed possession. |
+| **Pre-2008 Wetland Status** | *Jalaja Dileep (2015)* / *Baby (2021)* | Claiming dry status without Form 6 or pre-2017 KLUO sanction order. | Demand certified Form 6 conversion order or KLUO proceeding. |
 """
 
 
@@ -150,11 +289,53 @@ def get_precedent_summary(topic: str) -> Dict[str, Any]:
             "rule": "Easements of grant or necessity run with the land and bind subsequent buyers.",
             "risk": "Unilateral wall or gate construction blocked by injunction.",
         },
-        "minor_share": {
+        "hindu_coparcenary": {
+            "case": "Vineeta Sharma v. Rakesh Sharma (2020 9 SCC 1)",
+            "statute": "Hindu Succession (Amendment) Act, 2005",
+            "rule": "Daughters are coparceners by birth with equal rights in joint family property.",
+            "risk": "Post-2004 partitions excluding daughters subject to reopening.",
+        },
+        "minor_share_hindu": {
             "case": "Saroj v. Sunder Singh (2014 15 SCC 727)",
             "statute": "Section 8(2), Hindu Minority and Guardianship Act, 1956",
             "rule": "Mandatory prior District Court sanction for alienating minor immovable property.",
             "risk": "Sale voidable by minor within 3 years of attaining majority (age 21).",
+        },
+        "minor_share_muslim": {
+            "case": "Imambandi v. Mutsaddi (1918 45 IA 73) & Mohd. Amin v. Vakil Ahmad (1952 SCR 1133)",
+            "statute": "Muslim Personal Law (Shariat) Application Act, 1937",
+            "rule": "Mother or brother is de facto guardian with zero power to sell minor property.",
+            "risk": "Sale of minor share is void ab initio; 12-year recovery suit.",
+        },
+        "power_of_attorney_gpa": {
+            "case": "Suraj Lamp & Industries v. State of Haryana (2012 1 SCC 656)",
+            "statute": "Powers of Attorney Act, 1882 & Sec 201 Indian Contract Act, 1872",
+            "rule": "GPA transfers no title; automatically terminates on principal's death.",
+            "risk": "Void sale if principal deceased or foreign PoA not stamped within 3 months.",
+        },
+        "kudikidappu": {
+            "case": "Kerala Land Reforms Act, 1963 (Sections 75–80B)",
+            "statute": "Kerala Land Reforms Act, 1963",
+            "rule": "Hereditary fixity of tenure for hutment dwellers; conclusive Land Tribunal Pattayam.",
+            "risk": "Inability to possess land or evict occupant; decades in Land Tribunal.",
+        },
+        "lis_pendens": {
+            "case": "T.G. Ashok Kumar v. Govindammal (2010 14 SCC 370)",
+            "statute": "Section 52, Transfer of Property Act, 1882",
+            "rule": "Purchaser pendente lite bound by outcome of pending suit.",
+            "risk": "Loss of title and purchase money without legal recourse against decree.",
+        },
+        "adverse_possession": {
+            "case": "Ravinder Kaur Grewal (2019 8 SCC 729) & Joseph (2023)",
+            "statute": "Limitation Act, 1963 & Kerala Land Conservancy Act, 1957",
+            "rule": "12-year private vs 30-year state limitation; zero adverse possession on Puramboke.",
+            "risk": "Summary demolition of walls and eviction from canal/road puramboke.",
+        },
+        "paddy_land_jalaja_dileep": {
+            "case": "RDO Fort Kochi v. Jalaja Dileep (2015 2 SCC 129) & Baby v. District Collector (2021)",
+            "statute": "Kerala Conservation of Paddy Land & Wetland Act, 2008 & KLUO 1967",
+            "rule": "Pre-2008 conversions governed by KLUO; 25-cent statutory fee exemption threshold.",
+            "risk": "Building permit rejection by LSGD without certified Form 6 or KLUO order.",
         },
     }
     return lookup.get(topic.lower(), {"error": f"Topic '{topic}' not found in precedents lookup."})

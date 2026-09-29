@@ -9,7 +9,7 @@ BASE_URL = os.environ.get("TEST_BASE_URL", "http://localhost:8081")
 def run_realistic_buyer_journey_test():
     """
     Automated Playwright UI Test: Realistic Kerala Property Buyer Journey
-    
+
     Complete End-to-End Persona Journey for an NRI Property Buyer ("Mathew"):
     1. Satellite Discovery & Coordinates Inspection (Aluva Re-Sy 345/1)
     2. Road Width Measurement & KPBR 2019 Rule Compliance Check
@@ -101,8 +101,8 @@ def run_realistic_buyer_journey_test():
         page.check("#chk-wetland")
         page.wait_for_timeout(200)
 
-        expect(page.locator("#chk-badge")).to_have_text("2/4")
-        print("  → Checklist counter successfully updated to 2/4")
+        expect(page.locator("#chk-badge")).to_have_text("2/5")
+        print("  → Checklist counter successfully updated to 2/5")
 
         # Close checklist drawer
         page.click(".checklist-close-btn")

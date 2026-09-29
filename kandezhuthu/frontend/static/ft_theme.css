@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Financial Times / Legal Editorial Theme for Kandezhuthu AI
+   Inspired by FT editorial design, parchment warmth & Kerala green accents.
+   ========================================================================== */
+
+:root {
+  --ft-font-serif: Georgia, 'Times New Roman', Cambria, serif;
+  --ft-font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --ft-font-ml: 'Noto Sans Malayalam', system-ui, sans-serif;
+
+  --ft-bg-paper: #fffcf7;
+  --ft-card-bg: #ffffff;
+  --ft-border-subtle: #ebdcd0;
+  --ft-border-strong: #d4c5b9;
+  --ft-dark-text: #1a1a1a;
+  --ft-muted-text: #595552;
+  --ft-kerala-green: #0f5132;
+  --ft-kerala-green-light: #e8f5e9;
+  --ft-oxford-blue: #1e293b;
+  --ft-accent-gold: #b45309;
+}
+
+/* Typography Overrides */
+.brand-title,
+.dropzone-title strong,
+.step-nav-title,
+.workflow-step,
+.legal-note,
+.layman-card-title,
+.hud-stat-label,
+#hud-locality-title {
+  font-family: var(--ft-font-serif);
+}
+
+/* Step Navigation Bar */
+.step-nav-bar {
+  background: #fdfbf7;
+  border-bottom: 1px solid #e7ded4;
+  padding: 0.5rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-size: 0.82rem;
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.02);
+}
+
+.step-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.step-nav-label {
+  font-family: var(--ft-font-serif);
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.step-nav-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  padding: 0.35rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.77rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--ft-font-sans);
+}
+
+.step-nav-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.step-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+.step-nav-btn.next {
+  background: #0f5132;
+  color: #ffffff;
+  border-color: #0b3d26;
+  font-weight: 700;
+  box-shadow: 0 1px 2px rgba(15, 81, 50, 0.2);
+}
+
+.step-nav-btn.next:hover:not(:disabled) {
+  background: #146c43;
+  color: #ffffff;
+}
+
+.step-nav-btn.next.restart {
+  background: #1e293b;
+  border-color: #0f172a;
+}
+
+.step-nav-btn.next.restart:hover:not(:disabled) {
+  background: #334155;
+}

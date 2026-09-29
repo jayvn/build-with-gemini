@@ -274,5 +274,9 @@ def run_realistic_buyer_journey_test():
         print(f"  ✅ {r}")
     print("=======================================================\n")
 
+def test_realistic_buyer_journey():
+    """Standard pytest entrypoint for Realistic Kerala Property Buyer Journey UI test."""
+    run_realistic_buyer_journey_test()
+
 if __name__ == "__main__":
     run_realistic_buyer_journey_test()

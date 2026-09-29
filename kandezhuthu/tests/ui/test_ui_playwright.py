@@ -232,5 +232,9 @@ def run_ui_tests():
         print(r)
     print("==============================================")
 
+def test_ui_playwright():
+    """Standard pytest entrypoint for general UI playwright tests."""
+    run_ui_tests()
+
 if __name__ == "__main__":
     run_ui_tests()

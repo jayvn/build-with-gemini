@@ -180,5 +180,9 @@ def run_elevation_flood_ui_test():
         print(f"  ✅ {r}")
     print("=======================================================\n")
 
+def test_elevation_flood_ui():
+    """Standard pytest entrypoint for Plot Elevation & Flood Exposure UI test."""
+    run_elevation_flood_ui_test()
+
 if __name__ == "__main__":
     run_elevation_flood_ui_test()

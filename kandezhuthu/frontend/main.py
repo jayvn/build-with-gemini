@@ -24,6 +24,7 @@ load_dotenv()
 
 from app.db.seed_data import seed_all  # noqa: E402
 from app.domain.deed_ocr import DeedOCREngine  # noqa: E402
+from app.domain.elevation_flood import ElevationFloodCalculator  # noqa: E402
 
 seed_all()
 
@@ -120,6 +121,47 @@ async def get_config():
     return {
         "google_maps_api_key": os.environ.get("GOOGLE_MAPS_API_KEY", "") or os.environ.get("VITE_GOOGLE_MAPS_API_KEY", "")
     }
+
+
+@app.get("/api/plot_elevation")
+@app.post("/api/plot_elevation")
+async def get_plot_elevation(req: Request):
+    """Calculates plot elevation above MSL and assesses flood risk exposure."""
+    lat = None
+    lng = None
+    locality = None
+    cents = None
+
+    if req.method == "POST":
+        try:
+            body = await req.json()
+            lat_val = body.get("lat") or body.get("latitude")
+            lng_val = body.get("lng") or body.get("longitude")
+            if lat_val is not None and lng_val is not None:
+                lat = float(lat_val)
+                lng = float(lng_val)
+            locality = body.get("locality") or body.get("place_name")
+            cents = float(body.get("cents")) if body.get("cents") else None
+        except Exception:
+            pass
+
+    if lat is None or lng is None:
+        params = req.query_params
+        if "lat" in params and "lng" in params:
+            try:
+                lat = float(params["lat"])
+                lng = float(params["lng"])
+                locality = params.get("locality")
+                cents = float(params["cents"]) if "cents" in params else None
+            except Exception:
+                pass
+
+    if lat is None or lng is None:
+        return JSONResponse({"error": "Missing valid lat and lng coordinates."}, status_code=400)
+
+    calculator = ElevationFloodCalculator()
+    res = calculator.calculate(latitude=lat, longitude=lng, locality_hint=locality, plot_extent_cents=cents)
+    return JSONResponse(res.model_dump())
 
 
 @app.get("/api/ocr_capabilities")

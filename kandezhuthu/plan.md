@@ -104,70 +104,50 @@ flowchart TD
     K1 & K2 & K3 --> AGENT["Kandezhuthu Agent Tool<br/>(query_kerala_land_rules)"]
 ```
 
-### Stream A: Kerala Building Rules (KMBR / KPBR 2019) · [ACTIVE TASK: IN PROGRESS]
-- **Status**: 🔄 **In Progress** (Claimed / Active Task)
-- **Content**:
-  - Minimum access road width for residential buildings (Rule 5: mandatory 3-meter motorable road).
-  - Front, rear, and side setback requirements based on plot size and building height.
-  - Special relaxations for small plots (plots up to 3 cents / 1.25 ares).
-- **Target Output**: `data/knowledge/building_rules_kmbr_kpbr.md`
-
-### Stream B: Kerala Conservation of Paddy Land & Wetland Rules · [PARALLELIZABLE / QUEUED]
-- **Status**: ⏳ Queued (Available for parallel worker)
-- **Content**:
-  - Section 27A guidelines for land not included in Data Bank but recorded as *Nilam* in BTR (Basic Tax Register).
-  - Form 5 application criteria (removing land erroneously included in Data Bank).
-  - Form 6 application criteria (changing revenue record classification to *Purayidam*).
-  - Fee exemption slabs (free up to 25 cents; percentage of fair value above 25 cents).
-- **Target Output**: `data/knowledge/paddy_land_wetland_guide.md`
-
-### Stream C: Landmark Kerala Judicial Precedents · [COMPLETED]
-- **Status**: ✅ **Completed**
-- **Content**:
-  - *Mary Roy v. State of Kerala (1986)*: Invalidated Travancore/Cochin Succession Acts; established equal inheritance for Christian women.
-  - Section 23 of Senior Citizens Act (2007) (*Subhashini 2020*): Precedents on when a gift deed can be canceled if children fail to maintain parents.
-  - Easement of Necessity: *Sree Swayamprakash Ashramam v. G. Anandavally Amma (2010)* & *Hero Vinoth* on pathways running with the land.
-  - Hindu Coparcenary Rights of Daughters: *Vineeta Sharma v. Rakesh Sharma (2020)* on birthright in joint family properties.
-  - Hindu Minor Property Alienation: Section 8(2) HMGA mandates prior District Court sanction (*Saroj 2014*).
-  - Muslim Minor Guardianship: De facto guardian has zero authority to sell minor immovable property (*Imambandi*, *Mohd. Amin*).
-  - Power of Attorney (PoA / Mukthiyar) Transfers: GPA conveys no title (*Suraj Lamp*), termination on death, and overseas PoA 3-month Kerala stamping.
-  - Kudikidappu Rights & Tenancy Protections: Sections 75–80B Kerala Land Reforms Act, 1963 and Land Tribunal purchase certificates (*Pattayam*).
-  - Doctrine of Lis Pendens: Section 52 Transfer of Property Act, 1882 (*T.G. Ashok Kumar 2010*) on purchases during active lawsuits.
-  - Adverse Possession vs. Government Puramboke: 12-year private vs. 30-year state rule, zero adverse possession on road/canal Puramboke (*Joseph 2023*).
-  - Pre-2008 Paddy Land Conversions & Fee Exemptions: *RDO Fort Kochi v. Jalaja Dileep (2015)* & *Baby v. District Collector (2021)* on 25-cent fee exemptions.
-- **Target Output**: `data/knowledge/kerala_court_precedents.md`
+### Parallel Knowledge Streams (Completed)
+All three parallel scraping and legal curation streams are complete and stored in `data/knowledge/`:
+- **Stream A (KPBR/KMBR 2019)**: `data/knowledge/building_rules_kmbr_kpbr.md` (Mandatory 3m access road under Rule 5, setbacks, small plot rules).
+- **Stream B (Paddy Land & Wetland 2008 Act)**: `data/knowledge/paddy_land_wetland_guide.md` (Section 27A fee exemptions under 25 cents, Form 5/6, BTR conversion).
+- **Stream C (Landmark Judicial Precedents)**: `data/knowledge/kerala_court_precedents.md` (*Mary Roy*, Senior Citizens Act Sec 23, *Sree Swayamprakash* easements, Hindu coparcenary, Muslim/Hindu minor sales, Kudikidappu tenancies, GPA *Suraj Lamp*, Lis Pendens).
 
 ---
 
-## 5. Agent Tooling Integration
+## 5. Agent Tooling Integration (Completed)
 
-Once the knowledge docs are in `data/knowledge/`, a lightweight retrieval tool is added to `app/agent.py`:
+The curated knowledge docs in `data/knowledge/` are fully wired to `app/agent.py` via `query_kerala_land_rules`:
 
 ```python
 def query_kerala_land_rules(topic: str) -> str:
-    """Queries the curated Kerala land regulations knowledge base.
-    
+    """Queries the curated Kerala land regulations and judicial precedents knowledge base.
+
     Topics covered:
-    - Building permit road widths, setbacks, small plot rules (KPBR/KMBR 2019)
-    - Paddy Land Act 2008, Form 5, Form 6, fee slabs, and Nilam conversion
-    - Landmark court precedents on easements, succession, and senior citizen maintenance
+    1. Building permit road width requirements, setbacks, and small plot concessions (KPBR / KMBR 2019)
+    2. Kerala Conservation of Paddy Land & Wetland Act 2008, Form 5, Form 6, Section 27A fee slabs, Nilam conversion
+    3. Landmark Kerala court precedents on female Christian succession (Mary Roy), Hindu coparcenary,
+       pathway easements (Sree Swayamprakash Ashramam), minor's share sales, and Senior Citizens Act maintenance.
     """
 ```
 
-This gives the agent instant, verified factual grounding without making expensive external API calls during live user chats.
-
 ---
 
-## 6. Phased Implementation Roadmap
+## 6. What's Next To Do: Active & Upcoming Milestones
 
-| Phase | Milestone | Deliverables | Status |
+```mermaid
+flowchart LR
+    M1["Milestone 1 (In Progress)<br/>🗺️ Google Maps Satellite<br/>Access Road Verification"]
+    M2["Milestone 2 (Queued)<br/>📄 Multimodal Deed OCR<br/>Scanned PDF / Image Ingestion"]
+    M3["Milestone 3 (Queued)<br/>🧠 Long-Term Memory<br/>Vertex AI Memory Bank"]
+    M4["Milestone 4 (Queued)<br/>🚀 Cloud Production Deploy<br/>Cloud Run + Agent Engine"]
+
+    M1 --> M2 --> M3 --> M4
+```
+
+| Milestone | Feature / Capability | Detailed Tasks & Deliverables | Status |
 | :--- | :--- | :--- | :--- |
-| **Phase 1** | **Core Reasoning Engine** | Single-deed scanner, 30-year Munnadharam auditor, Pydantic models, GEMINI.md guide | ✅ Completed |
-| **Phase 2** | **Non-Technical Web UI** | `frontend/main.py`, `frontend/static/index.html`, quick chips, WhatsApp copier | ✅ Completed |
-| **Phase 3** | **Knowledge Scrapers & Curation** | `scrapers/`, `data/knowledge/` (Stream A KPBR, Stream B Paddy Land, Stream C Precedents) | ✅ Completed |
-| **Phase 4** | **Knowledge Tool Integration** | `query_kerala_land_rules` tool in `app/agent.py` | ✅ Completed |
-| **Phase 5** | **Multimodal Ingestion** | Support for dragging & dropping scanned deed PDFs and images | ⏳ Next |
-| **Phase 6** | **Cloud Deployment** | Deploy backend to Agent Platform & frontend to Cloud Run | ⏳ Future |
+| **Milestone 1** | **🗺️ Interactive Google Maps & Satellite Ground Verification** | • Embed Google Maps JS API in `frontend/static/index.html`<br/>• Satellite & terrain layer toggle with pin-drop for Kerala villages/taluks<br/>• Road width visual estimation tool to gut-check KPBR 3-meter compliance on-ground<br/>• Visual paddy field / waterlogging overlay for village survey locations | 🔄 **In Progress** (`feature/google-maps-ui`) |
+| **Milestone 2** | **📄 Multimodal Deed OCR & Document Ingestion** | • Drag-and-drop PDF/image uploader in Web UI for scanned Malayalam deeds (*ആധാരം*) & ECs (*കുടിക്കടം*)<br/>• `gemini-3.8-flash` native vision OCR to parse schedules, 4 boundaries (*ചതുരതിരുകൾ*), prior deed history (*മുന്നാധാരം*), and survey numbers<br/>• Direct piping from OCR extraction to `scan_single_deed` and `audit_prior_deeds_title` | ⏳ **Queued (Next)** |
+| **Milestone 3** | **🧠 Cross-Session Long-Term Memory (Memory Bank)** | • Wire Vertex AI Memory Bank (`memory-bank-setup` skill) into `app/agent.py`<br/>• Remember user's examined properties, surveyed taluks, seller inquiries, and budget across chat sessions | ⏳ **Queued** |
+| **Milestone 4** | **🚀 Production Cloud Deployment** | • Deploy backend to Agent Platform / Engine via `agents-cli deploy`<br/>• Deploy web frontend container to Cloud Run with A2A IAM token exchange proxy | ⏳ **Queued** |
 
 ---
 

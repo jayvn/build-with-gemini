@@ -104,14 +104,16 @@ flowchart TD
     K1 & K2 & K3 --> AGENT["Kandezhuthu Agent Tool<br/>(query_kerala_land_rules)"]
 ```
 
-### Stream A: Kerala Building Rules (KMBR / KPBR 2019)
+### Stream A: Kerala Building Rules (KMBR / KPBR 2019) · [ACTIVE TASK: IN PROGRESS]
+- **Status**: 🔄 **In Progress** (Claimed / Active Task)
 - **Content**:
   - Minimum access road width for residential buildings (Rule 5: mandatory 3-meter motorable road).
   - Front, rear, and side setback requirements based on plot size and building height.
   - Special relaxations for small plots (plots up to 3 cents / 1.25 ares).
 - **Target Output**: `data/knowledge/building_rules_kmbr_kpbr.md`
 
-### Stream B: Kerala Conservation of Paddy Land & Wetland Rules
+### Stream B: Kerala Conservation of Paddy Land & Wetland Rules · [PARALLELIZABLE / QUEUED]
+- **Status**: ⏳ Queued (Available for parallel worker)
 - **Content**:
   - Section 27A guidelines for land not included in Data Bank but recorded as *Nilam* in BTR (Basic Tax Register).
   - Form 5 application criteria (removing land erroneously included in Data Bank).
@@ -119,7 +121,8 @@ flowchart TD
   - Fee exemption slabs (free up to 25 cents; percentage of fair value above 25 cents).
 - **Target Output**: `data/knowledge/paddy_land_wetland_guide.md`
 
-### Stream C: Landmark Kerala Judicial Precedents
+### Stream C: Landmark Kerala Judicial Precedents · [PARALLELIZABLE / QUEUED]
+- **Status**: ⏳ Queued (Available for parallel worker)
 - **Content**:
   - *Mary Roy v. State of Kerala (1986)*: Invalidated Travancore/Cochin Succession Acts; established equal inheritance for Christian women.
   - Section 23 of Senior Citizens Act (2007): Precedents on when a gift deed can be canceled if children fail to maintain parents.

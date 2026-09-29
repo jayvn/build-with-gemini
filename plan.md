@@ -104,14 +104,16 @@ flowchart TD
     K1 & K2 & K3 --> AGENT["Kandezhuthu Agent Tool<br/>(query_kerala_land_rules)"]
 ```
 
-### Stream A: Kerala Building Rules (KMBR / KPBR 2019)
+### Stream A: Kerala Building Rules (KMBR / KPBR 2019) · [ACTIVE TASK: IN PROGRESS]
+- **Status**: 🔄 **In Progress** (Claimed / Active Task)
 - **Content**:
   - Minimum access road width for residential buildings (Rule 5: mandatory 3-meter motorable road).
   - Front, rear, and side setback requirements based on plot size and building height.
   - Special relaxations for small plots (plots up to 3 cents / 1.25 ares).
 - **Target Output**: `data/knowledge/building_rules_kmbr_kpbr.md`
 
-### Stream B: Kerala Conservation of Paddy Land & Wetland Rules
+### Stream B: Kerala Conservation of Paddy Land & Wetland Rules · [PARALLELIZABLE / QUEUED]
+- **Status**: ⏳ Queued (Available for parallel worker)
 - **Content**:
   - Section 27A guidelines for land not included in Data Bank but recorded as *Nilam* in BTR (Basic Tax Register).
   - Form 5 application criteria (removing land erroneously included in Data Bank).
@@ -119,7 +121,8 @@ flowchart TD
   - Fee exemption slabs (free up to 25 cents; percentage of fair value above 25 cents).
 - **Target Output**: `data/knowledge/paddy_land_wetland_guide.md`
 
-### Stream C: Landmark Kerala Judicial Precedents
+### Stream C: Landmark Kerala Judicial Precedents · [PARALLELIZABLE / QUEUED]
+- **Status**: ⏳ Queued (Available for parallel worker)
 - **Content**:
   - *Mary Roy v. State of Kerala (1986)*: Invalidated Travancore/Cochin Succession Acts; established equal inheritance for Christian women.
   - Section 23 of Senior Citizens Act (2007): Precedents on when a gift deed can be canceled if children fail to maintain parents.
@@ -154,7 +157,7 @@ This gives the agent instant, verified factual grounding without making expensiv
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | **Core Reasoning Engine** | Single-deed scanner, 30-year Munnadharam auditor, Pydantic models, GEMINI.md guide | ✅ Completed |
 | **Phase 2** | **Non-Technical Web UI** | `frontend/main.py`, `frontend/static/index.html`, quick chips, WhatsApp copier | ✅ Completed |
-| **Phase 3** | **Knowledge Scrapers & Curation** | `scrapers/`, `data/knowledge/` (KPBR rules, Paddy Land guide, Court precedents) | 🔄 Ready to Run |
+| **Phase 3** | **Knowledge Scrapers & Curation** | `scrapers/`, `data/knowledge/` (Stream A KPBR rules completed; Stream B & C ready) | 🔄 In Progress (Stream A Active) |
 | **Phase 4** | **Knowledge Tool Integration** | `query_kerala_land_rules` tool in `app/agent.py` | ⏳ Next |
 | **Phase 5** | **Multimodal Ingestion** | Support for dragging & dropping scanned deed PDFs and images | ⏳ Next |
 | **Phase 6** | **Cloud Deployment** | Deploy backend to Agent Platform & frontend to Cloud Run | ⏳ Future |

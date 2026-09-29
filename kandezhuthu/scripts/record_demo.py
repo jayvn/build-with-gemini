@@ -112,7 +112,7 @@ def show_chapter_banner(page, title: str, subtitle: str, step: int | None = None
       }
       banner.style.cssText = `
         position: fixed;
-        top: 14px;
+        bottom: 24px;
         left: 50%;
         transform: translateX(-50%);
         z-index: 999999;
@@ -131,7 +131,7 @@ def show_chapter_banner(page, title: str, subtitle: str, step: int | None = None
         transition: opacity 0.35s ease, transform 0.35s ease;
       `;
       banner.innerHTML = `
-        <span style="background:#059669; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; white-space:nowrap; letter-spacing:0.5px;">SCENE ${stepNum}/10</span>
+        <span style="background:#990f3d; color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; white-space:nowrap; letter-spacing:0.5px;">SCENE ${stepNum}/10</span>
         <span style="font-weight:700; font-size:13px; color:#ffffff; white-space:nowrap;">${titleText}</span>
         <span style="color:#64748b; font-size:12px; user-select:none;">•</span>
         <span style="color:#94a3b8; font-size:12px; white-space:nowrap;">${subtitleText}</span>

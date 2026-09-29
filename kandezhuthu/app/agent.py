@@ -23,6 +23,7 @@ from google.genai import types
 from app.domain.models import DeedNode, DeedType, ECRecord
 from app.domain.auditor import MunnadharamAuditor
 from app.domain.single_deed_scanner import SingleDeedScanner
+from app.db.repository import KnowledgeRepository, AuditRepository
 
 # Latest Gemini Flash model for low-latency multimodal reasoning
 MODEL = "gemini-3.8-flash"
@@ -46,6 +47,14 @@ def scan_single_deed(deed_text: str) -> str:
     """
     scanner = SingleDeedScanner()
     result = scanner.scan(deed_text)
+    
+    # Persist scan result to database
+    try:
+        repo = AuditRepository()
+        repo.save_single_deed_scan(snippet=deed_text, result_dict=result.model_dump())
+    except Exception:
+        pass  # Graceful fallback if DB is temporarily locked
+
     return result.model_dump_json(indent=2)
 
 
@@ -66,6 +75,21 @@ def audit_prior_deeds_title(
 
         auditor = MunnadharamAuditor(property_identifier=property_identifier)
         scorecard = auditor.audit(deeds=deeds, ec_records=ec_records)
+
+        # Persist audit into database
+        try:
+            repo = AuditRepository()
+            survey_no = deeds[-1].survey_no if deeds else "Unknown"
+            repo.save_audit(
+                property_identifier=property_identifier,
+                survey_no=survey_no,
+                deeds=[d.model_dump() for d in deeds],
+                ec_records=[e.model_dump() for e in ec_records],
+                scorecard=scorecard.model_dump(),
+            )
+        except Exception:
+            pass
+
         return scorecard.model_dump_json(indent=2)
     except Exception as e:
         return json.dumps({"error": f"Failed to audit prior deeds: {str(e)}"}, indent=2)
@@ -121,8 +145,55 @@ def get_demo_kerala_title_audit() -> str:
     return scorecard.model_dump_json(indent=2)
 
 
+def lookup_building_road_and_setbacks(plot_cents: float, building_type: str = "residential") -> str:
+    """Queries the Kerala Building Rules (KPBR/KMBR 2019) database for exact road width and setbacks.
+
+    Args:
+        plot_cents: Plot extent in cents (e.g. 2.8, 5.0, 10.0). Plots <= 3.09 cents trigger Chapter VIII small plot concessions.
+        building_type: Type of building (e.g., 'residential', 'commercial', 'high_rise').
+
+    Returns:
+        JSON string containing the exact statutory minimum road width, front/rear/side setbacks, open well distance, and rule citations.
+    """
+    repo = KnowledgeRepository()
+    rule = repo.get_building_rule(plot_cents=plot_cents, occupancy_type=building_type)
+    if not rule:
+        return json.dumps({"error": f"No specific building rule found for plot size {plot_cents} cents."})
+    return json.dumps(rule, indent=2)
+
+
+def calculate_paddy_conversion_cost(plot_cents: float, fair_value_per_are: float) -> str:
+    """Calculates the exact government fee under Section 27A of the 2008 Paddy Land Act to convert Nilam to Purayidam.
+
+    Args:
+        plot_cents: Extent in cents to be converted (e.g. 15.0, 32.0, 60.0). Note: <= 25 cents is statutory FREE / 0% fee!
+        fair_value_per_are: Government notified Fair Value in INR per are (1 are = 2.471 cents).
+
+    Returns:
+        JSON string with exact statutory conversion fee, exemption status, fee percentage, and legal citations.
+    """
+    repo = KnowledgeRepository()
+    calc = repo.calculate_paddy_conversion_fee(plot_cents=plot_cents, fair_value_per_are=fair_value_per_are)
+    return json.dumps(calc, indent=2)
+
+
+def get_historical_audits_for_property(survey_no: str, village: Optional[str] = None) -> str:
+    """Checks the database for historical audits, prior recorded deeds, or existing red flags for a survey number.
+
+    Args:
+        survey_no: Survey or Re-survey number (e.g. '345/1', '124/3').
+        village: Optional village name (e.g. 'Aluva West').
+
+    Returns:
+        JSON string with past audit scorecards, risk flags, and title lineage paths found for this survey number.
+    """
+    repo = AuditRepository()
+    history = repo.get_property_audit_history(survey_no=survey_no, village=village)
+    return json.dumps({"survey_no": survey_no, "historical_audits_count": len(history), "audits": history}, indent=2)
+
+
 def query_kerala_land_rules(topic: str) -> str:
-    """Queries the curated Kerala land regulations and judicial precedents knowledge base.
+    """Queries the curated Kerala land regulations and judicial precedents database & knowledge base.
 
     Topics covered:
     1. Building permit road width requirements, setbacks, and small plot concessions (KPBR / KMBR 2019)
@@ -140,8 +211,23 @@ def query_kerala_land_rules(topic: str) -> str:
     from pathlib import Path
     knowledge_dir = Path(__file__).resolve().parent.parent / "data" / "knowledge"
 
+    # Query structured database first for precedents
+    repo = KnowledgeRepository()
+    db_precedents = repo.search_precedents(topic, limit=3)
+
     t = topic.lower()
     results = []
+
+    if db_precedents:
+        prec_text = "### ⚖️ Landmark Precedents from Database:\n" + "\n\n".join(
+            f"**{p['case_name']}** ({p['citation']} - {p['court']})\n"
+            f"- **Principle**: {p['key_principle']}\n"
+            f"- **Risk Trigger in Deeds**: {p['risk_trigger']}\n"
+            f"- **Remedial Action**: {p['remedial_action']}\n"
+            f"- **Statutory Citation**: {p['statute_reference']}"
+            for p in db_precedents
+        )
+        results.append(prec_text)
 
     # Stream A: Building Rules (KPBR / KMBR)
     if any(k in t for k in ["road", "width", "kmbr", "kpbr", "setback", "small plot", "permit", "septic", "well", "clearance", "building"]):
@@ -161,7 +247,7 @@ def query_kerala_land_rules(topic: str) -> str:
         "coparcenary", "minor", "guardian", "senior citizen", "maintenance", "easement", "vazhi", "pathway",
         "power of attorney", "poa", "gpa", "mukthiyar", "suraj lamp", "kudikidappu", "pattayam", "tenancy",
         "lis pendens", "adverse possession", "puramboke", "imambandi", "muslim minor", "jalaja dileep"
-    ]):
+    ]) and not db_precedents:
         doc_path = knowledge_dir / "kerala_court_precedents.md"
         if doc_path.exists():
             results.append(doc_path.read_text(encoding="utf-8"))
@@ -198,7 +284,10 @@ root_agent = Agent(
         "1. Single-Deed / Schedule Scan: Use `scan_single_deed` whenever the user pastes deed clauses, property schedules, or contract snippets in English or Malayalam.\n"
         "2. 30-Year Prior Title Lineage Audit: When users describe a chain of prior deeds (Munnadharam) or ownership history in natural language, automatically parse their narrative into DeedNode JSON records and invoke `audit_prior_deeds_title`.\n"
         "3. Demo Audit: Use `get_demo_kerala_title_audit` if the user wants to see how a realistic 30-year Kerala title audit works.\n"
-        "4. Kerala Land Rules & Precedents Retrieval: Use `query_kerala_land_rules` to consult official Kerala building rules (KPBR/KMBR road widths/setbacks), 2008 Paddy Land Act (Form 5, Form 6, fee slabs), and High Court / Supreme Court precedents.\n\n"
+        "4. Exact Building Rules (KPBR/KMBR 2019): Use `lookup_building_road_and_setbacks` when users ask about road width or setback requirements for their specific plot extent.\n"
+        "5. Paddy Land Conversion Calculator: Use `calculate_paddy_conversion_cost` when users ask about government fee for converting Nilam / paddy land to Purayidam.\n"
+        "6. Historical Property Audit Search: Use `get_historical_audits_for_property` when checking a specific survey number for previous red flags or duplicate sales.\n"
+        "7. Kerala Land Rules & Precedents Retrieval: Use `query_kerala_land_rules` to consult official Kerala building rules, 2008 Paddy Land Act, and High Court / Supreme Court precedents.\n\n"
         "PRESENTATION GUIDELINES FOR NON-TECHNICAL USERS:\n"
         "- Never dump raw JSON to the user. Always interpret tool outputs into clean, elegant Markdown.\n"
         "- Prominently feature the Title Sanity Score (e.g., '🛡️ Title Sanity Score: 85/100') and the verdict badge:\n"
@@ -211,7 +300,15 @@ root_agent = Agent(
         "MANDATORY LEGAL GUARDRAIL:\n"
         "Remind the user that AI is an initial triage and red-flag scanner, NOT a guarantee of title or a substitute for a licensed Kerala High Court / District Court advocate's formal title report."
     ),
-    tools=[scan_single_deed, audit_prior_deeds_title, get_demo_kerala_title_audit, query_kerala_land_rules],
+    tools=[
+        scan_single_deed,
+        audit_prior_deeds_title,
+        get_demo_kerala_title_audit,
+        lookup_building_road_and_setbacks,
+        calculate_paddy_conversion_cost,
+        get_historical_audits_for_property,
+        query_kerala_land_rules,
+    ],
 )
 
 app = App(

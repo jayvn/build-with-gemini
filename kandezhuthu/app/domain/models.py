@@ -1,7 +1,7 @@
 """Domain models for Munnadharam AI: Kerala Prior Deeds Title Lineage Auditor."""
 
 from enum import Enum
-from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -29,20 +29,20 @@ class DeedNode(BaseModel):
     year: int
     sro_name: str = Field(description="Sub-Registrar Office where registered")
     deed_type: DeedType
-    grantors: List[str] = Field(description="Parties conveying title (sellers / releasors / donors)")
-    grantees: List[str] = Field(description="Parties receiving title (buyers / releasees / donees)")
+    grantors: list[str] = Field(description="Parties conveying title (sellers / releasors / donors)")
+    grantees: list[str] = Field(description="Parties receiving title (buyers / releasees / donees)")
     extent_cents: float = Field(description="Land extent mentioned in cents (1 cent = 40.4686 sq m)")
     survey_no: str
-    resurvey_no: Optional[str] = None
+    resurvey_no: str | None = None
     consideration_inr: float = 0.0
-    prior_doc_referenced: Optional[str] = None
-    
+    prior_doc_referenced: str | None = None
+
     # Crucial legal condition markers
     is_minor_involved: bool = False
     minor_court_sanction_present: bool = False
-    unrepresented_heirs: List[str] = Field(default_factory=list, description="Known legal heirs omitted from partition or release")
-    easements_reserved: List[str] = Field(default_factory=list, description="Easements, pathways, or well-access covenants")
-    family_religion: Optional[str] = "hindu"  # hindu, christian, muslim
+    unrepresented_heirs: list[str] = Field(default_factory=list, description="Known legal heirs omitted from partition or release")
+    easements_reserved: list[str] = Field(default_factory=list, description="Easements, pathways, or well-access covenants")
+    family_religion: str | None = "hindu"  # hindu, christian, muslim
 
 
 class ECRecord(BaseModel):
@@ -51,7 +51,7 @@ class ECRecord(BaseModel):
     year: int
     sro_name: str
     nature: str
-    parties: List[str] = Field(default_factory=list)
+    parties: list[str] = Field(default_factory=list)
 
 
 class RiskFlag(BaseModel):
@@ -68,6 +68,33 @@ class CleanTitleScorecard(BaseModel):
     overall_score: int
     risk_level: str
     chain_of_custody_intact: bool
-    lineage_path: List[str]
-    risk_flags: List[RiskFlag]
-    recommendations_for_advocate: List[str]
+    lineage_path: list[str]
+    risk_flags: list[RiskFlag]
+    recommendations_for_advocate: list[str]
+
+
+class BuildingRuleMatch(BaseModel):
+    occupancy_group: str
+    plot_category: str
+    min_road_width_m: float
+    front_setback_m: float
+    rear_setback_m: float
+    side_setback_1_m: float
+    side_setback_2_m: float
+    well_septic_clearance_m: float = 7.5
+    dead_wall_permitted: bool = False
+    rule_citation: str
+    notes: str | None = None
+
+
+class PaddyLandFeeCalculation(BaseModel):
+    extent_cents: float
+    extent_ares: float
+    fair_value_per_are_inr: float
+    total_property_fair_value_inr: float
+    applicable_fee_percentage: float
+    statutory_conversion_fee_inr: float
+    is_fee_exempt: bool
+    description: str
+    statutory_citation: str
+

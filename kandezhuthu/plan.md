@@ -145,9 +145,11 @@ flowchart LR
 | Milestone | Feature / Capability | Detailed Tasks & Deliverables | Status |
 | :--- | :--- | :--- | :--- |
 | **Milestone 1** | **🗺️ Interactive Google Maps & Satellite Ground Verification** | • Embed Google Maps JS API in `frontend/static/index.html`<br/>• Satellite & terrain layer toggle with pin-drop for Kerala villages/taluks<br/>• Road width visual estimation tool to gut-check KPBR 3-meter compliance on-ground<br/>• Visual paddy field / waterlogging overlay for village survey locations | ✅ **Completed** |
-| **Milestone 2** | **📄 Multimodal Deed OCR & Document Ingestion** | • Drag-and-drop PDF/image uploader in Web UI for scanned Malayalam deeds (*ആധാരം*) & ECs (*കുടിക്കടം*)<br/>• `gemini-3.8-flash` native vision OCR to parse schedules, 4 boundaries (*ചതുരതിരുകൾ*), prior deed history (*മുന്നാധാരം*), and survey numbers<br/>• Direct piping from OCR extraction to `scan_single_deed` and `audit_prior_deeds_title` | 🔄 **Active (Current Focus)** |
-| **Milestone 3** | **🧠 Cross-Session Long-Term Memory (Memory Bank)** | • Wire Vertex AI Memory Bank (`memory-bank-setup` skill) into `app/agent.py`<br/>• Remember user's examined properties, surveyed taluks, seller inquiries, and budget across chat sessions | ⏳ **Queued** |
-| **Milestone 4** | **🚀 Production Cloud Deployment** | • Deploy backend to Agent Platform / Engine via `agents-cli deploy`<br/>• Deploy web frontend container to Cloud Run with A2A IAM token exchange proxy | ⏳ **Queued** |
+| **Milestone 2** | **🗄️ Relational & FTS5 Legal Database** | • SQLite DB (`data/kandezhuthu.db`) with FTS5 search for precedents and statutes<br/>• Dimensional KPBR/KMBR setback and road width lookup engine (`building_rules`)<br/>• Paddy land Section 27A conversion fee calculator (`paddy_land_fee_slabs`)<br/>• Audit transaction persistence (`properties`, `deed_records`, `audit_reports`, `risk_flags`) | ✅ **Completed** |
+| **Milestone 3** | **📄 Multimodal Deed OCR & Document Ingestion** | • Drag-and-drop PDF/image uploader in Web UI for scanned Malayalam deeds (*ആധാരം*) & ECs (*കുടിക്കടം*)<br/>• `gemini-3.8-flash` native vision OCR to parse schedules, 4 boundaries (*ചതുരതിരുകൾ*), prior deed history (*മുന്നാധാരം*), and survey numbers<br/>• Direct piping from OCR extraction to `scan_single_deed` and `audit_prior_deeds_title` | 🔄 **Active (Current Focus)** |
+| **Milestone 4** | **🧠 Cross-Session Long-Term Memory (Memory Bank)** | • Wire Vertex AI Memory Bank (`memory-bank-setup` skill) into `app/agent.py`<br/>• Remember user's examined properties, surveyed taluks, seller inquiries, and budget across chat sessions | ⏳ **Queued** |
+| **Milestone 5** | **🚀 Production Cloud Deployment** | • Deploy backend to Agent Platform / Engine via `agents-cli deploy`<br/>• Deploy web frontend container to Cloud Run with A2A IAM token exchange proxy | ⏳ **Queued** |
+
 
 ---
 

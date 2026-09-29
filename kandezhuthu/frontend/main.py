@@ -20,6 +20,10 @@ from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
+from app.db.seed_data import seed_all
+
+seed_all()
+
 app = FastAPI(title="Kandezhuthu AI Web UI")
 
 RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE_NAME")

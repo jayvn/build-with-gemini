@@ -37,6 +37,9 @@ AGENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     from app.agent import app as adk_app
     from app.agent import root_agent
+    from app.db.seed_data import seed_all
+
+    seed_all()
 
     runner = Runner(
         app=adk_app,

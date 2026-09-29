@@ -2095,13 +2095,14 @@
 
     <div class="map-toolbar">
       <button class="map-tool-btn active" id="tool-pin" onclick="setMapTool('pin')">📍 Pin Location</button>
+      <button class="map-tool-btn highlight" id="tool-auto-demarcate" onclick="openAutoDemarcateModal()" title="Auto-Demarcate Boundaries for ANY plot (OSM Walls, Cents, or BhuNaksha FMB)">✨ Auto-Demarcate</button>
       <button class="map-tool-btn" id="tool-plot" onclick="setMapTool('plot')">📐 Draw Plot (Cents)</button>
       <button class="map-tool-btn" id="tool-road" onclick="setMapTool('road')">📏 Measure Road Width</button>
-      <button class="map-tool-btn" id="btn-undo" onclick="undoLastPoint()" disabled title="Undo last placed point">↩️ Undo</button>
-      <button class="map-tool-btn" id="btn-clear" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
-      <button class="map-tool-btn highlight" id="btn-checklist-toggle" onclick="toggleChecklist()"><span id="btn-chk-text">📋 Checklist</span> <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/5</span></button>
       <button class="map-tool-btn" id="btn-bhunaksha" onclick="fetchCadastralOverlay()" title="Overlay official BhuNaksha / ILIMS Cadastral Survey Boundaries">🏛️ BhuNaksha FMB</button>
       <button class="map-tool-btn" id="btn-databank" onclick="checkDataBankStatus()" title="Check Kerala 2008 Agricultural Data Bank & Sec 27A Status">🌾 Data Bank</button>
+      <button class="map-tool-btn" id="btn-undo" onclick="undoLastPoint()" disabled title="Undo last placed point">↩️ Undo</button>
+      <button class="map-tool-btn" id="btn-clear" onclick="clearMapDrawings()" title="Clear all drawings">🗑️ Clear</button>
+      <button class="map-tool-btn" id="btn-checklist-toggle" onclick="toggleChecklist()"><span id="btn-chk-text">📋 Checklist</span> <span id="chk-badge" style="background:#0f5132; color:#fff; padding:1px 5px; border-radius:10px; font-size:0.68rem;">0/5</span></button>
 
       <select class="map-layer-select" id="layer-select" onchange="switchMapLayer(this.value)">
         <option value="google-hybrid" selected>🛰️ Google Satellite Hybrid</option>
@@ -2118,6 +2119,9 @@
         <span id="guidance-icon">📍</span>
         <span id="guidance-text">Click anywhere on the satellite view to drop an inspection pin and view GPS coordinates.</span>
       </div>
+      <div class="guidance-actions" id="guidance-pin-actions" style="display: flex;">
+        <button class="guidance-btn primary" onclick="openAutoDemarcateModal()">✨ Auto-Demarcate at Pin</button>
+      </div>
       <div class="guidance-actions" id="guidance-actions" style="display: none;">
         <button class="guidance-btn secondary" id="guidance-undo-btn" onclick="undoLastPoint()">↩️ Undo</button>
         <button class="guidance-btn primary" id="guidance-finish-btn" onclick="finishPlot()">✅ Seal Plot</button>
@@ -2125,6 +2129,129 @@
     </div>
 
     <div id="map-view"></div>
+
+    <!-- Auto-Demarcate & Boundary Discovery Modal -->
+    <div id="auto-demarcate-modal" class="custom-modal-overlay" style="display: none;" onclick="if(event.target===this) closeAutoDemarcateModal()">
+      <div class="custom-modal-card">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="font-size:1.3rem;">✨</span>
+            <h3 style="margin:0; font-size:1.1rem; color:#0f5132;">Auto-Demarcate Plot Boundaries</h3>
+          </div>
+          <button class="modal-close-btn" onclick="closeAutoDemarcateModal()">✕</button>
+        </div>
+        
+        <div class="modal-tabs">
+          <button class="modal-tab-btn active" id="tab-btn-detect" onclick="switchDemarcateTab('detect')">🛰️ Auto-Detect (OSM/Walls)</button>
+          <button class="modal-tab-btn" id="tab-btn-extent" onclick="switchDemarcateTab('extent')">📐 Deed Extent (Cents)</button>
+          <button class="modal-tab-btn" id="tab-btn-cadastral" onclick="switchDemarcateTab('cadastral')">🏛️ BhuNaksha FMB</button>
+          <button class="modal-tab-btn" id="tab-btn-import" onclick="switchDemarcateTab('import')">📁 Import Coords/KML</button>
+        </div>
+
+        <!-- Tab 1: Auto-Detect -->
+        <div class="modal-tab-pane" id="pane-detect">
+          <p style="font-size:0.83rem; color:#475569; margin:0.3rem 0 0.75rem 0;">
+            Detects real physical compound walls (<code>barrier=wall/fence</code>), building perimeters, or cadastral boundaries around the active satellite pin.
+          </p>
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.65rem 0.85rem; margin-bottom:0.85rem;">
+            <div style="font-size:0.75rem; font-weight:600; color:#1e293b; margin-bottom:0.2rem;">Target Coordinates (Active Pin):</div>
+            <div id="detect-modal-coords" style="font-size:0.82rem; font-family:monospace; color:#0f5132; font-weight:600;">10.1076, 76.3516</div>
+          </div>
+          <div style="margin-bottom:0.85rem;">
+            <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:0.3rem;">Search Radius around Pin:</label>
+            <select id="detect-radius-select" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem;">
+              <option value="60">60 meters (Immediate plot & compound)</option>
+              <option value="80" selected>80 meters (Standard sub-division)</option>
+              <option value="120">120 meters (Broad parcel cluster)</option>
+            </select>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:0.3rem;">Target Extent (Optional - for validation):</label>
+            <input type="number" id="detect-target-cents" placeholder="e.g. 10.0 Cents" step="0.1" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem;">
+          </div>
+          <button class="primary-action-btn" onclick="executeAutoDetectBoundaries()" id="btn-run-detect" style="width:100%;">
+            <span>🔍 Detect Surrounding Boundaries</span>
+          </button>
+        </div>
+
+        <!-- Tab 2: Generate from Extent -->
+        <div class="modal-tab-pane" id="pane-extent" style="display:none;">
+          <p style="font-size:0.83rem; color:#475569; margin:0.3rem 0 0.75rem 0;">
+            Places a mathematically calibrated boundary footprint matching the exact land extent in <strong>Kerala Cents</strong>, with draggable survey corner stones (<em>Survey Kallu</em>) and live FMB dimensions.
+          </p>
+          <div style="margin-bottom:0.75rem;">
+            <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:0.4rem;">Quick Extent Selection:</label>
+            <div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.6rem;">
+              <button type="button" class="chip-sm" onclick="setExtentInput(3)">3 Cents</button>
+              <button type="button" class="chip-sm" onclick="setExtentInput(5)">5 Cents</button>
+              <button type="button" class="chip-sm" onclick="setExtentInput(8)">8 Cents</button>
+              <button type="button" class="chip-sm active" id="chip-extent-10" onclick="setExtentInput(10)">10 Cents</button>
+              <button type="button" class="chip-sm" onclick="setExtentInput(15)">15 Cents</button>
+              <button type="button" class="chip-sm" onclick="setExtentInput(20)">20 Cents</button>
+              <button type="button" class="chip-sm" onclick="setExtentInput(25)">25 Cents</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <input type="number" id="custom-extent-input" value="10.0" step="0.25" min="0.5" max="1000" oninput="updateExtentSqmDisplay(this.value)" style="flex:1; padding:7px 10px; border-radius:6px; border:1px solid #cbd5e1; font-weight:600; font-size:0.85rem;">
+              <span style="font-size:0.82rem; font-weight:600; color:#475569;">Cents (= <span id="extent-sqm-calc">404.7</span> m²)</span>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:0.8rem; font-weight:600; color:#334155; display:block; margin-bottom:0.3rem;">Plot Aspect Ratio:</label>
+            <select id="extent-aspect-ratio" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem;">
+              <option value="1:1" selected>Square (1:1 - Standard Residential)</option>
+              <option value="1:1.5">Road Frontage (1:1.5 - Wide Frontage)</option>
+              <option value="1.5:1">Deep Plot (1.5:1 - Narrow Frontage)</option>
+              <option value="1:2">Ribbon Highway Plot (1:2)</option>
+            </select>
+          </div>
+          <button class="primary-action-btn" onclick="executeGenerateExtentPlot()" style="width:100%;">
+            <span>📐 Place Calibrated Plot Footprint</span>
+          </button>
+        </div>
+
+        <!-- Tab 3: BhuNaksha FMB Lookup -->
+        <div class="modal-tab-pane" id="pane-cadastral" style="display:none;">
+          <p style="font-size:0.83rem; color:#475569; margin:0.3rem 0 0.75rem 0;">
+            Demarcates the official digital cadastral sub-division parcel with FMB ladder dimensions and adjacent survey numbers under Kerala Land Records.
+          </p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:0.75rem;">
+            <div>
+              <label style="font-size:0.78rem; font-weight:600; color:#334155; display:block; margin-bottom:0.25rem;">Re-Survey No:</label>
+              <input type="text" id="cadastral-survey-input" value="345/1" placeholder="e.g. 182/4, 345/1" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem;">
+            </div>
+            <div>
+              <label style="font-size:0.78rem; font-weight:600; color:#334155; display:block; margin-bottom:0.25rem;">Village:</label>
+              <input type="text" id="cadastral-village-input" value="Aluva West" placeholder="e.g. Aluva West, Kakkanad" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem;">
+            </div>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:#334155; display:block; margin-bottom:0.25rem;">Deed Extent (Cents):</label>
+            <input type="number" id="cadastral-cents-input" value="10.0" step="0.5" style="width:100%; padding:6px 10px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.8rem;">
+          </div>
+          <button class="primary-action-btn" onclick="executeFetchCadastralParcel()" style="width:100%;">
+            <span>🏛️ Fetch BhuNaksha Cadastral Parcel</span>
+          </button>
+        </div>
+
+        <!-- Tab 4: Import Coordinates / Survey Files -->
+        <div class="modal-tab-pane" id="pane-import" style="display:none;">
+          <p style="font-size:0.83rem; color:#475569; margin:0.3rem 0 0.75rem 0;">
+            Import boundary survey coordinates from smartphone GPS, surveyor Total Station, or KML/GPX/GeoJSON files.
+          </p>
+          <div style="margin-bottom:0.75rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:#334155; display:block; margin-bottom:0.25rem;">Paste Survey Corner Coordinates (one lat,lng per line):</label>
+            <textarea id="import-coords-text" rows="4" placeholder="10.10750, 76.35140&#10;10.10770, 76.35140&#10;10.10770, 76.35165&#10;10.10750, 76.35165" style="width:100%; padding:6px 10px; font-family:monospace; font-size:0.78rem; border-radius:6px; border:1px solid #cbd5e1;"></textarea>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:#334155; display:block; margin-bottom:0.25rem;">Or Upload Survey File (.kml, .gpx, .geojson, .txt):</label>
+            <input type="file" id="import-file-input" accept=".kml,.gpx,.geojson,.json,.txt" onchange="handleSurveyFileUpload(this.files[0])" style="font-size:0.8rem; width:100%;">
+          </div>
+          <button class="primary-action-btn" onclick="executeImportCoordinates()" style="width:100%;">
+            <span>🗺️ Plot Custom Boundary & Measure Extent</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Floating HUD -->
     <div class="map-hud" id="map-hud">

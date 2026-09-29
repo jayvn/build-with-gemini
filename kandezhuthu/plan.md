@@ -121,13 +121,20 @@ flowchart TD
   - Fee exemption slabs (free up to 25 cents; percentage of fair value above 25 cents).
 - **Target Output**: `data/knowledge/paddy_land_wetland_guide.md`
 
-### Stream C: Landmark Kerala Judicial Precedents · [PARALLELIZABLE / QUEUED]
-- **Status**: ⏳ Queued (Available for parallel worker)
+### Stream C: Landmark Kerala Judicial Precedents · [COMPLETED]
+- **Status**: ✅ **Completed**
 - **Content**:
   - *Mary Roy v. State of Kerala (1986)*: Invalidated Travancore/Cochin Succession Acts; established equal inheritance for Christian women.
-  - Section 23 of Senior Citizens Act (2007): Precedents on when a gift deed can be canceled if children fail to maintain parents.
-  - Easement of Necessity: *Sree Swayamprakash Ashramam v. G. Anandavally Amma (2010)* on pathways running with the land.
-  - Alienation of minor property: Section 8(2) Hindu Minority & Guardianship Act mandates prior District Court sanction.
+  - Section 23 of Senior Citizens Act (2007) (*Subhashini 2020*): Precedents on when a gift deed can be canceled if children fail to maintain parents.
+  - Easement of Necessity: *Sree Swayamprakash Ashramam v. G. Anandavally Amma (2010)* & *Hero Vinoth* on pathways running with the land.
+  - Hindu Coparcenary Rights of Daughters: *Vineeta Sharma v. Rakesh Sharma (2020)* on birthright in joint family properties.
+  - Hindu Minor Property Alienation: Section 8(2) HMGA mandates prior District Court sanction (*Saroj 2014*).
+  - Muslim Minor Guardianship: De facto guardian has zero authority to sell minor immovable property (*Imambandi*, *Mohd. Amin*).
+  - Power of Attorney (PoA / Mukthiyar) Transfers: GPA conveys no title (*Suraj Lamp*), termination on death, and overseas PoA 3-month Kerala stamping.
+  - Kudikidappu Rights & Tenancy Protections: Sections 75–80B Kerala Land Reforms Act, 1963 and Land Tribunal purchase certificates (*Pattayam*).
+  - Doctrine of Lis Pendens: Section 52 Transfer of Property Act, 1882 (*T.G. Ashok Kumar 2010*) on purchases during active lawsuits.
+  - Adverse Possession vs. Government Puramboke: 12-year private vs. 30-year state rule, zero adverse possession on road/canal Puramboke (*Joseph 2023*).
+  - Pre-2008 Paddy Land Conversions & Fee Exemptions: *RDO Fort Kochi v. Jalaja Dileep (2015)* & *Baby v. District Collector (2021)* on 25-cent fee exemptions.
 - **Target Output**: `data/knowledge/kerala_court_precedents.md`
 
 ---
